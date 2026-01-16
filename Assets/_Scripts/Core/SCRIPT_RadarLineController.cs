@@ -15,6 +15,10 @@ public class SCRIPT_RadarLineController : MonoBehaviour
     [SerializeField] private float revealDuration = 0.3f;
     [SerializeField] private float fadeDuration = 0.5f;
 
+    [Header("Particle Settings")]
+    [SerializeField] private ParticleSystem particlePrefab;
+    [SerializeField] private int burstCount = 10;
+
     private SpriteRenderer spriteRenderer;
     private Camera mainCamera;
     private HashSet<MovableEntitiy> revealedEntities = new HashSet<MovableEntitiy>();
@@ -87,6 +91,9 @@ public class SCRIPT_RadarLineController : MonoBehaviour
         // Set to high sorting order to reveal
         entityRenderer.sortingOrder = revealSortingOrder;
 
+        // Burst particles at entity position
+        SpawnParticleBurst(entity.transform.position);
+
         // Wait for reveal duration
         yield return new WaitForSeconds(revealDuration);
 
@@ -124,5 +131,15 @@ public class SCRIPT_RadarLineController : MonoBehaviour
         }
 
         revealedEntities.Remove(entity);
+    }
+
+    private void SpawnParticleBurst(Vector3 position)
+    {
+        if (particlePrefab == null)
+            return;
+
+        var particles = Instantiate(particlePrefab, position, Quaternion.identity);
+        particles.Emit(burstCount);
+        Destroy(particles.gameObject, particles.main.duration + particles.main.startLifetime.constantMax);
     }
 }

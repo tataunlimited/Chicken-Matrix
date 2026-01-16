@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 
 namespace _Scripts.Core
@@ -17,12 +18,17 @@ namespace _Scripts.Core
 
         public bool Detected => _detected;
 
-        private bool _detected; 
+        private bool _detected;
+
+        [SerializeField] private float lerpDuration = 0.15f;
+        private Vector3 _direction;
+        private bool _isLerping;
 
         public void Init(float offset, float stepSize)
         {
             _offset = offset;
             _stepSize = stepSize;
+            _direction = (transform.position - _sourcePosition).normalized;
         }
 
         public void UpdatePosition()
@@ -31,17 +37,40 @@ namespace _Scripts.Core
                 return;
             step--;
 
-            // 1. Get the direction moving AWAY from the center/source
-            // (Ensure _sourcePosition is set to the center of your circle)
-            Vector3 direction = (transform.position - _sourcePosition).normalized;
+            // Calculate direction once if not set
+            if (_direction == Vector3.zero)
+                _direction = (transform.position - _sourcePosition).normalized;
 
-            // 2. Calculate the new distance: (Base Step Distance) + Offset
+            // Calculate the new distance: (Base Step Distance) + Offset
             float distance = (_stepSize * step) + _offset;
 
-            // 3. Set the new position
-            transform.position = _sourcePosition + (direction * distance);
-            
-            if(step == 0) Destroy();
+            // Calculate target position
+            Vector3 targetPosition = _sourcePosition + (_direction * distance);
+
+            // Start smooth lerp to target
+            StartCoroutine(LerpToPosition(targetPosition, step == 0));
+        }
+
+        private IEnumerator LerpToPosition(Vector3 targetPosition, bool destroyAfter)
+        {
+            _isLerping = true;
+            Vector3 startPosition = transform.position;
+            float elapsed = 0f;
+
+            while (elapsed < lerpDuration)
+            {
+                elapsed += Time.deltaTime;
+                float t = elapsed / lerpDuration;
+                t = t * t * (3f - 2f * t); // Smoothstep for snappy feel
+                transform.position = Vector3.Lerp(startPosition, targetPosition, t);
+                yield return null;
+            }
+
+            transform.position = targetPosition;
+            _isLerping = false;
+
+            if (destroyAfter)
+                Destroy();
         }
 
         public void Destroy(bool detected = false)
