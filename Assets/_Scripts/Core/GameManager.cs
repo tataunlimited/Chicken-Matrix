@@ -17,7 +17,7 @@ namespace _Scripts.Core
         [SerializeField] private TMP_Text comboText;
 
         [Header("Screen Shake")]
-        [SerializeField] private float baseShakeDuration = 0.3f;
+        [SerializeField] private float baseShakeDuration = 1f;
         [SerializeField] private float baseShakeMagnitude = 0.5f;
 
         private Camera mainCamera;
@@ -26,7 +26,7 @@ namespace _Scripts.Core
         private float currentShakeDuration;
         private float currentShakeMagnitude;
 
-        public static GameManager Instance;
+        public static GameManager Instance; 
         
         
         
@@ -71,6 +71,7 @@ namespace _Scripts.Core
                 if (combo > 1)
                 {
                     ShakeScreen(combo);
+                    EnemySpawner.Instance.ClearAllEntities();
                 }
                 combo = 1;
             }
@@ -102,8 +103,12 @@ namespace _Scripts.Core
 
             while (elapsed < currentShakeDuration)
             {
-                float x = UnityEngine.Random.Range(-1f, 1f) * currentShakeMagnitude;
-                float y = UnityEngine.Random.Range(-1f, 1f) * currentShakeMagnitude;
+                // Fade out the magnitude over time
+                float t = elapsed / currentShakeDuration;
+                float fadedMagnitude = currentShakeMagnitude * (1f - t);
+
+                float x = UnityEngine.Random.Range(-1f, 1f) * fadedMagnitude;
+                float y = UnityEngine.Random.Range(-1f, 1f) * fadedMagnitude;
 
                 mainCamera.transform.localPosition = originalCameraPosition + new Vector3(x, y, 0f);
 

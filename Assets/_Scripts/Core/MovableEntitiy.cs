@@ -24,6 +24,11 @@ namespace _Scripts.Core
         private Vector3 _direction;
         private bool _isLerping;
 
+        [Header("Destruction Particles")]
+        [SerializeField] private ParticleSystem destructionParticlePrefab;
+        [SerializeField] private Color particleColor = Color.white;
+        [SerializeField] private int particleBurstCount = 15;
+
         public void Init(float offset, float stepSize)
         {
             _offset = offset;
@@ -78,9 +83,35 @@ namespace _Scripts.Core
             _detected = detected;
             OnDestroyed?.Invoke(this);
 
+            SpawnDestructionParticles(detected);
+
             GetComponentInChildren<SpriteRenderer>().color = Color.ghostWhite;
             Destroy(gameObject,0.2f);
+        }
 
+        private void SpawnDestructionParticles(bool wasDetected)
+        {
+            if (destructionParticlePrefab == null) return;
+
+            var particles = Instantiate(destructionParticlePrefab, transform.position, Quaternion.identity);
+
+            var main = particles.main;
+            main.startColor = particleColor;
+
+            // Configure convergence based on whether entity was detected
+            var converge = particles.GetComponent<ParticleConverge>();
+            if (converge != null)
+            {
+                converge.SetShouldConverge(wasDetected);
+            }
+
+            particles.Emit(particleBurstCount);
+
+            // Only auto-destroy if not converging (converge script handles its own cleanup)
+            if (converge == null || !wasDetected)
+            {
+                Destroy(particles.gameObject, main.duration + main.startLifetime.constantMax);
+            }
         }
     }
 }
