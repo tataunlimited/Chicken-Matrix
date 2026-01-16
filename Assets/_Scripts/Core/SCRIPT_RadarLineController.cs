@@ -18,6 +18,8 @@ public class SCRIPT_RadarLineController : MonoBehaviour
     [Header("Particle Settings")]
     [SerializeField] private ParticleSystem particlePrefab;
     [SerializeField] private int burstCount = 10;
+    [SerializeField] private Color enemyParticleColor = Color.red;
+    [SerializeField] private Color allyParticleColor = Color.green;
 
     private SpriteRenderer spriteRenderer;
     private Camera mainCamera;
@@ -91,8 +93,9 @@ public class SCRIPT_RadarLineController : MonoBehaviour
         // Set to high sorting order to reveal
         entityRenderer.sortingOrder = revealSortingOrder;
 
-        // Burst particles at entity position
-        SpawnParticleBurst(entity.transform.position);
+        // Burst particles at entity position with color based on type
+        Color particleColor = entity is Enemy ? enemyParticleColor : allyParticleColor;
+        SpawnParticleBurst(entity.transform.position, particleColor);
 
         // Wait for reveal duration
         yield return new WaitForSeconds(revealDuration);
@@ -133,13 +136,17 @@ public class SCRIPT_RadarLineController : MonoBehaviour
         revealedEntities.Remove(entity);
     }
 
-    private void SpawnParticleBurst(Vector3 position)
+    private void SpawnParticleBurst(Vector3 position, Color color)
     {
         if (particlePrefab == null)
             return;
 
         var particles = Instantiate(particlePrefab, position, Quaternion.identity);
+
+        var main = particles.main;
+        main.startColor = color;
+
         particles.Emit(burstCount);
-        Destroy(particles.gameObject, particles.main.duration + particles.main.startLifetime.constantMax);
+        Destroy(particles.gameObject, main.duration + main.startLifetime.constantMax);
     }
 }
