@@ -39,8 +39,11 @@ namespace _Scripts.Core
             yield return new WaitForSeconds(interval/2);
 
             PlayerController.Instance.UpdateInterval();
-            yield return new WaitForSeconds(interval/2);
-            
+            // Pulse radar on beat
+            if (RadarBackgroundGenerator.Instance != null)
+                RadarBackgroundGenerator.Instance.Pulse();
+            yield return new WaitForSeconds(interval/2); 
+
             StartCoroutine(UpdateInterval());
         }
 
