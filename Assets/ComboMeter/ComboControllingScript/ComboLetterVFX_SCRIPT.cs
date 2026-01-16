@@ -6,8 +6,8 @@ public class ComboLetterVFX_SCRIPT : MonoBehaviour
     public enum ComboRank { D, C, B, A, S, SS, SSS }
 
     [SerializeField] private ParticleSystem particleSystem;
-    [SerializeField] private float particleSpacing = 0.5f; // Distance between particles in world units
-    [SerializeField] private float particleLifetime = 3f; // How long each particle lives
+    [SerializeField] private float particleSpacing = 4.0f; // Distance between particles in world units
+    [SerializeField] private float particleLifetime = 4.625f; // How long each particle lives
 
     [SerializeField] private Color[] rankColors = new Color[7];
 
@@ -77,11 +77,8 @@ public class ComboLetterVFX_SCRIPT : MonoBehaviour
             return;
 
         currentRank = newRank;
-
-        // Get new letter shape
         currentLetterPositions = LetterOutLineScript.Instance.GetLetterPositions((int)newRank);
 
-        // Clear old particles
         particleSystem.Clear();
 
         // Queue all positions WITH interpolation for filled outline
@@ -98,7 +95,7 @@ public class ComboLetterVFX_SCRIPT : MonoBehaviour
                 Vector2 direction = (nextPos - currentPos).normalized;
                 float distance = Vector2.Distance(nextPos, currentPos);
 
-                float step = 0.05f;  // Adjust particle density here
+                float step = 0.02f;
                 for (float t = step; t < distance; t += step)
                 {
                     Vector2 interpolated = currentPos + direction * t;
@@ -107,14 +104,24 @@ public class ComboLetterVFX_SCRIPT : MonoBehaviour
             }
         }
 
-        // Update particle color for rank
-        UpdateParticleColor(newRank);
+        // Enable size over lifetime for shrink effect
+        var sizeOverLifetime = particleSystem.sizeOverLifetime;
+        sizeOverLifetime.enabled = true;
 
-        // Start transition
+        AnimationCurve shrinkCurve = new AnimationCurve();
+        shrinkCurve.AddKey(0f, 1f);      // Start at full size
+        shrinkCurve.AddKey(0.5f, 0.8f);  // Mid-life slightly smaller
+        shrinkCurve.AddKey(1f, 0f);      // Fade to zero at end
+
+        sizeOverLifetime.size = new ParticleSystem.MinMaxCurve(1f, shrinkCurve);
+
+        UpdateParticleColor(newRank);
         isTransitioning = true;
 
-        Debug.Log($" Rank changed to {newRank} Emitting {positionsToEmit.Count} particles");
+        Debug.Log($" Rank {newRank}! Emitting {positionsToEmit.Count} particles");
     }
+
+
 
     private void EmitParticleAtPosition(Vector2 position)
     {
@@ -132,7 +139,7 @@ public class ComboLetterVFX_SCRIPT : MonoBehaviour
         emitParams.velocity = Vector3.zero;  
 
         // Slight size variation
-        emitParams.startSize = Random.Range(0.08f, 0.15f);
+        emitParams.startSize = Random.Range(0.065f, 0.115f);
 
         // CORRECT: Use particleSystem, not emissionModule
         particleSystem.Emit(emitParams, 1);
@@ -142,27 +149,33 @@ public class ComboLetterVFX_SCRIPT : MonoBehaviour
     private void UpdateParticleColor(ComboRank rank)
     {
         var colorOverLifetime = particleSystem.colorOverLifetime;
-
         Color rankColor = rankColors[(int)rank];
+
+        // Enable color over lifetime
+        colorOverLifetime.enabled = true;
 
         // Create gradient: start with rank color, fade to transparent
         Gradient grad = new Gradient();
         grad.SetKeys(
             new GradientColorKey[]
             {
-                new GradientColorKey(rankColor, 0f),
-                new GradientColorKey(rankColor, 0.6f),
-                new GradientColorKey(rankColor, 1f)
+            new GradientColorKey(rankColor, 0f),
+            new GradientColorKey(rankColor, 0.6f),
+            new GradientColorKey(rankColor, 1f)
             },
             new GradientAlphaKey[]
             {
-                new GradientAlphaKey(1f, 0f),
-                new GradientAlphaKey(0.8f, 0.5f),
-                new GradientAlphaKey(0f, 1f)
+            new GradientAlphaKey(1f, 0f),
+            new GradientAlphaKey(0.8f, 0.5f),
+            new GradientAlphaKey(0f, 1f)
             }
         );
+
         colorOverLifetime.color = new ParticleSystem.MinMaxGradient(grad);
+
+        Debug.Log($" Color set to {rankColor} for rank {rank}");
     }
+
 
     /// <summary>
     /// For testing - press button to cycle through ranks
