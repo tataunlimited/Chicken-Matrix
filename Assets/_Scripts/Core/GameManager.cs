@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace _Scripts.Core
 {
@@ -15,6 +16,11 @@ namespace _Scripts.Core
         private bool _gameEnded;
 
         [SerializeField] private TMP_Text comboText;
+        [SerializeField] private Image MainComboMeterRankIMG;
+        [SerializeField] private Image SSSComboMeterRankIMG;
+
+        [Header("Combo Rank Progression")]
+        [SerializeField] private Sprite[] comboRankSprites;
 
         [Header("Screen Shake")]
         [SerializeField] private float baseShakeDuration = 1f;
@@ -25,6 +31,7 @@ namespace _Scripts.Core
         private Coroutine shakeCoroutine;
         private float currentShakeDuration;
         private float currentShakeMagnitude;
+        private int currentRankIndex = -1;
 
         public static GameManager Instance; 
         
@@ -39,6 +46,8 @@ namespace _Scripts.Core
             {
                 originalCameraPosition = mainCamera.transform.localPosition;
             }
+            SSSComboMeterRankIMG.enabled = false;
+            MainComboMeterRankIMG.enabled = false;
         }
         
         private void Start()
@@ -62,9 +71,14 @@ namespace _Scripts.Core
             StartCoroutine(UpdateInterval());
         }
 
+        #region Combo System Management
         public void UpdateCombo(bool entityDetected)
         {
-            if(entityDetected) combo++;
+            if (entityDetected)
+            {
+                combo++;
+                UpdateComboRankDisplay();
+            } 
             else
             {
                 // Only shake if we actually had a combo to lose
@@ -74,11 +88,103 @@ namespace _Scripts.Core
                     EnemySpawner.Instance.ClearAllEntities();
                 }
                 combo = 1;
+                UpdateComboRankDisplay();
             }
 
             comboText.text = combo.ToString();
         }
 
+        private void UpdateComboRankDisplay()
+        {
+            if (comboRankSprites == null || comboRankSprites.Length == 0)
+            {
+                Debug.LogWarning("Combo Rank Sprites array is empty! Please assign 7 sprites in order: D, C, B, A, S, SS, SSS");
+                return;
+            }
+
+            // Calculate which rank sprite to display based on combo value
+            int rankIndex = GetRankIndex(combo);
+
+            // Only update if the rank has changed to avoid unnecessary updates
+            if (rankIndex != currentRankIndex)
+            {
+                currentRankIndex = rankIndex;
+
+                // ===== MAIN COMBO METER VISIBILITY =====
+                if (rankIndex >= 0 && rankIndex < 6)
+                {
+                    // Ranks D-SS (index 0-5): Show main meter
+                    if (MainComboMeterRankIMG != null)
+                    {
+                        MainComboMeterRankIMG.enabled = true;
+                        MainComboMeterRankIMG.sprite = comboRankSprites[rankIndex];
+                    }
+
+                    // Disable SSS meter for non-SSS ranks
+                    if (SSSComboMeterRankIMG != null)
+                    {
+                        SSSComboMeterRankIMG.enabled = false;
+                    }
+                       // SSSComboMeterRankIMG.enabled = false;
+                }
+                else if (rankIndex == -1)
+                {
+                    // No rank (combo 0-10): Hide both meters and show combo dropped
+                    if (MainComboMeterRankIMG != null)
+                    {
+                        MainComboMeterRankIMG.enabled = false;
+                    }
+                        //MainComboMeterRankIMG.enabled = false;
+                    if (SSSComboMeterRankIMG != null)
+                    {
+                        SSSComboMeterRankIMG.enabled = false;
+                    }
+                       // SSSComboMeterRankIMG.enabled = false;
+
+                    Debug.Log("Combo Dropped! Returning to No Rank state.");
+                }
+
+                // ===== SSS COMBO METER VISIBILITY =====
+                if (rankIndex == 6)
+                {
+                    // SSS rank (index 6): Show SSS meter and hide main meter
+                    if (SSSComboMeterRankIMG != null)
+                    {
+                        SSSComboMeterRankIMG.enabled = true;
+                        SSSComboMeterRankIMG.sprite = comboRankSprites[rankIndex];
+                    }
+
+                    // Disable main meter when SSS is reached
+                    if (MainComboMeterRankIMG != null)
+                        MainComboMeterRankIMG.enabled = false;
+                }
+
+                string[] rankNames = { "D", "C", "B", "A", "S", "SS", "SSS" };
+                string rankName = rankIndex >= 0 ? rankNames[rankIndex] : "None";
+                Debug.Log($"Combo Rank Updated: Combo = {combo}, Rank = {rankName}");
+            }
+        }
+
+        /// <summary>
+        /// Gets the rank index based on combo value
+        /// Returns -1 for no rank (0-10)
+        /// 11-20: D (0), 21-30: C (1), 31-50: B (2), 51-60: A (3), 61-70: S (4), 71-89: SS (5), 90-100: SSS (6)
+        /// </summary>
+        private int GetRankIndex(int comboValue)
+        {
+            if (comboValue <= 10) return -1;       // No rank display
+            if (comboValue <= 20) return 0;        // D Rank
+            if (comboValue <= 30) return 1;        // C Rank
+            if (comboValue <= 50) return 2;        // B Rank
+            if (comboValue <= 60) return 3;        // A Rank
+            if (comboValue <= 70) return 4;        // S Rank
+            if (comboValue <= 89) return 5;        // SS Rank
+            return 6;                              // SSS Rank (90+)
+        }
+
+        #endregion
+
+        #region Shake System
         public void ShakeScreen(int lostCombo)
         {
             if (mainCamera == null) return;
@@ -120,4 +226,6 @@ namespace _Scripts.Core
             shakeCoroutine = null;
         }
     }
+    #endregion
+
 }
