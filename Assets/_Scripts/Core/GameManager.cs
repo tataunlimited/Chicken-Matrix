@@ -46,8 +46,15 @@ namespace _Scripts.Core
             {
                 originalCameraPosition = mainCamera.transform.localPosition;
             }
-            SSSComboMeterRankIMG.enabled = false;
-            MainComboMeterRankIMG.enabled = false;
+            if (SSSComboMeterRankIMG != null)
+            {
+                SSSComboMeterRankIMG.enabled = false;
+            }
+              //  SSSComboMeterRankIMG.enabled = false;
+            if (MainComboMeterRankIMG != null)
+            {
+                MainComboMeterRankIMG.enabled = false;
+            }
         }
         
         private void Start()
@@ -110,10 +117,29 @@ namespace _Scripts.Core
             {
                 currentRankIndex = rankIndex;
 
-                // ===== MAIN COMBO METER VISIBILITY =====
-                if (rankIndex >= 0 && rankIndex < 6)
+                // ===== NO RANK STATE (Combo 0-10) =====
+                if (rankIndex == -1)
                 {
-                    // Ranks D-SS (index 0-5): Show main meter
+                    // Disable main meter - combo doesn't meet minimum
+                    if (MainComboMeterRankIMG != null)
+                    {
+                        MainComboMeterRankIMG.enabled = false;
+                    }
+                     //   MainComboMeterRankIMG.enabled = false;
+
+                    if (SSSComboMeterRankIMG != null)
+                    {
+                        SSSComboMeterRankIMG.enabled = false;
+                    }
+                      //  SSSComboMeterRankIMG.enabled = false;
+
+                    Debug.Log("Combo Dropped! Returning to No Rank state. Main meter disabled.");
+                }
+
+                // ===== MAIN COMBO METER VISIBILITY (Ranks D-SS) =====
+                else if (rankIndex >= 0 && rankIndex < 6)
+                {
+                    // Enable main meter and set sprite
                     if (MainComboMeterRankIMG != null)
                     {
                         MainComboMeterRankIMG.enabled = true;
@@ -127,27 +153,11 @@ namespace _Scripts.Core
                     }
                        // SSSComboMeterRankIMG.enabled = false;
                 }
-                else if (rankIndex == -1)
-                {
-                    // No rank (combo 0-10): Hide both meters and show combo dropped
-                    if (MainComboMeterRankIMG != null)
-                    {
-                        MainComboMeterRankIMG.enabled = false;
-                    }
-                        //MainComboMeterRankIMG.enabled = false;
-                    if (SSSComboMeterRankIMG != null)
-                    {
-                        SSSComboMeterRankIMG.enabled = false;
-                    }
-                       // SSSComboMeterRankIMG.enabled = false;
-
-                    Debug.Log("Combo Dropped! Returning to No Rank state.");
-                }
 
                 // ===== SSS COMBO METER VISIBILITY =====
-                if (rankIndex == 6)
+                else if (rankIndex == 6)
                 {
-                    // SSS rank (index 6): Show SSS meter and hide main meter
+                    // Show SSS meter and hide main meter
                     if (SSSComboMeterRankIMG != null)
                     {
                         SSSComboMeterRankIMG.enabled = true;
@@ -156,7 +166,10 @@ namespace _Scripts.Core
 
                     // Disable main meter when SSS is reached
                     if (MainComboMeterRankIMG != null)
+                    {
                         MainComboMeterRankIMG.enabled = false;
+                    }
+                       // MainComboMeterRankIMG.enabled = false;
                 }
 
                 string[] rankNames = { "D", "C", "B", "A", "S", "SS", "SSS" };
