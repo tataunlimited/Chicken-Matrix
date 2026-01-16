@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 namespace _Scripts.Core
@@ -12,23 +13,29 @@ namespace _Scripts.Core
 
         [Header("Audio Settings")]
         [SerializeField] private float musicVolume = 1f;
+        [SerializeField] private float crossfadeDuration = 1f;
         [SerializeField] private bool loopTracks = true;
 
-        private AudioSource audioSource;
+        private AudioSource audioSourceA;
+        private AudioSource audioSourceB;
+        private AudioSource activeSource;
         private int currentTrackIndex = -1;
+        private Coroutine crossfadeCoroutine;
 
         private void Awake()
         {
             Instance = this;
 
-            audioSource = GetComponent<AudioSource>();
-            if (audioSource == null)
-            {
-                audioSource = gameObject.AddComponent<AudioSource>();
-            }
+            // Create two audio sources for crossfading
+            audioSourceA = gameObject.AddComponent<AudioSource>();
+            audioSourceB = gameObject.AddComponent<AudioSource>();
 
-            audioSource.loop = loopTracks;
-            audioSource.volume = musicVolume;
+            audioSourceA.loop = loopTracks;
+            audioSourceB.loop = loopTracks;
+            audioSourceA.volume = 0f;
+            audioSourceB.volume = 0f;
+
+            activeSource = audioSourceA;
         }
 
         private void Start()
@@ -37,9 +44,6 @@ namespace _Scripts.Core
             PlayTrackForCombo(1);
         }
 
-        /// <summary>
-        /// Call this from GameManager when combo changes to update the music track
-        /// </summary>
         public void UpdateMusicForCombo(int combo)
         {
             PlayTrackForCombo(combo);
@@ -55,11 +59,11 @@ namespace _Scripts.Core
             if (trackIndex != currentTrackIndex)
             {
                 currentTrackIndex = trackIndex;
-                PlayTrack(trackIndex);
+                CrossfadeToTrack(trackIndex);
             }
         }
 
-        private void PlayTrack(int index)
+        private void CrossfadeToTrack(int index)
         {
             if (index < 0 || index >= musicTracks.Length)
             {
@@ -73,33 +77,73 @@ namespace _Scripts.Core
                 return;
             }
 
-            audioSource.clip = musicTracks[index];
-            audioSource.Play();
-            Debug.Log($"SoundController: Playing track {index + 1} for combo tier");
+            if (crossfadeCoroutine != null)
+            {
+                StopCoroutine(crossfadeCoroutine);
+            }
+
+            crossfadeCoroutine = StartCoroutine(CrossfadeCoroutine(index));
+        }
+
+        private IEnumerator CrossfadeCoroutine(int newTrackIndex)
+        {
+            AudioSource fadeOutSource = activeSource;
+            AudioSource fadeInSource = (activeSource == audioSourceA) ? audioSourceB : audioSourceA;
+
+            // Set up the new track at the same playback position
+            fadeInSource.clip = musicTracks[newTrackIndex];
+            fadeInSource.time = fadeOutSource.time % musicTracks[newTrackIndex].length;
+            fadeInSource.Play();
+
+            float startVolume = fadeOutSource.volume;
+            float elapsed = 0f;
+
+            while (elapsed < crossfadeDuration)
+            {
+                elapsed += Time.deltaTime;
+                float t = elapsed / crossfadeDuration;
+
+                fadeOutSource.volume = Mathf.Lerp(startVolume, 0f, t);
+                fadeInSource.volume = Mathf.Lerp(0f, musicVolume, t);
+
+                yield return null;
+            }
+
+            fadeOutSource.volume = 0f;
+            fadeOutSource.Stop();
+            fadeInSource.volume = musicVolume;
+
+            activeSource = fadeInSource;
+            crossfadeCoroutine = null;
+
+            Debug.Log($"SoundController: Crossfaded to track {newTrackIndex + 1}");
         }
 
         public void SetVolume(float volume)
         {
             musicVolume = Mathf.Clamp01(volume);
-            if (audioSource != null)
+            if (activeSource != null && activeSource.isPlaying)
             {
-                audioSource.volume = musicVolume;
+                activeSource.volume = musicVolume;
             }
         }
 
         public void PauseMusic()
         {
-            audioSource?.Pause();
+            audioSourceA?.Pause();
+            audioSourceB?.Pause();
         }
 
         public void ResumeMusic()
         {
-            audioSource?.UnPause();
+            audioSourceA?.UnPause();
+            audioSourceB?.UnPause();
         }
 
         public void StopMusic()
         {
-            audioSource?.Stop();
+            audioSourceA?.Stop();
+            audioSourceB?.Stop();
         }
     }
 }
