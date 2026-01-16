@@ -44,18 +44,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3000198a164821f43ab5087e410ba62e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LetterOutLineScript
-  letterShapes:
-  - letterName: 
-    particlePositions: []
-  - letterName: 
-    particlePositions: []
-  - letterName: 
-    particlePositions: []
-  - letterName: 
-    particlePositions: []
-  - letterName: 
-    particlePositions: []
-  - letterName: 
-    particlePositions: []
-  - letterName: 
-    particlePositions: []
+  letterA_Texture: {fileID: 0}
+  letterB_Texture: {fileID: 0}
+  letterC_Texture: {fileID: 0}
+  letterD_Texture: {fileID: 0}
+  letterS_Texture: {fileID: 2800000, guid: 78953182a3112ac4eae19ad51bb7bd93, type: 3}
+  letterSS_Texture: {fileID: 0}
+  letterSSS_Texture: {fileID: 0}
+  alphaThreshold: 0.165
+  whiteThreshold: 0.9
+  ExpectedRESOLUTION: 256
+  scaleMultiplier: 0.45
+  useFallbackGrids: 1
+  debugLogging: 1
