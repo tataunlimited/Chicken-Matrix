@@ -46,6 +46,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e9b678985cc0ada4299fa73ac19f6c28, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
+  detectionCollider: {fileID: 4136178678573418929}
+  spriteRenderer: {fileID: 3370693627702123055}
+  enemyDetectionColor: {r: 0, g: 0, b: 0, a: 0}
+  allyDetectionColor: {r: 0, g: 0, b: 0, a: 0}
+  enemyPulseColor: {r: 0, g: 0, b: 0, a: 0}
+  allyPulseColor: {r: 0, g: 0, b: 0, a: 0}
+  defaultColor: {r: 1, g: 0.9286524, b: 0.38679236, a: 0.5882353}
+  detectionInterval: 0.1
 --- !u!50 &4652290592491644441
 Rigidbody2D:
   serializedVersion: 5
@@ -84,7 +92,8 @@ GameObject:
   - component: {fileID: 2422848419123173301}
   - component: {fileID: 3370693627702123055}
   - component: {fileID: 4136178678573418929}
-  m_Layer: 0
+  - component: {fileID: 6546589463949786677}
+  m_Layer: 6
   m_Name: Triangle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -212,6 +221,23 @@ PolygonCollider2D:
   m_Points:
     m_Paths:
     - - {x: 0, y: 0.5773587}
-      - {x: -0.5, y: -0.28866667}
-      - {x: 0.5, y: -0.28866667}
+      - {x: -0.12989229, y: 0.35225964}
+      - {x: -0.08305584, y: 0.26404813}
+      - {x: -0.023814127, y: 0.22005162}
+      - {x: 0.033069268, y: 0.22526002}
+      - {x: 0.083413735, y: 0.2617815}
+      - {x: 0.12992263, y: 0.3563736}
   m_UseDelaunayMesh: 1
+--- !u!114 &6546589463949786677
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5485555243016623050}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 24059cced8112924da78ee5c8ec81a3f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::_Scripts.Core.SimpleLight
+  isLightOn: 1
