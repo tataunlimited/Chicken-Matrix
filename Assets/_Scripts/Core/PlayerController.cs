@@ -74,7 +74,7 @@ namespace _Scripts.Core
             Destroy(cloneSprite.GetComponent<Collider2D>());
             var tweenColor = cloneSprite.color;
             tweenColor.a = 0;
-            cloneSprite.DOColor(tweenColor, .5f).SetEase(Ease.Flash);
+            cloneSprite.DOColor(tweenColor, .5f).SetEase(Ease.Flash).onComplete += () => Destroy(cloneSprite);
 
             yield return new WaitForSeconds(detectionInterval);
             detectionCollider.enabled = false;
