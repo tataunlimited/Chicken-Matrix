@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using DG.Tweening;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace _Scripts.Core
 {
@@ -116,13 +115,13 @@ namespace _Scripts.Core
                 case DetectionMode.Friendly:
                     if (other.TryGetComponent(out Ally ally))
                     {
-                        ally.Destroy();
+                        ally.Destroy(true);
                     }
                     break;
                 case DetectionMode.Aggressive:
                     if (other.TryGetComponent(out Enemy enemy))
                     {
-                        enemy.Destroy();
+                        enemy.Destroy(true);
                     }
                     break;
                 default:

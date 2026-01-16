@@ -66,6 +66,8 @@ namespace _Scripts.Core
 
         private void EnemyDestroyed(MovableEntitiy entity)
         {
+
+            GameManager.Instance.UpdateCombo(entity.Detected);
             if (entity is Enemy enemy && _aliveEnemies.Contains(enemy))
             {
                 _aliveEnemies.Remove(enemy);

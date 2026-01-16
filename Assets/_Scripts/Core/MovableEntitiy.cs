@@ -15,6 +15,10 @@ namespace _Scripts.Core
 
         public event Action<MovableEntitiy> OnDestroyed;
 
+        public bool Detected => _detected;
+
+        private bool _detected; 
+
         public void Init(float offset, float stepSize)
         {
             _offset = offset;
@@ -40,8 +44,9 @@ namespace _Scripts.Core
             if(step == 0) Destroy();
         }
 
-        public void Destroy()
+        public void Destroy(bool detected = false)
         {
+            _detected = detected;
             OnDestroyed?.Invoke(this);
 
             GetComponentInChildren<SpriteRenderer>().color = Color.ghostWhite;
