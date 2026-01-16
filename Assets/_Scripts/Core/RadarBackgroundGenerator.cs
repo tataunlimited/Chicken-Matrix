@@ -20,6 +20,7 @@ namespace _Scripts.Core
         [SerializeField] private Color glowColor = new Color(0f, 1f, 0f, 1f);
         [SerializeField] private float glowIntensity = 2f;
         [SerializeField] private Color gridColor = new Color(0f, 1f, 0f, 0.3f);
+        [SerializeField] private Color[] comboGridColors = new Color[10];
 
         [Header("Rendering")]
         [SerializeField] private Material lineMaterial;
@@ -41,6 +42,7 @@ namespace _Scripts.Core
         private bool isGenerating = false;
         private LineRenderer[] ringRenderers;
         private LineRenderer[] gridRenderers;
+        private LineRenderer[] radialLineRenderers;
         private float[] ringBaseRadii;
         private float[] gridBaseRadii;
         private float pulseTimer = 0f;
@@ -91,7 +93,113 @@ namespace _Scripts.Core
         private void Update()
         {
             if (!Application.isPlaying) return;
+            ApplyVisuals();
+        }
 
+        public void Pulse()
+        {
+            Pulse(GameManager.Instance != null ? GameManager.Instance.interval : 1f);
+        }
+
+        public void Pulse(float interval)
+        {
+            if (!Application.isPlaying) return;
+
+            // Beat pulse
+            pulseTimer = 0f;
+            isPulsing = true;
+
+            // Alpha breathing - swap direction each pulse
+            if (enableAlphaBreathing)
+            {
+                breathingTimer = 0f;
+                breathingDuration = interval;
+                breathingStartAlpha = breathingToMax ? minAlpha : maxAlpha;
+                breathingTargetAlpha = breathingToMax ? maxAlpha : minAlpha;
+                breathingToMax = !breathingToMax;
+            }
+
+            //set the number of radial lines to a random number between 4 and 16
+            int numRadialLines = Random.Range(4, 16);
+            SetNumRadialLines(numRadialLines);
+        }
+
+        private void OscilateNumCircularGridLines()
+        {
+            //oscillate between 4 and 12 lines based on a sine wave and time
+            float time = Time.time;
+            float sineValue = Mathf.Sin(time * 2f); // Adjust frequency as needed
+            int numLines = Mathf.RoundToInt(Mathf.Lerp(0, 4, (sineValue + 1f) / 2f));
+            SetNumCircularGridLines(numLines);
+        }
+
+        private void OscilateNumRadialLines()
+        {
+            //oscillate between 4 and 16 lines based on the pulse time
+            float time = Time.time;
+            float sineValue = Mathf.Sin(time * 2f); // Adjust frequency as needed
+            int numLines = Mathf.RoundToInt(Mathf.Lerp(4, 8, (sineValue + 1f) / 2f));
+            SetNumRadialLines(numLines);
+        }
+
+        public void SetNumRadialLines(int count)
+        {
+            if (gridContainer == null) return;
+
+            // Clamp count to reasonable values
+            count = Mathf.Clamp(count, 1, 32);
+
+            // Destroy existing radial lines
+            for (int i = 0; i < radialLines; i++)
+            {
+                Transform child = gridContainer.transform.GetChild(i);
+                if (Application.isPlaying)
+                    Destroy(child.gameObject);
+                else
+                    DestroyImmediate(child.gameObject);
+            }
+
+            radialLines = count;
+            radialLineRenderers = new LineRenderer[radialLines];
+
+            // Create new radial lines
+            for (int i = 0; i < radialLines; i++)
+            {
+                float angle = (i / (float)radialLines) * Mathf.PI * 2f;
+                radialLineRenderers[i] = CreateRadialLine(angle, i);
+                radialLineRenderers[i].transform.SetSiblingIndex(i);
+            }
+        }
+
+        public void SetNumCircularGridLines(int count)
+        {
+            if (gridContainer == null) return;
+
+            // Clamp count to reasonable values
+            count = Mathf.Clamp(count, 1, 20);
+
+            // Destroy existing circular grid lines
+            for (int i = radialLines; i < gridContainer.transform.childCount; i++)
+            {
+                Transform child = gridContainer.transform.GetChild(i);
+                if (Application.isPlaying)
+                    Destroy(child.gameObject);
+                else
+                    DestroyImmediate(child.gameObject);
+            }
+
+            // Create new circular grid lines
+            for (int i = 1; i <= count; i++)
+            {
+                float radius = maxRadius * (i / (float)count);
+                CreateCircularGridLine(radius, i);
+            }
+        }
+
+        private void PulseGrid()
+        {
+
+            // Calculate scale and fade multipliers
             // Handle beat pulse
             float beatIntensity = 0f;
             if (isPulsing)
@@ -118,38 +226,18 @@ namespace _Scripts.Core
                 breathingAlpha = Mathf.Lerp(breathingStartAlpha, breathingTargetAlpha, t);
             }
 
-            ApplyVisuals(beatIntensity, breathingAlpha);
-        }
 
-        public void Pulse()
-        {
-            Pulse(GameManager.Instance != null ? GameManager.Instance.interval : 1f);
-        }
-
-        public void Pulse(float interval)
-        {
-            if (!Application.isPlaying) return;
-
-            // Beat pulse
-            pulseTimer = 0f;
-            isPulsing = true;
-
-            // Alpha breathing - swap direction each pulse
-            if (enableAlphaBreathing)
-            {
-                breathingTimer = 0f;
-                breathingDuration = interval;
-                breathingStartAlpha = breathingToMax ? minAlpha : maxAlpha;
-                breathingTargetAlpha = breathingToMax ? maxAlpha : minAlpha;
-                breathingToMax = !breathingToMax;
-            }
-        }
-
-        private void ApplyVisuals(float beatIntensity, float breathingAlpha)
-        {
             float scaleMultiplier = 1f + (pulseScaleAmount * beatIntensity);
             currentScaleMultiplier = scaleMultiplier;
             float fadeMultiplier = 1f + (pulseFadeAmount * beatIntensity);
+
+            Color ringBaseColor = glowColor;
+            Color gridBaseColor = gridColor;
+            if (TryGetComboGridColor(out Color comboColor))
+            {
+                ringBaseColor = new Color(comboColor.r, comboColor.g, comboColor.b, glowColor.a);
+                gridBaseColor = new Color(comboColor.r, comboColor.g, comboColor.b, gridColor.a);
+            }
 
             // Apply to rings
             if (ringRenderers != null)
@@ -171,11 +259,29 @@ namespace _Scripts.Core
                     }
 
                     // Update color/brightness with breathing alpha
-                    Color pulsedColor = glowColor * glowIntensity * fadeMultiplier;
-                    pulsedColor.a = glowColor.a * breathingAlpha;
+                    Color pulsedColor = ringBaseColor * glowIntensity * fadeMultiplier;
+                    pulsedColor.a = ringBaseColor.a * breathingAlpha;
                     ringRenderers[i].startColor = pulsedColor;
                     ringRenderers[i].endColor = pulsedColor;
                 }
+            }
+
+            //ensure all radial lines are updated and match the size of the ring growth
+            int radialLineCount = radialLineRenderers != null ? radialLineRenderers.Length : 0;
+            for (int i = 0; i < radialLineCount; i++)
+            {
+                if (radialLineRenderers[i] == null) continue;
+
+                Color pulsedGridColor = gridBaseColor * glowIntensity * 0.5f * fadeMultiplier;
+                pulsedGridColor.a = gridBaseColor.a * breathingAlpha;
+                radialLineRenderers[i].startColor = pulsedGridColor;
+                radialLineRenderers[i].endColor = pulsedGridColor;
+
+                // Update length by recalculating end position
+                float angle = (i / (float)radialLineCount) * Mathf.PI * 2f;
+                float x = Mathf.Cos(angle) * maxRadius * scaleMultiplier;
+                float y = Mathf.Sin(angle) * maxRadius * scaleMultiplier;
+                radialLineRenderers[i].SetPosition(1, new Vector3(x, y, 0));
             }
 
             // Apply to grid
@@ -185,12 +291,31 @@ namespace _Scripts.Core
                 {
                     if (gridRenderers[i] == null) continue;
 
-                    Color pulsedGridColor = gridColor * glowIntensity * 0.5f * fadeMultiplier;
-                    pulsedGridColor.a = gridColor.a * breathingAlpha;
+                    Color pulsedGridColor = gridBaseColor * glowIntensity * 0.5f * fadeMultiplier;
+                    pulsedGridColor.a = gridBaseColor.a * breathingAlpha;
                     gridRenderers[i].startColor = pulsedGridColor;
                     gridRenderers[i].endColor = pulsedGridColor;
                 }
             }
+        }
+
+        private bool TryGetComboGridColor(out Color comboColor)
+        {
+            comboColor = gridColor;
+            if (comboGridColors == null || comboGridColors.Length < 10) return false;
+            if (GameManager.Instance == null) return false;
+
+            int comboValue = Mathf.Max(1, GameManager.Instance.combo);
+            int colorIndex = Mathf.Clamp((comboValue - 1) / 10, 0, 9);
+            comboColor = comboGridColors[colorIndex];
+            return true;
+        }
+
+        private void ApplyVisuals()
+        {
+            //OscilateNumCircularGridLines();
+            //OscilateNumRadialLines();
+            PulseGrid();
         }
 
         [ContextMenu("Generate Radar")]
@@ -272,6 +397,7 @@ namespace _Scripts.Core
             int totalGridLines = radialLines + circularGridLines;
             gridRenderers = new LineRenderer[totalGridLines];
             gridBaseRadii = new float[circularGridLines];
+            radialLineRenderers = new LineRenderer[radialLines];
 
             int rendererIndex = 0;
 
@@ -279,7 +405,9 @@ namespace _Scripts.Core
             for (int i = 0; i < radialLines; i++)
             {
                 float angle = (i / (float)radialLines) * Mathf.PI * 2f;
-                gridRenderers[rendererIndex++] = CreateRadialLine(angle, i);
+                LineRenderer radialRenderer = CreateRadialLine(angle, i);
+                gridRenderers[rendererIndex++] = radialRenderer;
+                radialLineRenderers[i] = radialRenderer;
             }
 
             // Create circular grid lines (concentric circles)
