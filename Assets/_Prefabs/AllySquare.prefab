@@ -9,11 +9,11 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8950728862425574228}
-  - component: {fileID: 1281215200074824618}
+  - component: {fileID: -8482258593475133777}
   - component: {fileID: 8949924684892681582}
   - component: {fileID: -8740635528120331822}
   m_Layer: 0
-  m_Name: EnemySquare
+  m_Name: AllySquare
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -35,7 +35,7 @@ Transform:
   - {fileID: 6875018361493610410}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1281215200074824618
+--- !u!114 &-8482258593475133777
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -44,9 +44,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 3495509092709603059}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f5492f5cee7acdc419c2dae100b2674e, type: 3}
+  m_Script: {fileID: 11500000, guid: 033167634cd5f2841a8298eb8d8b6575, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Enemy
+  m_EditorClassIdentifier: Assembly-CSharp::_Scripts.Core.Ally
   step: 4
 --- !u!61 &8949924684892681582
 BoxCollider2D:
@@ -203,7 +203,7 @@ SpriteRenderer:
   m_SortingOrder: 10
   m_MaskInteraction: 2
   m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
-  m_Color: {r: 1, g: 0, b: 0, a: 1}
+  m_Color: {r: 0.19775033, g: 1, b: 0, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
