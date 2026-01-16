@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -42,6 +43,8 @@ namespace _Scripts.Core
             float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
             transform.rotation = Quaternion.Euler(0, 0, angle);
 
+            if(_isPulsing)
+                return;
             if (Input.GetMouseButton(0))
             {
                 _detectionMode = DetectionMode.Aggressive;
@@ -66,6 +69,13 @@ namespace _Scripts.Core
         {
             detectionCollider.enabled = true;
             _isPulsing = true;
+            UpdateColor();
+            var cloneSprite = Instantiate(spriteRenderer, spriteRenderer.transform.position, spriteRenderer.transform.rotation);
+            Destroy(cloneSprite.GetComponent<Collider2D>());
+            var tweenColor = cloneSprite.color;
+            tweenColor.a = 0;
+            cloneSprite.DOColor(tweenColor, .5f).SetEase(Ease.Flash);
+
             yield return new WaitForSeconds(detectionInterval);
             detectionCollider.enabled = false;
             _isPulsing = false;
