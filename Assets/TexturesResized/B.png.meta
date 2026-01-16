@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 4a08480bd3484404f89559648945c834
+guid: 1c76a3044143a824a9321d50bd7ff05c
 TextureImporter:
   internalIDToNameTable:
   - first:
@@ -27,7 +27,7 @@ TextureImporter:
     heightScale: 0.25
     normalMapFilter: 0
     flipGreenChannel: 0
-  isReadable: 1
+  isReadable: 0
   streamingMipmaps: 0
   streamingMipmapsPriority: 0
   vTOnly: 0
@@ -49,7 +49,7 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 1
+  spriteMode: 2
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -106,10 +106,10 @@ TextureImporter:
       name: B_0
       rect:
         serializedVersion: 2
-        x: 40
-        y: 24
-        width: 102
-        height: 287
+        x: 22
+        y: 15
+        width: 79
+        height: 233
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,10 +128,10 @@ TextureImporter:
       name: B_1
       rect:
         serializedVersion: 2
-        x: 153
-        y: 24
-        width: 194
-        height: 287
+        x: 100
+        y: 15
+        width: 137
+        height: 233
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -150,7 +150,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 5e97eb03825dee720800000000000000
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 

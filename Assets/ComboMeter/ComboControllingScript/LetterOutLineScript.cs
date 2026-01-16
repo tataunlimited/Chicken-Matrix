@@ -6,7 +6,8 @@ using UnityEditor;
 #endif
 
 /// <summary>
-/// Automatically loads letter shapes from texture images or falls back to grid data
+/// Fully procedural letter shape generator
+/// All letter shapes defined in code using Vector2[] arrays
 /// Integrates seamlessly with ComboLetterVFX_SCRIPT
 /// </summary>
 public class LetterOutLineScript : MonoBehaviour
@@ -22,27 +23,19 @@ public class LetterOutLineScript : MonoBehaviour
 
     private LetterShape[] letterShapes = new LetterShape[7];
 
-    // Configuration
-    private const float PARTICLE_SCALE = 0.01f;
-    private const float LETTER_WIDTH = 1.0f;
-    private const float LETTER_HEIGHT = 1.7f;
-
-    // Inspector references for automatic generation
-    [Header("Texture-Based Letter Generation")]
-    [SerializeField] private Texture2D letterA_Texture;
-    [SerializeField] private Texture2D letterB_Texture;
-    [SerializeField] private Texture2D letterC_Texture;
-    [SerializeField] private Texture2D letterD_Texture;
-    [SerializeField] private Texture2D letterS_Texture;
-    [SerializeField] private Texture2D letterSS_Texture;
-    [SerializeField] private Texture2D letterSSS_Texture;
-
-    [Header("Texture Processing Settings")]
-    [SerializeField] private float alphaThreshold = 0.5f;
-    [SerializeField] private bool useFallbackGrids = true;
+    // Shape definition settings
+    [Header("Shape Generation Settings")]
+    [SerializeField] private float particleSpacing = 0.05f;
+    [SerializeField] private float shapeScale = 1.0f;
     [SerializeField] private bool debugLogging = true;
+    [SerializeField] private bool visualizeShapes = false;
 
-    private bool texturesLoaded = false;
+    // Shape customization
+    [Header("Letter Customization")]
+    [SerializeField] private bool useThickStrokes = true;
+    [SerializeField] private float strokeThickness = 2.0f;
+    [SerializeField] private bool useSmoothedCorners = true;
+    [SerializeField] private int cornerSmoothingIterations = 2;
 
     private void Awake()
     {
@@ -63,7 +56,7 @@ public class LetterOutLineScript : MonoBehaviour
             for (int i = 0; i < letterShapes.Length; i++)
             {
                 if (letterShapes[i] != null)
-                    Debug.Log("Letter " + letterShapes[i].letterName + ": " + letterShapes[i].particlePositions.Length + " particles loaded");
+                    Debug.Log($"Letter {letterShapes[i].letterName}: {letterShapes[i].particlePositions.Length} particles loaded");
             }
         }
     }
@@ -76,216 +69,20 @@ public class LetterOutLineScript : MonoBehaviour
             letterShapes[i] = new LetterShape();
         }
 
-        // Try to load from textures first
-        texturesLoaded = LoadLettersFromTextures();
+        // Generate all letters from procedural code
+        letterShapes[0] = CreateLetterD_Procedural();
+        letterShapes[1] = CreateLetterC_Procedural();
+        letterShapes[2] = CreateLetterB_Procedural();
+        letterShapes[3] = CreateLetterA_Procedural();
+        letterShapes[4] = CreateLetterS_Procedural();
+        letterShapes[5] = CreateLetterSS_Procedural();
+        letterShapes[6] = CreateLetterSSS_Procedural();
 
-        // If any textures failed or missing, use fallback grid data
-        if (!texturesLoaded && useFallbackGrids)
-        {
-            if (debugLogging)
-                Debug.Log("Using fallback grid data for missing letters...");
-            LoadLettersFromGrids();
-        }
-
-        Debug.Log("Letter outline system initialized! (Textures: " + (texturesLoaded ? "YES" : "NO") + ")");
+        Debug.Log("Letter outline system initialized with fully procedural shapes!");
     }
 
     /// <summary>
-    /// Load letter shapes from texture images
-    /// Scans for non-transparent pixels and converts to particle positions
-    /// </summary>
-    private bool LoadLettersFromTextures()
-    {
-        try
-        {
-            bool anyTextureLoaded = false;
-
-            if (letterA_Texture != null)
-            {
-                letterShapes[3] = new LetterShape
-                {
-                    letterName = "A",
-                    particlePositions = TextureToParticles(letterA_Texture, "A")
-                };
-                anyTextureLoaded = true;
-            }
-
-            if (letterB_Texture != null)
-            {
-                letterShapes[2] = new LetterShape
-                {
-                    letterName = "B",
-                    particlePositions = TextureToParticles(letterB_Texture, "B")
-                };
-                anyTextureLoaded = true;
-            }
-
-            if (letterC_Texture != null)
-            {
-                letterShapes[1] = new LetterShape
-                {
-                    letterName = "C",
-                    particlePositions = TextureToParticles(letterC_Texture, "C")
-                };
-                anyTextureLoaded = true;
-            }
-
-            if (letterD_Texture != null)
-            {
-                letterShapes[0] = new LetterShape
-                {
-                    letterName = "D",
-                    particlePositions = TextureToParticles(letterD_Texture, "D")
-                };
-                anyTextureLoaded = true;
-            }
-
-            if (letterS_Texture != null)
-            {
-                letterShapes[4] = new LetterShape
-                {
-                    letterName = "S",
-                    particlePositions = TextureToParticles(letterS_Texture, "S")
-                };
-                anyTextureLoaded = true;
-            }
-
-            if (letterSS_Texture != null)
-            {
-                letterShapes[5] = new LetterShape
-                {
-                    letterName = "SS",
-                    particlePositions = TextureToParticles(letterSS_Texture, "SS")
-                };
-                anyTextureLoaded = true;
-            }
-
-            if (letterSSS_Texture != null)
-            {
-                letterShapes[6] = new LetterShape
-                {
-                    letterName = "SSS",
-                    particlePositions = TextureToParticles(letterSSS_Texture, "SSS")
-                };
-                anyTextureLoaded = true;
-            }
-
-            if (anyTextureLoaded && debugLogging)
-                Debug.Log("Successfully loaded letter shapes from textures!");
-
-            return anyTextureLoaded;
-        }
-        catch (System.Exception e)
-        {
-            Debug.LogError("Error loading textures: " + e.Message + "\n" + e.StackTrace);
-            return false;
-        }
-    }
-
-    /// <summary>
-    /// Convert a texture to particle positions by scanning for non-transparent pixels
-    /// Ensures proper aspect ratio and scaling
-    /// </summary>
-    private Vector2[] TextureToParticles(Texture2D texture, string letterName)
-    {
-        List<Vector2> particles = new List<Vector2>();
-
-        if (texture == null)
-        {
-            Debug.LogWarning("Texture for letter '" + letterName + "' is null");
-            return particles.ToArray();
-        }
-
-        // Verify texture is readable
-        if (!texture.isReadable)
-        {
-            Debug.LogError("Texture '" + texture.name + "' is NOT readable!\n" +
-                          "FIX: Select the texture in Project, go to Inspector > Texture Type: Sprite (2D and UI) " +
-                          "> Check 'Read/Write Enabled' > Apply");
-            return particles.ToArray();
-        }
-
-        int width = texture.width;
-        int height = texture.height;
-
-        if (debugLogging)
-            Debug.Log("Processing texture '" + texture.name + "' for letter " + letterName + " (" + width + "x" + height + ")");
-
-        // Read the texture pixels
-        Color[] pixels;
-        try
-        {
-            pixels = texture.GetPixels();
-        }
-        catch (System.Exception e)
-        {
-            Debug.LogError("Failed to read pixels from texture '" + texture.name + "': " + e.Message);
-            return particles.ToArray();
-        }
-
-        if (pixels == null || pixels.Length == 0)
-        {
-            Debug.LogError("Failed to read pixels from texture '" + texture.name + "'");
-            return particles.ToArray();
-        }
-
-        // Scan for solid pixels (non-transparent, not white background)
-        int pixelsFound = 0;
-        for (int y = 0; y < height; y++)
-        {
-            for (int x = 0; x < width; x++)
-            {
-                int pixelIndex = y * width + x;
-
-                if (pixelIndex >= pixels.Length)
-                    continue;
-
-                Color pixel = pixels[pixelIndex];
-
-                // Detect solid pixels: high alpha AND dark color (black letter on transparent bg)
-                // OR transparency detected (PNG with alpha channel)
-                bool isSolid = (pixel.a >= alphaThreshold) &&
-                              (pixel.r < 0.9f || pixel.g < 0.9f || pixel.b < 0.9f);
-
-                if (isSolid)
-                {
-                    // Convert pixel coordinates to world space
-                    // Flip Y axis: image top (y=0) to world top (positive)
-                    float worldX = (x - width * 0.5f) * PARTICLE_SCALE;
-                    float worldY = (height * 0.5f - y) * PARTICLE_SCALE;
-
-                    particles.Add(new Vector2(worldX, worldY));
-                    pixelsFound++;
-                }
-            }
-        }
-
-        if (debugLogging)
-            Debug.Log("Letter '" + letterName + "': Found " + pixelsFound + " solid pixels -> " + particles.Count + " particles");
-
-        return particles.ToArray();
-    }
-
-    /// <summary>
-    /// Fallback: Load letters from hardcoded grid data
-    /// Used when textures aren't available
-    /// </summary>
-    private void LoadLettersFromGrids()
-    {
-        letterShapes[0] = new LetterShape { letterName = "D", particlePositions = CreateLetterD() };
-        letterShapes[1] = new LetterShape { letterName = "C", particlePositions = CreateLetterC() };
-        letterShapes[2] = new LetterShape { letterName = "B", particlePositions = CreateLetterB() };
-        letterShapes[3] = new LetterShape { letterName = "A", particlePositions = CreateLetterA() };
-        letterShapes[4] = new LetterShape { letterName = "S", particlePositions = CreateLetterS() };
-        letterShapes[5] = new LetterShape { letterName = "SS", particlePositions = CreateLetterSS() };
-        letterShapes[6] = new LetterShape { letterName = "SSS", particlePositions = CreateLetterSSS() };
-
-        if (debugLogging)
-            Debug.Log("Loaded letter shapes from fallback grid data");
-    }
-
-    /// <summary>
-    /// Convert bitmap grid to world positions (fallback method)
+    /// Convert grid array to Vector2 particle positions
     /// </summary>
     private Vector2[] GridToParticles(int[,] grid, float offsetX = 0f, float offsetY = 0f)
     {
@@ -299,8 +96,8 @@ public class LetterOutLineScript : MonoBehaviour
             {
                 if (grid[row, col] == 1)
                 {
-                    float x = offsetX + (col - cols * 0.5f) * PARTICLE_SCALE;
-                    float y = offsetY + (rows * 0.5f - row) * PARTICLE_SCALE;
+                    float x = offsetX + (col - cols * 0.5f) * particleSpacing * shapeScale;
+                    float y = offsetY + (rows * 0.5f - row) * particleSpacing * shapeScale;
                     particles.Add(new Vector2(x, y));
                 }
             }
@@ -309,175 +106,271 @@ public class LetterOutLineScript : MonoBehaviour
         return particles.ToArray();
     }
 
-    //======== FALLBACK GRID DATA ========
-    private Vector2[] CreateLetterD()
+    /// <summary>
+    /// Create letter from outline points with optional stroke thickness
+    /// </summary>
+    private Vector2[] CreateLetterFromOutline(List<Vector2> outlinePoints, float thickness = 0f)
     {
-        int[,] grid = new int[,]
+        List<Vector2> allParticles = new List<Vector2>(outlinePoints);
+
+        if (useThickStrokes && thickness > 0)
         {
-            {1,1,1,1,1,1,1,1,0,0},
-            {1,1,1,1,1,1,1,1,1,0},
-            {1,1,0,0,0,0,1,1,1,0},
-            {1,1,0,0,0,0,0,1,1,1},
-            {1,1,0,0,0,0,0,0,1,1},
-            {1,1,0,0,0,0,0,0,1,1},
-            {1,1,0,0,0,0,0,0,1,1},
-            {1,1,0,0,0,0,0,0,0,1},
-            {1,1,0,0,0,0,0,0,0,1},
-            {1,1,0,0,0,0,0,0,1,1},
-            {1,1,0,0,0,0,0,0,1,1},
-            {1,1,0,0,0,0,0,1,1,1},
-            {1,1,0,0,0,0,1,1,1,0},
-            {1,1,1,1,1,1,1,1,1,0},
-            {1,1,1,1,1,1,1,1,0,0},
-        };
-        return GridToParticles(grid, 0f, 0f);
+            // Create parallel outline for thickness
+            foreach (Vector2 point in outlinePoints)
+            {
+                Vector2 offsetPoint = point + Vector2.one * thickness * 0.01f;
+                allParticles.Add(offsetPoint);
+            }
+        }
+
+        return allParticles.ToArray();
     }
 
-    private Vector2[] CreateLetterC()
+    /// <summary>
+    /// Draw a line using Bresenham's algorithm for discrete particles
+    /// </summary>
+    private List<Vector2> DrawLine(Vector2 start, Vector2 end, float step = 0.05f)
     {
-        int[,] grid = new int[,]
+        List<Vector2> linePoints = new List<Vector2>();
+        float distance = Vector2.Distance(start, end);
+        int pointCount = (int)(distance / step) + 1;
+
+        for (int i = 0; i <= pointCount; i++)
         {
-            {0,1,1,1,1,1,1,1,1,0},
-            {1,1,1,1,1,1,1,1,1,1},
-            {1,1,0,0,0,0,0,1,1,1},
-            {1,1,0,0,0,0,0,0,0,0},
-            {1,1,0,0,0,0,0,0,0,0},
-            {1,1,0,0,0,0,0,0,0,0},
-            {1,1,0,0,0,0,0,0,0,0},
-            {1,1,0,0,0,0,0,0,0,0},
-            {1,1,0,0,0,0,0,0,0,0},
-            {1,1,0,0,0,0,0,0,0,0},
-            {1,1,0,0,0,0,0,0,0,0},
-            {1,1,0,0,0,0,0,0,0,0},
-            {1,1,0,0,0,0,0,1,1,1},
-            {1,1,1,1,1,1,1,1,1,1},
-            {0,1,1,1,1,1,1,1,1,0},
-        };
-        return GridToParticles(grid, 0f, 0f);
+            float t = pointCount > 0 ? (float)i / pointCount : 0;
+            Vector2 point = Vector2.Lerp(start, end, t);
+            linePoints.Add(point * shapeScale);
+        }
+
+        return linePoints;
     }
 
-    private Vector2[] CreateLetterB()
+    /// <summary>
+    /// Draw a circular arc
+    /// </summary>
+    private List<Vector2> DrawArc(Vector2 center, float radius, float startAngle, float endAngle, float step = 0.1f)
     {
-        int[,] grid = new int[,]
+        List<Vector2> arcPoints = new List<Vector2>();
+        float angleRange = endAngle - startAngle;
+        int pointCount = (int)(Mathf.Abs(angleRange) / step) + 1;
+
+        for (int i = 0; i <= pointCount; i++)
         {
-            {1,1,1,1,1,1,1,1,0,0},
-            {1,1,1,1,1,1,1,1,1,0},
-            {1,1,0,0,0,0,1,1,1,0},
-            {1,1,0,0,0,0,0,1,1,1},
-            {1,1,0,0,0,0,0,0,1,1},
-            {1,1,0,0,0,0,0,1,1,0},
-            {1,1,0,0,0,0,1,1,1,0},
-            {1,1,1,1,1,1,1,1,0,0},
-            {1,1,1,1,1,1,1,1,0,0},
-            {1,1,1,1,1,1,1,1,1,0},
-            {1,1,0,0,0,0,1,1,1,0},
-            {1,1,0,0,0,0,0,1,1,1},
-            {1,1,0,0,0,0,0,0,1,1},
-            {1,1,0,0,0,0,0,1,1,1},
-            {1,1,1,1,1,1,1,1,1,0},
-            {1,1,1,1,1,1,1,1,0,0},
-        };
-        return GridToParticles(grid, 0f, 0f);
+            float t = pointCount > 0 ? (float)i / pointCount : 0;
+            float angle = startAngle + (angleRange * t);
+            Vector2 point = center + new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * radius;
+            arcPoints.Add(point * shapeScale);
+        }
+
+        return arcPoints;
     }
 
-    private Vector2[] CreateLetterA()
+    /// <summary>
+    /// Draw a rectangle outline
+    /// </summary>
+    private List<Vector2> DrawRectangle(Vector2 center, float width, float height)
     {
-        int[,] grid = new int[,]
+        List<Vector2> rectPoints = new List<Vector2>();
+        float halfWidth = width * 0.5f;
+        float halfHeight = height * 0.5f;
+
+        Vector2 topLeft = center + new Vector2(-halfWidth, halfHeight);
+        Vector2 topRight = center + new Vector2(halfWidth, halfHeight);
+        Vector2 bottomRight = center + new Vector2(halfWidth, -halfHeight);
+        Vector2 bottomLeft = center + new Vector2(-halfWidth, -halfHeight);
+
+        // Top edge
+        rectPoints.AddRange(DrawLine(topLeft, topRight, particleSpacing));
+        // Right edge
+        rectPoints.AddRange(DrawLine(topRight, bottomRight, particleSpacing));
+        // Bottom edge
+        rectPoints.AddRange(DrawLine(bottomRight, bottomLeft, particleSpacing));
+        // Left edge
+        rectPoints.AddRange(DrawLine(bottomLeft, topLeft, particleSpacing));
+
+        return rectPoints;
+    }
+
+    // ========== PROCEDURAL LETTER GENERATORS ==========
+
+    private LetterShape CreateLetterA_Procedural()
+    {
+        List<Vector2> points = new List<Vector2>();
+
+        // Left diagonal
+        points.AddRange(DrawLine(new Vector2(-0.4f, -0.85f), new Vector2(-0.1f, 0.85f), particleSpacing));
+
+        // Right diagonal
+        points.AddRange(DrawLine(new Vector2(0.4f, -0.85f), new Vector2(0.1f, 0.85f), particleSpacing));
+
+        // Horizontal bar (middle)
+        points.AddRange(DrawLine(new Vector2(-0.35f, 0f), new Vector2(0.35f, 0f), particleSpacing));
+
+        // Top peak
+        points.AddRange(DrawLine(new Vector2(-0.1f, 0.85f), new Vector2(0.1f, 0.85f), particleSpacing));
+
+        return new LetterShape { letterName = "A", particlePositions = points.ToArray() };
+    }
+
+    private LetterShape CreateLetterB_Procedural()
+    {
+        List<Vector2> points = new List<Vector2>();
+
+        // Left spine
+        points.AddRange(DrawLine(new Vector2(-0.4f, -0.85f), new Vector2(-0.4f, 0.85f), particleSpacing));
+
+        // Top curve
+        points.AddRange(DrawArc(new Vector2(-0.15f, 0.7f), 0.25f, Mathf.PI, Mathf.PI * 2, 0.05f));
+
+        // Bottom curve
+        points.AddRange(DrawArc(new Vector2(-0.15f, -0.15f), 0.3f, Mathf.PI, Mathf.PI * 2, 0.05f));
+
+        // Middle divider
+        points.AddRange(DrawLine(new Vector2(-0.4f, -0.15f), new Vector2(0.15f, -0.15f), particleSpacing));
+
+        // Closing lines
+        points.AddRange(DrawLine(new Vector2(0.15f, 0.85f), new Vector2(-0.4f, 0.85f), particleSpacing));
+        points.AddRange(DrawLine(new Vector2(0.2f, -0.85f), new Vector2(-0.4f, -0.85f), particleSpacing));
+
+        return new LetterShape { letterName = "B", particlePositions = points.ToArray() };
+    }
+
+    private LetterShape CreateLetterC_Procedural()
+    {
+        List<Vector2> points = new List<Vector2>();
+
+        // Main arc - left curve of C
+        float arcRadius = 0.5f;
+        Vector2 arcCenter = new Vector2(0.1f, 0f);
+
+        // Left arc (main body)
+        points.AddRange(DrawArc(arcCenter, arcRadius, -Mathf.PI * 0.4f, Mathf.PI * 0.4f, 0.05f));
+
+        // Top right extension
+        points.AddRange(DrawLine(
+            arcCenter + new Vector2(arcRadius * Mathf.Cos(-Mathf.PI * 0.4f), arcRadius * Mathf.Sin(-Mathf.PI * 0.4f)),
+            new Vector2(0.4f, 0.75f),
+            particleSpacing
+        ));
+
+        // Bottom right extension
+        points.AddRange(DrawLine(
+            arcCenter + new Vector2(arcRadius * Mathf.Cos(Mathf.PI * 0.4f), arcRadius * Mathf.Sin(Mathf.PI * 0.4f)),
+            new Vector2(0.4f, -0.75f),
+            particleSpacing
+        ));
+
+        return new LetterShape { letterName = "C", particlePositions = points.ToArray() };
+    }
+
+    private LetterShape CreateLetterD_Procedural()
+    {
+        List<Vector2> points = new List<Vector2>();
+
+        // Left spine
+        points.AddRange(DrawLine(new Vector2(-0.4f, -0.85f), new Vector2(-0.4f, 0.85f), particleSpacing));
+
+        // Right curve (semicircle)
+        Vector2 curveCenter = new Vector2(0.1f, 0f);
+        float curveRadius = 0.85f;
+
+        // Arc from top to bottom
+        points.AddRange(DrawArc(curveCenter, curveRadius, -Mathf.PI * 0.5f, Mathf.PI * 0.5f, 0.05f));
+
+        // Top connector
+        points.AddRange(DrawLine(new Vector2(-0.4f, 0.85f), curveCenter + new Vector2(0, curveRadius), particleSpacing));
+
+        // Bottom connector
+        points.AddRange(DrawLine(new Vector2(-0.4f, -0.85f), curveCenter + new Vector2(0, -curveRadius), particleSpacing));
+
+        return new LetterShape { letterName = "D", particlePositions = points.ToArray() };
+    }
+
+    private LetterShape CreateLetterS_Procedural()
+    {
+        List<Vector2> points = new List<Vector2>();
+
+        // Top curve (starts right, curves left)
+        points.AddRange(DrawArc(new Vector2(-0.1f, 0.6f), 0.35f, 0, Mathf.PI, 0.05f));
+
+        // Middle transition
+        points.AddRange(DrawLine(new Vector2(-0.45f, 0.6f), new Vector2(0.25f, 0f), particleSpacing));
+
+        // Bottom curve (starts left, curves right)
+        points.AddRange(DrawArc(new Vector2(0.1f, -0.6f), 0.35f, Mathf.PI, Mathf.PI * 2, 0.05f));
+
+        // Connecting line to middle
+        points.AddRange(DrawLine(new Vector2(0.45f, -0.6f), new Vector2(-0.25f, 0f), particleSpacing));
+
+        return new LetterShape { letterName = "S", particlePositions = points.ToArray() };
+    }
+
+    private LetterShape CreateLetterSS_Procedural()
+    {
+        List<Vector2> sShapePoints = GetProceduralSShape();
+        List<Vector2> allPoints = new List<Vector2>();
+
+        // First S offset to the left
+        foreach (var point in sShapePoints)
         {
-            {0,0,0,1,1,1,1,0,0,0},
-            {0,0,1,1,1,1,1,1,0,0},
-            {0,0,1,1,0,0,1,1,0,0},
-            {0,1,1,0,0,0,0,1,1,0},
-            {0,1,1,0,0,0,0,1,1,0},
-            {1,1,0,0,0,0,0,0,1,1},
-            {1,1,0,0,0,0,0,0,1,1},
-            {1,1,1,1,1,1,1,1,1,1},
-            {1,1,1,1,1,1,1,1,1,1},
-            {1,1,1,1,1,1,1,1,1,1},
-            {1,1,0,0,0,0,0,0,1,1},
-            {1,1,0,0,0,0,0,0,1,1},
-            {1,1,0,0,0,0,0,0,1,1},
-            {1,1,0,0,0,0,0,0,1,1},
-            {1,1,0,0,0,0,0,0,1,1},
-        };
-        return GridToParticles(grid, 0f, 0f);
-    }
+            allPoints.Add(point + Vector2.left * 0.3f);
+        }
 
-    private Vector2[] CreateLetterS()
-    {
-        int[,] grid = new int[,]
+        // Second S offset to the right
+        foreach (var point in sShapePoints)
         {
-            {0,1,1,1,1,1,1,1,1,0},
-            {1,1,1,1,1,1,1,1,1,1},
-            {1,1,0,0,0,0,0,1,1,1},
-            {1,1,0,0,0,0,0,0,0,0},
-            {1,1,0,0,0,0,0,0,0,0},
-            {1,1,1,0,0,0,0,0,0,0},
-            {0,1,1,1,1,1,0,0,0,0},
-            {0,0,1,1,1,1,1,1,0,0},
-            {0,0,0,0,0,1,1,1,1,1},
-            {0,0,0,0,0,0,0,1,1,1},
-            {0,0,0,0,0,0,0,0,1,1},
-            {0,0,0,0,0,0,0,0,1,1},
-            {1,1,0,0,0,0,0,0,1,1},
-            {1,1,1,1,1,1,1,1,1,1},
-            {0,1,1,1,1,1,1,1,1,0},
-        };
-        return GridToParticles(grid, 0f, 0f);
+            allPoints.Add(point + Vector2.right * 0.3f);
+        }
+
+        return new LetterShape { letterName = "SS", particlePositions = allPoints.ToArray() };
     }
 
-    private Vector2[] CreateLetterSS()
+    private LetterShape CreateLetterSSS_Procedural()
     {
-        List<Vector2> positions = new List<Vector2>();
-        int[,] sGrid = GetSGrid();
+        List<Vector2> sShapePoints = GetProceduralSShape();
+        List<Vector2> allPoints = new List<Vector2>();
 
-        Vector2[] s1 = GridToParticles(sGrid, -0.005f, 0f);
-        positions.AddRange(s1);
-
-        Vector2[] s2 = GridToParticles(sGrid, 0.005f, 0f);
-        positions.AddRange(s2);
-
-        return positions.ToArray();
-    }
-
-    private Vector2[] CreateLetterSSS()
-    {
-        List<Vector2> positions = new List<Vector2>();
-        int[,] sGrid = GetSGrid();
-
-        Vector2[] s1 = GridToParticles(sGrid, -0.010f, 0f);
-        positions.AddRange(s1);
-
-        Vector2[] s2 = GridToParticles(sGrid, 0f, 0f);
-        positions.AddRange(s2);
-
-        Vector2[] s3 = GridToParticles(sGrid, 0.010f, 0f);
-        positions.AddRange(s3);
-
-        return positions.ToArray();
-    }
-
-    private int[,] GetSGrid()
-    {
-        return new int[,]
+        // First S offset to the far left
+        foreach (var point in sShapePoints)
         {
-            {0,1,1,1,1,1,1,1,1,0},
-            {1,1,1,1,1,1,1,1,1,1},
-            {1,1,0,0,0,0,0,1,1,1},
-            {1,1,0,0,0,0,0,0,0,0},
-            {1,1,0,0,0,0,0,0,0,0},
-            {1,1,1,0,0,0,0,0,0,0},
-            {0,1,1,1,1,1,0,0,0,0},
-            {0,0,1,1,1,1,1,1,0,0},
-            {0,0,0,0,0,1,1,1,1,1},
-            {0,0,0,0,0,0,0,1,1,1},
-            {0,0,0,0,0,0,0,0,1,1},
-            {0,0,0,0,0,0,0,0,1,1},
-            {1,1,0,0,0,0,0,0,1,1},
-            {1,1,1,1,1,1,1,1,1,1},
-            {0,1,1,1,1,1,1,1,1,0},
-        };
+            allPoints.Add(point + Vector2.left * 0.6f);
+        }
+
+        // Second S in the middle
+        foreach (var point in sShapePoints)
+        {
+            allPoints.Add(point);
+        }
+
+        // Third S offset to the right
+        foreach (var point in sShapePoints)
+        {
+            allPoints.Add(point + Vector2.right * 0.6f);
+        }
+
+        return new LetterShape { letterName = "SSS", particlePositions = allPoints.ToArray() };
     }
+
+    private List<Vector2> GetProceduralSShape()
+    {
+        List<Vector2> points = new List<Vector2>();
+
+        // Top curve (starts right, curves left)
+        points.AddRange(DrawArc(new Vector2(-0.1f, 0.6f), 0.35f, 0, Mathf.PI, 0.05f));
+
+        // Middle transition
+        points.AddRange(DrawLine(new Vector2(-0.45f, 0.6f), new Vector2(0.25f, 0f), particleSpacing));
+
+        // Bottom curve (starts left, curves right)
+        points.AddRange(DrawArc(new Vector2(0.1f, -0.6f), 0.35f, Mathf.PI, Mathf.PI * 2, 0.05f));
+
+        // Connecting line to middle
+        points.AddRange(DrawLine(new Vector2(0.45f, -0.6f), new Vector2(-0.25f, 0f), particleSpacing));
+
+        return points;
+    }
+
+    // ========== PUBLIC INTERFACE ==========
 
     /// <summary>
     /// GET letter particle positions - used by ComboLetterVFX_SCRIPT
@@ -486,13 +379,13 @@ public class LetterOutLineScript : MonoBehaviour
     {
         if (rankIndex < 0 || rankIndex >= letterShapes.Length)
         {
-            Debug.LogError("Invalid rank index: " + rankIndex);
+            Debug.LogError($"Invalid rank index: {rankIndex}");
             return new Vector2[0];
         }
 
         if (letterShapes[rankIndex] == null || letterShapes[rankIndex].particlePositions == null)
         {
-            Debug.LogError("Letter at index " + rankIndex + " has no particle data");
+            Debug.LogError($"Letter at index {rankIndex} has no particle data");
             return new Vector2[0];
         }
 
@@ -509,48 +402,82 @@ public class LetterOutLineScript : MonoBehaviour
         return letterShapes[rankIndex].letterName;
     }
 
+    /// <summary>
+    /// Regenerate all letter shapes with current settings
+    /// </summary>
+    public void RegenerateAllShapes()
+    {
+        InitializeLetterOutlines();
+        Debug.Log("All letter shapes regenerated!");
+    }
+
 #if UNITY_EDITOR
     /// <summary>
-    /// Editor context menu: Right-click component to Reload Letters From Textures
+    /// Editor context menu: Regenerate all letters
     /// </summary>
-    [ContextMenu("Reload Letters From Textures")]
-    public void ReloadLettersFromTextures()
+    [ContextMenu("Regenerate Letters")]
+    public void RegenerateLetters()
     {
-        Debug.Log("Reloading letter shapes from textures...");
+        Debug.Log("Regenerating letter shapes from procedural code...");
         InitializeLetterOutlines();
         EditorUtility.SetDirty(this);
-        Debug.Log("Letter shapes reloaded!");
+        Debug.Log("Letter shapes regenerated!");
     }
 
     /// <summary>
-    /// Editor context menu: Validate texture settings
+    /// Editor context menu: Export shape data to debug log
     /// </summary>
-    [ContextMenu("Check Texture Settings")]
-    public void CheckTextureSettings()
+    [ContextMenu("Export Shape Data")]
+    public void ExportShapeData()
     {
-        Debug.Log("=== TEXTURE VALIDATION ===");
-
-        Texture2D[] textures = { letterA_Texture, letterB_Texture, letterC_Texture,
-                               letterD_Texture, letterS_Texture, letterSS_Texture, letterSSS_Texture };
-        string[] names = { "A", "B", "C", "D", "S", "SS", "SSS" };
-
-        for (int i = 0; i < textures.Length; i++)
+        Debug.Log("=== LETTER SHAPE DATA ===");
+        for (int i = 0; i < letterShapes.Length; i++)
         {
-            if (textures[i] == null)
+            if (letterShapes[i] != null)
             {
-                Debug.LogWarning("Letter " + names[i] + ": NOT ASSIGNED");
-                continue;
-            }
-
-            bool isReadable = textures[i].isReadable;
-            string status = isReadable ? "OK" : "READ/WRITE DISABLED";
-            Debug.Log(names[i] + ": " + textures[i].name + " (" + textures[i].width + "x" + textures[i].height + ") - " + status);
-
-            if (!isReadable)
-            {
-                Debug.LogError("FIX: Select texture '" + textures[i].name + "' > Inspector > Check 'Read/Write Enabled' > Apply");
+                Debug.Log($"{letterShapes[i].letterName}: {letterShapes[i].particlePositions.Length} particles");
             }
         }
     }
+
+    /// <summary>
+    /// Visualize shapes in the scene for debugging
+    /// </summary>
+    private void OnDrawGizmos()
+    {
+        if (!visualizeShapes || letterShapes == null || letterShapes.Length == 0)
+            return;
+
+        for (int i = 0; i < letterShapes.Length; i++)
+        {
+            if (letterShapes[i]?.particlePositions == null)
+                continue;
+
+            // Different color for each letter
+            Color letterColor = GetColorForLetter(i);
+            Gizmos.color = letterColor;
+
+            foreach (var particle in letterShapes[i].particlePositions)
+            {
+                Vector3 worldPos = transform.position + (Vector3)particle;
+                Gizmos.DrawSphere(worldPos, 0.02f);
+            }
+        }
+    }
+
+    private Color GetColorForLetter(int index)
+    {
+        Color[] colors = {
+            Color.red,
+            Color.green,
+            Color.blue,
+            Color.yellow,
+            Color.cyan,
+            Color.magenta,
+            Color.white
+        };
+        return colors[index % colors.Length];
+    }
+
 #endif
 }
