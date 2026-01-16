@@ -85,7 +85,7 @@ namespace _Scripts.Core
             {
                 combo++;
                 UpdateComboRankDisplay();
-            } 
+            }
             else
             {
                 // Only shake if we actually had a combo to lose
@@ -99,6 +99,12 @@ namespace _Scripts.Core
             }
 
             comboText.text = combo.ToString();
+
+            // Update music based on combo
+            if (SoundController.Instance != null)
+            {
+                SoundController.Instance.UpdateMusicForCombo(combo);
+            }
         }
 
         private void UpdateComboRankDisplay()
