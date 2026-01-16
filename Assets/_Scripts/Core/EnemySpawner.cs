@@ -9,7 +9,7 @@ namespace _Scripts.Core
     {
         public float spawnRadius;
         
-        public List<Enemy> enemyPrefabs;
+        public List<MovableEntitiy> enemyPrefabs;
 
         public float stepSize = 1;
 
@@ -20,11 +20,10 @@ namespace _Scripts.Core
         public int numberOfEnemiesToSpawnPerInterval = 1;
         
         private int _currentSpawnInterval;
-        
-        
 
 
         private readonly List<Enemy> _aliveEnemies = new List<Enemy>();
+        private readonly List<Ally> _aliveAllies = new List<Ally>();
 
         public static EnemySpawner Instance;
         
@@ -46,25 +45,36 @@ namespace _Scripts.Core
             // 3. Create the position vector (relative to the spawner's center)
             Vector3 spawnPosition = new Vector3(x, y, 0) + transform.position;
             
-            var newEnemy = Instantiate(enemyPrefab, spawnPosition, Quaternion.identity);
+            var newEntity = Instantiate(enemyPrefab, spawnPosition, Quaternion.identity);
             
-            newEnemy.Init(offset, stepSize);
+            newEntity.Init(offset, stepSize);
             
             Vector2 direction = (Vector2)transform.position - (Vector2)spawnPosition;
             
-            newEnemy.transform.up = direction;
+            newEntity.transform.up = direction;
 
-            newEnemy.OnDestroyed += EnemyDestroyed;
-            
-            _aliveEnemies.Add(newEnemy);
+            newEntity.OnDestroyed += EnemyDestroyed;
+            if (newEntity is Enemy enemy)
+            {
+                _aliveEnemies.Add(enemy);
+            }
+            else if (newEntity is Ally ally)
+            {
+                _aliveAllies.Add(ally);
+            }
         }
 
-        private void EnemyDestroyed(Enemy enemy)
+        private void EnemyDestroyed(MovableEntitiy entity)
         {
-            if (_aliveEnemies.Contains(enemy))
+            if (entity is Enemy enemy && _aliveEnemies.Contains(enemy))
             {
                 _aliveEnemies.Remove(enemy);
                 Debug.Log("enemy Destroyed"+ enemy.name);
+            }
+            else if (entity is Ally ally && _aliveAllies.Contains(ally))
+            {
+                _aliveAllies.Remove(ally);
+                Debug.Log("ally Destroyed"+ ally.name);
             }
         }
 
@@ -74,6 +84,11 @@ namespace _Scripts.Core
             for (int i = _aliveEnemies.Count - 1; i >= 0; i--)
             {
                 _aliveEnemies[i].UpdatePosition();
+            }
+            
+            for (int i = _aliveAllies.Count - 1; i >= 0; i--)
+            {
+                _aliveAllies[i].UpdatePosition();
             }
             
             if (_currentSpawnInterval < 1)
