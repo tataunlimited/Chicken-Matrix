@@ -45,6 +45,7 @@ namespace _Scripts.Core
         {
             OnDestroyed?.Invoke(this);
 
+            GetComponentInChildren<SpriteRenderer>().color = Color.mediumVioletRed;
             Destroy(gameObject,0.2f);
 
         }

@@ -11,6 +11,13 @@ namespace _Scripts.Core
         
         private bool _gameEnded;
         
+        public static GameManager Instance;
+        
+        void Awake()
+        {
+            Instance = this;
+        }
+        
         private void Start()
         {
             StartCoroutine(UpdateInterval());
@@ -21,7 +28,10 @@ namespace _Scripts.Core
             if(_gameEnded)
                 yield break;
             EnemySpawner.Instance.UpdateEnemies();
-            yield return new WaitForSeconds(interval);
+            yield return new WaitForSeconds(interval/2);
+
+            PlayerController.Instance.UpdateInterval();
+            yield return new WaitForSeconds(interval/2);
             
             StartCoroutine(UpdateInterval());
         }
