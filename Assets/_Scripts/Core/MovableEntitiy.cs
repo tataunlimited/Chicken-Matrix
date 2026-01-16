@@ -95,8 +95,13 @@ namespace _Scripts.Core
 
             var particles = Instantiate(destructionParticlePrefab, transform.position, Quaternion.identity);
 
+            // Stop any auto-play and disable emission to prevent extra bursts
+            particles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+
             var main = particles.main;
             main.startColor = particleColor;
+            main.playOnAwake = false;
+            main.loop = false;
 
             // Configure convergence based on whether entity was detected
             var converge = particles.GetComponent<ParticleConverge>();
@@ -105,6 +110,7 @@ namespace _Scripts.Core
                 converge.SetShouldConverge(wasDetected);
             }
 
+            // Manually emit particles
             particles.Emit(particleBurstCount);
 
             // Only auto-destroy if not converging (converge script handles its own cleanup)

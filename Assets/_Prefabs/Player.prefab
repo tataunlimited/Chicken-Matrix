@@ -48,11 +48,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: '::'
   detectionCollider: {fileID: 4136178678573418929}
   spriteRenderer: {fileID: 3370693627702123055}
-  enemyDetectionColor: {r: 0, g: 0, b: 0, a: 0}
-  allyDetectionColor: {r: 0, g: 0, b: 0, a: 0}
-  enemyPulseColor: {r: 0, g: 0, b: 0, a: 0}
-  allyPulseColor: {r: 0, g: 0, b: 0, a: 0}
-  defaultColor: {r: 1, g: 0.9286524, b: 0.38679236, a: 0.5882353}
+  enemyDetectionColor: {r: 1, g: 0.31822518, b: 0, a: 0.48235294}
+  allyDetectionColor: {r: 0, g: 0.6339278, b: 1, a: 0.20392157}
+  enemyPulseColor: {r: 1, g: 0, b: 0.16220379, a: 0.16862746}
+  allyPulseColor: {r: 0.09019608, g: 0.3882353, b: 0, a: 0.56078434}
+  defaultColor: {r: 0.88887596, g: 0.899371, b: 0.6815987, a: 0.23529412}
   detectionInterval: 0.1
 --- !u!50 &4652290592491644441
 Rigidbody2D:
@@ -108,13 +108,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5485555243016623050}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0.7071068, w: 0.7071068}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 12.24, y: 5.74, z: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: -0.0133, z: 0}
+  m_LocalScale: {x: 4.0537777, y: 5.760664, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 5361080415169723267}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 90}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &3370693627702123055
 SpriteRenderer:
   serializedVersion: 2
@@ -164,8 +164,8 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 20
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 21300000, guid: 94b6da39031f98a4eb60ac6e816e21c5, type: 3}
-  m_Color: {r: 1, g: 0.9341483, b: 0, a: 0.6}
+  m_Sprite: {fileID: -5100472335686785025, guid: 3d61e8d3fbbe0354b900d0e32f8611b7, type: 3}
+  m_Color: {r: 0.8050314, g: 0.7999683, b: 0.7214904, a: 0.54901963}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -210,9 +210,9 @@ PolygonCollider2D:
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: -0.56}
   m_SpriteTilingProperty:
-    border: {x: 0.015625, y: 0.015625, z: 0.015625, w: 0.1328125}
-    pivot: {x: 0.49997428, y: 0.86714625}
-    oldSize: {x: 1, y: 1}
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0, y: 0.5}
+    oldSize: {x: 1.37, y: 1.28}
     newSize: {x: 1, y: 1}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
@@ -220,13 +220,13 @@ PolygonCollider2D:
   m_AutoTiling: 0
   m_Points:
     m_Paths:
-    - - {x: 0, y: 0.5773587}
-      - {x: -0.12989229, y: 0.35225964}
-      - {x: -0.08305584, y: 0.26404813}
-      - {x: -0.023814127, y: 0.22005162}
-      - {x: 0.033069268, y: 0.22526002}
-      - {x: 0.083413735, y: 0.2617815}
-      - {x: 0.12992263, y: 0.3563736}
+    - - {x: 0.002800022, y: 0.5606822}
+      - {x: 0.33491534, y: 0.28467575}
+      - {x: 0.41395253, y: 0.33075422}
+      - {x: 0.48159426, y: 0.38769463}
+      - {x: 0.54687804, y: 0.5579128}
+      - {x: 0.49922076, y: 0.70502603}
+      - {x: 0.33432597, y: 0.8382374}
   m_UseDelaunayMesh: 1
 --- !u!114 &6546589463949786677
 MonoBehaviour:

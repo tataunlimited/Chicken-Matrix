@@ -42,10 +42,17 @@ namespace _Scripts.Core
         {
             if (_particleSystem == null) return;
 
+            // If not converging, disable this script and let normal particle lifecycle handle cleanup
+            if (!_shouldConverge)
+            {
+                enabled = false;
+                return;
+            }
+
             _timer += Time.deltaTime;
 
             // Only converge if we should (entity was detected, not a combo reset)
-            if (_shouldConverge && targetTransform != null && _timer >= convergeDelay)
+            if (targetTransform != null && _timer >= convergeDelay)
             {
                 _isConverging = true;
                 ConvergeParticles();
