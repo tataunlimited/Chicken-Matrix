@@ -41,7 +41,7 @@ namespace _Scripts.Core
             if(step == 0) DestroyEnemy();
         }
 
-        private void DestroyEnemy()
+        public void DestroyEnemy()
         {
             OnDestroyed?.Invoke(this);
 
