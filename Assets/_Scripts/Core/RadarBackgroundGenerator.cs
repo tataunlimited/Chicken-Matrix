@@ -120,8 +120,8 @@ namespace _Scripts.Core
             }
 
             //set the number of radial lines to a random number between 4 and 16
-            int numRadialLines = Random.Range(4, 16);
-            SetNumRadialLines(numRadialLines);
+            //int numRadialLines = Random.Range(4, 16);
+            //SetNumRadialLines(numRadialLines);
         }
 
         private void OscilateNumCircularGridLines()
