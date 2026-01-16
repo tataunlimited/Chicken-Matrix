@@ -18,21 +18,68 @@ public class SCRIPT_RadarLineController : MonoBehaviour
     [Header("Particle Settings")]
     [SerializeField] private ParticleSystem particlePrefab;
     [SerializeField] private int burstCount = 10;
+    [SerializeField] private Color enemyParticleColor = Color.red;
+    [SerializeField] private Color allyParticleColor = Color.green;
+
+    [Header("Radar Sync")]
+    [SerializeField] private RadarBackgroundGenerator radarBackground;
+
+    [Header("Trail Settings")]
+    [Tooltip("Lower = smoother trail but more vertices")]
+    [SerializeField] private float trailMinVertexDistance = 0.005f;
+    [Tooltip("Max rotation speed in degrees per second (limits how fast the line can rotate for smooth trails)")]
+    [SerializeField] private float maxRotationSpeed = 720f;
 
     private SpriteRenderer spriteRenderer;
     private Camera mainCamera;
     private HashSet<MovableEntitiy> revealedEntities = new HashSet<MovableEntitiy>();
+    private Vector3 baseScale;
+    private TrailRenderer trailRenderer;
+    private float currentAngle;
 
     private void Awake()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
         mainCamera = Camera.main;
+        baseScale = transform.localScale;
+
+        if (radarBackground == null)
+        {
+            radarBackground = RadarBackgroundGenerator.Instance;
+        }
+
+        // Configure trail renderer for smooth trails
+        trailRenderer = GetComponentInChildren<TrailRenderer>();
+        if (trailRenderer != null)
+        {
+            trailRenderer.minVertexDistance = trailMinVertexDistance;
+        }
+
+        // Initialize current angle
+        currentAngle = transform.eulerAngles.z;
     }
 
     private void Update()
     {
         RotateTowardsMouse();
         UpdateColor();
+        SyncScaleWithRadar();
+    }
+
+    private void SyncScaleWithRadar()
+    {
+        if (radarBackground == null)
+        {
+            radarBackground = RadarBackgroundGenerator.Instance;
+            if (radarBackground == null) return;
+        }
+
+        float scaleMultiplier = radarBackground.CurrentScaleMultiplier;
+        transform.localScale = new Vector3(
+            baseScale.x * scaleMultiplier,
+            baseScale.y,
+            baseScale.z
+        );
     }
 
     private void RotateTowardsMouse()
@@ -41,9 +88,12 @@ public class SCRIPT_RadarLineController : MonoBehaviour
         mouseWorldPos.z = 0f;
 
         Vector3 direction = mouseWorldPos - transform.position;
-        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+        float targetAngle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
 
-        transform.rotation = Quaternion.Euler(0f, 0f, angle);
+        // Smoothly rotate towards target with max speed limit for smooth trails
+        currentAngle = Mathf.MoveTowardsAngle(currentAngle, targetAngle, maxRotationSpeed * Time.deltaTime);
+
+        transform.rotation = Quaternion.Euler(0f, 0f, currentAngle);
     }
 
     private void UpdateColor()
@@ -91,8 +141,9 @@ public class SCRIPT_RadarLineController : MonoBehaviour
         // Set to high sorting order to reveal
         entityRenderer.sortingOrder = revealSortingOrder;
 
-        // Burst particles at entity position
-        SpawnParticleBurst(entity.transform.position);
+        // Burst particles at entity position with color based on type
+        Color particleColor = entity is Enemy ? enemyParticleColor : allyParticleColor;
+        SpawnParticleBurst(entity.transform.position, particleColor);
 
         // Wait for reveal duration
         yield return new WaitForSeconds(revealDuration);
@@ -133,13 +184,17 @@ public class SCRIPT_RadarLineController : MonoBehaviour
         revealedEntities.Remove(entity);
     }
 
-    private void SpawnParticleBurst(Vector3 position)
+    private void SpawnParticleBurst(Vector3 position, Color color)
     {
         if (particlePrefab == null)
             return;
 
         var particles = Instantiate(particlePrefab, position, Quaternion.identity);
+
+        var main = particles.main;
+        main.startColor = color;
+
         particles.Emit(burstCount);
-        Destroy(particles.gameObject, particles.main.duration + particles.main.startLifetime.constantMax);
+        Destroy(particles.gameObject, main.duration + main.startLifetime.constantMax);
     }
 }

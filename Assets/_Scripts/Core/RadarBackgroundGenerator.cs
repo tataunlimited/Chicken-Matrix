@@ -53,6 +53,10 @@ namespace _Scripts.Core
         private float breathingTargetAlpha;
         private bool breathingToMax = true;
 
+        // Current pulse scale multiplier (exposed for radar line sync)
+        private float currentScaleMultiplier = 1f;
+        public float CurrentScaleMultiplier => currentScaleMultiplier;
+
         public static RadarBackgroundGenerator Instance;
 
         private void Awake()
@@ -144,6 +148,7 @@ namespace _Scripts.Core
         private void ApplyVisuals(float beatIntensity, float breathingAlpha)
         {
             float scaleMultiplier = 1f + (pulseScaleAmount * beatIntensity);
+            currentScaleMultiplier = scaleMultiplier;
             float fadeMultiplier = 1f + (pulseFadeAmount * beatIntensity);
 
             // Apply to rings

@@ -71,7 +71,7 @@ namespace _Scripts.Core
             _maskCamera.depth = mainCamera.depth - 1; // Render before main camera
 
             // Create render texture for the mask
-            _maskRenderTexture = new RenderTexture(Screen.width, Screen.height, 0, RenderTextureFormat.ARGB32);
+            _maskRenderTexture = new RenderTexture(Screen.width, Screen.height, 24, RenderTextureFormat.ARGB32);
             _maskRenderTexture.name = "Light Mask RT";
             _maskCamera.targetTexture = _maskRenderTexture;
 

@@ -76,7 +76,7 @@ namespace _Scripts.Core
             // Create render texture
             int width = Mathf.Max(Screen.width, 1);
             int height = Mathf.Max(Screen.height, 1);
-            _maskTexture = new RenderTexture(width, height, 0, RenderTextureFormat.ARGB32);
+            _maskTexture = new RenderTexture(width, height, 24, RenderTextureFormat.ARGB32);
             _maskTexture.name = "Light Mask Texture";
             _maskCamera.targetTexture = _maskTexture;
 
