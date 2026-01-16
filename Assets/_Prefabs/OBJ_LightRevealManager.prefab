@@ -50,5 +50,5 @@ MonoBehaviour:
     m_Bits: 64
   blackoutColor: {r: 0, g: 0, b: 0, a: 1}
   sortingOrder: 1000
-  edgeSoftness: 0.5
+  edgeSoftness: 0.887
   showDebugMask: 0

@@ -1,13 +1,10 @@
 fileFormatVersion: 2
-guid: 4f4bc6198ea84284f81fa4396e37f308
+guid: b8e8311301e9473479214a863fcc5d8e
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -962488092458481032
-    second: D_0
-  - first:
-      213: -2687585069076979077
-    second: D_1
+      213: 4205776447163572161
+    second: SS_Rank_2_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -27,7 +24,7 @@ TextureImporter:
     heightScale: 0.25
     normalMapFilter: 0
     flipGreenChannel: 0
-  isReadable: 1
+  isReadable: 0
   streamingMipmaps: 0
   streamingMipmapsPriority: 0
   vTOnly: 0
@@ -103,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: D_0
+      name: SS_Rank_2_0
       rect:
         serializedVersion: 2
-        x: 76
-        y: 30
-        width: 34
-        height: 122
+        x: 84
+        y: 50
+        width: 317
+        height: 136
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -118,30 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 87a087ced2e84a2f0800000000000000
-      internalID: -962488092458481032
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: D_1
-      rect:
-        serializedVersion: 2
-        x: 110
-        y: 30
-        width: 80
-        height: 122
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: b72e50e7e97c3bad0800000000000000
-      internalID: -2687585069076979077
+      spriteID: 1cf93e1456bed5a30800000000000000
+      internalID: 4205776447163572161
       vertices: []
       indices: 
       edges: []
@@ -160,8 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      D_0: -962488092458481032
-      D_1: -2687585069076979077
+      SS_Rank_2_0: 4205776447163572161
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

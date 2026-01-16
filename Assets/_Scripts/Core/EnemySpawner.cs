@@ -80,6 +80,31 @@ namespace _Scripts.Core
             }
         }
 
+        public void ClearAllEntities()
+        {
+            // Destroy all alive enemies
+            for (int i = _aliveEnemies.Count - 1; i >= 0; i--)
+            {
+                if (_aliveEnemies[i] != null)
+                {
+                    _aliveEnemies[i].OnDestroyed -= EnemyDestroyed;
+                    Destroy(_aliveEnemies[i].gameObject);
+                }
+            }
+            _aliveEnemies.Clear();
+
+            // Destroy all alive allies
+            for (int i = _aliveAllies.Count - 1; i >= 0; i--)
+            {
+                if (_aliveAllies[i] != null)
+                {
+                    _aliveAllies[i].OnDestroyed -= EnemyDestroyed;
+                    Destroy(_aliveAllies[i].gameObject);
+                }
+            }
+            _aliveAllies.Clear();
+        }
+
 
         public void UpdateEnemies()
         {
