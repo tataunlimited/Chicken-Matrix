@@ -40,10 +40,8 @@ namespace _Scripts.Core
             Instance = this;
         }
 
-        void SpawnEntity(MovableEntitiy prefab)
+        float SpawnEntityAtAngle(MovableEntitiy prefab, float angle)
         {
-            float angle = Random.Range(0f, Mathf.PI * 2);
-
             float x = Mathf.Cos(angle) * spawnRadius;
             float y = Mathf.Sin(angle) * spawnRadius;
 
@@ -70,6 +68,8 @@ namespace _Scripts.Core
             {
                 _aliveNeutrals.Add(neutral);
             }
+
+            return angle;
         }
 
         private MovableEntitiy GetEntityPrefabForCombo(int combo, out int count)
@@ -109,11 +109,11 @@ namespace _Scripts.Core
                 return patternPos < 2 ? enemyPrefab : friendlyPrefab;
             }
 
-            // Combo 51-60: Friend - Friend - Enemy - Enemy pattern
+            // Combo 51-60: Neutral only, 2 per pulse
             if (combo <= 60)
             {
-                int patternPos = _entityPatternIndex % 4;
-                return patternPos < 2 ? friendlyPrefab : enemyPrefab;
+                count = 2;
+                return neutralPrefab;
             }
 
             // Combo 61-70: F-F-F-E-E-F-F-E-E-E-F-F-E-E-F-F-F (17-element pattern)
@@ -133,6 +133,23 @@ namespace _Scripts.Core
             if (combo <= 20) return 3;
             if (combo <= 70) return 2;
             return 2; // 71-100 base is also 2
+        }
+
+        /// <summary>
+        /// Returns the chance (0-1) to spawn a neutral alongside regular entities.
+        /// 0% for combo 1-10, 10% for 11-20, 20% for 21-30, 30% for 31-40, 40% for 41-50.
+        /// Returns -1 for combo 51-60 (neutral-only phase, handled separately).
+        /// </summary>
+        private float GetNeutralSpawnChance(int combo)
+        {
+            if (combo <= 10) return 0f;
+            if (combo <= 20) return 0.1f;
+            if (combo <= 30) return 0.2f;
+            if (combo <= 40) return 0.3f;
+            if (combo <= 50) return 0.4f;
+            if (combo <= 60) return -1f; // Neutral-only phase
+            if (combo <= 70) return 0.5f;
+            return 0.6f; // 71+
         }
 
         private bool ShouldSpawnThisInterval(int combo)
@@ -309,10 +326,20 @@ namespace _Scripts.Core
                 if (ShouldSpawnThisInterval(combo))
                 {
                     var prefab = GetEntityPrefabForCombo(combo, out int count);
+                    float neutralChance = GetNeutralSpawnChance(combo);
 
                     for (int i = 0; i < count; i++)
                     {
-                        SpawnEntity(prefab);
+                        // Spawn the main entity and get its angle
+                        float spawnAngle = SpawnEntityAtAngle(prefab, Random.Range(0f, Mathf.PI * 2));
+
+                        // If not in neutral-only phase (51-60), check for bonus neutral spawn
+                        if (neutralChance >= 0f && Random.value < neutralChance)
+                        {
+                            // Spawn neutral on opposite tangent (180 degrees / PI radians offset)
+                            float oppositeAngle = spawnAngle + Mathf.PI;
+                            SpawnEntityAtAngle(neutralPrefab, oppositeAngle);
+                        }
                     }
                     _entityPatternIndex++;
                 }
