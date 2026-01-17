@@ -11,16 +11,26 @@ namespace _Scripts.Core
         [Tooltip("10 music iterations - switches every 10 combo")]
         [SerializeField] private AudioClip[] musicTracks = new AudioClip[10];
 
+        [Header("Sound Effects")]
+        [SerializeField] private AudioClip deathSoundClip;
+        [SerializeField] private float sfxVolume = 1f;
+
         [Header("Audio Settings")]
         [SerializeField] private float musicVolume = 1f;
         [SerializeField] private float crossfadeDuration = 1f;
         [SerializeField] private bool loopTracks = true;
 
+        [Header("Volume Punch")]
+        [SerializeField] private float volumePunchMultiplier = 1.25f;
+        [SerializeField] private float volumePunchFadeDuration = 0.15f;
+
         private AudioSource audioSourceA;
         private AudioSource audioSourceB;
         private AudioSource activeSource;
+        private AudioSource sfxSource;
         private int currentTrackIndex = -1;
         private Coroutine crossfadeCoroutine;
+        private Coroutine volumePunchCoroutine;
 
         private void Awake()
         {
@@ -36,6 +46,10 @@ namespace _Scripts.Core
             audioSourceB.volume = 0f;
 
             activeSource = audioSourceA;
+
+            // Create SFX audio source
+            sfxSource = gameObject.AddComponent<AudioSource>();
+            sfxSource.playOnAwake = false;
         }
 
         private void Start()
@@ -144,6 +158,46 @@ namespace _Scripts.Core
         {
             audioSourceA?.Stop();
             audioSourceB?.Stop();
+        }
+
+        public void PlayDeathSound()
+        {
+            if (deathSoundClip != null && sfxSource != null)
+            {
+                sfxSource.PlayOneShot(deathSoundClip, sfxVolume);
+            }
+        }
+
+        public void PunchVolume()
+        {
+            if (activeSource == null || !activeSource.isPlaying) return;
+
+            if (volumePunchCoroutine != null)
+            {
+                StopCoroutine(volumePunchCoroutine);
+            }
+
+            volumePunchCoroutine = StartCoroutine(VolumePunchCoroutine());
+        }
+
+        private IEnumerator VolumePunchCoroutine()
+        {
+            // Immediately boost volume
+            float punchedVolume = Mathf.Min(musicVolume * volumePunchMultiplier, 1f);
+            activeSource.volume = punchedVolume;
+
+            // Fade back to normal
+            float elapsed = 0f;
+            while (elapsed < volumePunchFadeDuration)
+            {
+                elapsed += Time.deltaTime;
+                float t = elapsed / volumePunchFadeDuration;
+                activeSource.volume = Mathf.Lerp(punchedVolume, musicVolume, t);
+                yield return null;
+            }
+
+            activeSource.volume = musicVolume;
+            volumePunchCoroutine = null;
         }
     }
 }

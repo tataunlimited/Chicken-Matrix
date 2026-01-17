@@ -11,6 +11,8 @@ namespace _Scripts.Core
         public static PlayerController Instance;
         public Collider2D detectionCollider;
         public SpriteRenderer spriteRenderer;
+
+        public event Action OnPulse;
         
         public Color enemyDetectionColor;
         public Color allyDetectionColor;
@@ -70,6 +72,7 @@ namespace _Scripts.Core
         {
             detectionCollider.enabled = true;
             _isPulsing = true;
+            OnPulse?.Invoke();
             var cloneSprite = Instantiate(spriteRenderer, spriteRenderer.transform.position, spriteRenderer.transform.rotation);
             UpdateColor(cloneSprite);
 

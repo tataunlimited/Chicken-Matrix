@@ -120,6 +120,9 @@ namespace _Scripts.Core
 
             SpawnDestructionParticles(detected);
 
+            // Play death sound effect
+            SoundController.Instance?.PlayDeathSound();
+
             GetComponentInChildren<SpriteRenderer>().color = Color.ghostWhite;
             Destroy(gameObject,0.2f);
         }
