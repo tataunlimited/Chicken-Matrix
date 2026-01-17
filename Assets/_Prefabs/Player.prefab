@@ -49,6 +49,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: '::'
   detectionCollider: {fileID: 4136178678573418929}
   spriteRenderer: {fileID: 3370693627702123055}
+  neutralDetector: {fileID: 7738467291424031276}
   enemyDetectionColor: {r: 1, g: 0.31822518, b: 0, a: 0.48235294}
   allyDetectionColor: {r: 0, g: 0.6339278, b: 1, a: 0.20392157}
   enemyPulseColor: {r: 1, g: 0, b: 0.16220379, a: 0.16862746}
