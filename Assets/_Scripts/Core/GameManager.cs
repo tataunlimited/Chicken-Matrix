@@ -6,6 +6,8 @@ using UnityEngine.UI;
 
 namespace _Scripts.Core
 {
+    
+    public enum Difficulty {Easy, Hard}
     public class GameManager : MonoBehaviour
     {
 
@@ -45,6 +47,7 @@ namespace _Scripts.Core
         private int currentRankIndex = -1;
 
         public static GameManager Instance; 
+        public static Difficulty Difficulty = Difficulty.Easy;
         
         
         
@@ -73,6 +76,8 @@ namespace _Scripts.Core
         {
             StartCoroutine(UpdateInterval());
         }
+
+
 
         IEnumerator UpdateInterval()
         {
@@ -149,7 +154,7 @@ namespace _Scripts.Core
                     ShakeScreen(combo);
                     EnemySpawner.Instance.ClearAllEntities();
                 }
-                combo = 1;
+                combo = Difficulty == Difficulty.Hard ? 1 : Mathf.Max(combo - 10, 1);
                 UpdateComboRankDisplay();
             }
 
