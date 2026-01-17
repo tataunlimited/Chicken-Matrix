@@ -214,6 +214,35 @@ namespace _Scripts.Core
         }
 
         /// <summary>
+        /// Destroys all entities with destruction particles but without updating combo.
+        /// Used for rank-up screen clear effect.
+        /// </summary>
+        public void DestroyAllEntitiesWithParticles()
+        {
+            // Destroy all alive enemies with particles
+            for (int i = _aliveEnemies.Count - 1; i >= 0; i--)
+            {
+                if (_aliveEnemies[i] != null)
+                {
+                    _aliveEnemies[i].OnDestroyed -= EnemyDestroyed;
+                    _aliveEnemies[i].Destroy(false);
+                }
+            }
+            _aliveEnemies.Clear();
+
+            // Destroy all alive allies with particles
+            for (int i = _aliveAllies.Count - 1; i >= 0; i--)
+            {
+                if (_aliveAllies[i] != null)
+                {
+                    _aliveAllies[i].OnDestroyed -= EnemyDestroyed;
+                    _aliveAllies[i].Destroy(false);
+                }
+            }
+            _aliveAllies.Clear();
+        }
+
+        /// <summary>
         /// Push all current entities back by one step and reveal them permanently.
         /// Entities pushed beyond maxStep are destroyed.
         /// </summary>

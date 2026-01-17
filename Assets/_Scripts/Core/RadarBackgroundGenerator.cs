@@ -329,6 +329,18 @@ namespace _Scripts.Core
             return true;
         }
 
+        /// <summary>
+        /// Gets the current combo grid color for external use (e.g., rank up effects)
+        /// </summary>
+        public Color GetCurrentComboColor()
+        {
+            if (TryGetComboGridColor(out Color comboColor))
+            {
+                return comboColor;
+            }
+            return glowColor;
+        }
+
         private void ApplyVisuals()
         {
             //OscilateNumCircularGridLines();

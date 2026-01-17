@@ -25,10 +25,15 @@ namespace _Scripts.Core
         [Header("Screen Shake")]
         [SerializeField] private float baseShakeDuration = 1f;
         [SerializeField] private float baseShakeMagnitude = 0.5f;
+        [SerializeField] private float miniShakeDuration = 0.05f;
+        [SerializeField] private float miniShakeMagnitude = 0.03f;
 
         [Header("Combo Text Pulse")]
         [SerializeField] private float pulseDuration = 0.15f;
         [SerializeField] private float pulseScale = 1.5f;
+
+        [Header("Rank Up Effects")]
+        [SerializeField] private GameObject rankUpExplosionPrefab;
 
         private Camera mainCamera;
         private Coroutine comboPulseCoroutine;
@@ -133,6 +138,7 @@ namespace _Scripts.Core
             if (entityDetected)
             {
                 combo++;
+                MiniShakeScreen();
                 UpdateComboRankDisplay();
             }
             else
@@ -154,6 +160,12 @@ namespace _Scripts.Core
             if (SoundController.Instance != null)
             {
                 SoundController.Instance.UpdateMusicForCombo(combo);
+
+                // Punch volume on successful kill
+                if (entityDetected)
+                {
+                    SoundController.Instance.PunchVolume();
+                }
             }
         }
 
@@ -171,7 +183,16 @@ namespace _Scripts.Core
             // Only update if the rank has changed to avoid unnecessary updates
             if (rankIndex != currentRankIndex)
             {
+                // Check if rank increased (not decreased or reset)
+                bool rankIncreased = rankIndex > currentRankIndex && currentRankIndex >= 0;
+
                 currentRankIndex = rankIndex;
+
+                // Trigger rank up effects when ranking up
+                if (rankIncreased)
+                {
+                    OnRankUp(); 
+                }
 
                 // ===== NO RANK STATE (Combo 0-10) =====
                 if (rankIndex == -1)
@@ -234,6 +255,28 @@ namespace _Scripts.Core
             }
         }
 
+        private void OnRankUp()
+        {
+            // Spawn explosion at origin with radar grid color
+            if (rankUpExplosionPrefab != null)
+            {
+                var explosion = Instantiate(rankUpExplosionPrefab, Vector3.zero, Quaternion.identity);
+
+                // Set particle color to match radar grid (ensure full alpha)
+                var particleSystem = explosion.GetComponent<ParticleSystem>();
+                if (particleSystem != null && RadarBackgroundGenerator.Instance != null)
+                {
+                    var main = particleSystem.main;
+                    Color radarColor = RadarBackgroundGenerator.Instance.GetCurrentComboColor();
+                    radarColor.a = 1f;
+                    main.startColor = radarColor;
+                }
+            }
+
+            // Destroy all entities with particles (but don't update combo)
+            EnemySpawner.Instance.DestroyAllEntitiesWithParticles();
+        }
+
         /// <summary>
         /// Gets the rank index based on combo value
         /// Returns -1 for no rank (0-10)
@@ -254,6 +297,23 @@ namespace _Scripts.Core
         #endregion
 
         #region Shake System
+
+        private void MiniShakeScreen()
+        {
+            if (mainCamera == null) return;
+
+            if (shakeCoroutine != null)
+            {
+                StopCoroutine(shakeCoroutine);
+                mainCamera.transform.localPosition = originalCameraPosition;
+            }
+
+            currentShakeDuration = miniShakeDuration;
+            currentShakeMagnitude = miniShakeMagnitude;
+
+            shakeCoroutine = StartCoroutine(ShakeCoroutine());
+        }
+
         public void ShakeScreen(int lostCombo)
         {
             if (mainCamera == null) return;
