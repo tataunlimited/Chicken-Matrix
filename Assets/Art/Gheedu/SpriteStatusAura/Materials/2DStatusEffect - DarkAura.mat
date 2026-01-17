@@ -1,0 +1,269 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-7203821469904498966
+MonoBehaviour:
+  m_ObjectHideFlags: 11
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0353a89b1f911e48b9e16bdc9f2e058, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  version: 10
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 2DStatusEffect - DarkAura
+  m_Shader: {fileID: -6465566751694194690, guid: 473b5cbba7b621b41b663d6a610e7457, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _AuraTexture:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _OutlineSprite_e8708676ea3d485a8a11d98acd8fe95e_OutlineTexture_3492812294_Texture2D:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _OutlineTexture:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Outline_Texture:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Output_f8113c59ffee404196a47f48dcefd536_OutlineTexture_2_Texture2D:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SampleTexture2D_096fedde5d834777bd8cdd886168f6a9_Texture_1_Texture2D:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SampleTexture2D_7a442ed77669450b8bee7c0519f3bf73_Texture_1_Texture2D:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SampleTexture2D_c4d7bcdf7ee64a1b855877aeeb85a085_Texture_1_Texture2D:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Texture:
+        m_Texture: {fileID: 2800000, guid: 35b32820e5b23854d898c64cb515ae09, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Texture2DAsset_06ab637ef16f40a6b1f6b11477064349_Out_0_Texture2D:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _TileTexture_621123a43cbd47b6b93edd7112cae889_Texture2D_913545403_Texture2D:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Tiling_1a4f2e5b00bf47948fbb3d44070e1de1_ScrollingTex_4256721337_Texture2D:
+        m_Texture: {fileID: 2800000, guid: 0d49e91309247ab49a2cef5801a7b95c, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Tiling_1a4f2e5b00bf47948fbb3d44070e1de1_Texture2D_3272966452_Texture2D:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Tiling_1a4f2e5b00bf47948fbb3d44070e1de1_Texture2D_913545403_Texture2D:
+        m_Texture: {fileID: 10307, guid: 0000000000000000f000000000000000, type: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Tiling_621123a43cbd47b6b93edd7112cae889_Texture2D_913545403_Texture2D:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Wave_5b664b8921ef491098f2b1a91cda1230_MainTex_2225885847_Texture2D:
+        m_Texture: {fileID: 2800000, guid: b8bc1b166b1e8734cb7511afadd2e3b9, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Wave_5b664b8921ef491098f2b1a91cda1230_MainTex_265476832_Texture2D:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Wave_892696a05df247c3b855a3cf6a0d907d_MainTex_2225885847_Texture2D:
+        m_Texture: {fileID: 2800000, guid: b8bc1b166b1e8734cb7511afadd2e3b9, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_Lightmaps:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_LightmapsInd:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_ShadowMasks:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _ALO: 0
+    - _Animation_SofteningNoiseRotation: 0
+    - _Animation_SofteningOffsetSpeed: 0.1
+    - _Blur: 1.4
+    - _BlurInstance_0X_1Y: 1
+    - _BlurInstance_1X_0Y: 1
+    - _BlurInstance_1X_1Y: 1
+    - _BlurInstance_X_1Y0: 1
+    - _BlurInstance_negX_negY: 1
+    - _BlurInstance_negX_posY: 1
+    - _BlurInstance_negX_zeroY: 1
+    - _BlurInstance_posX_negY: 1
+    - _BlurInstance_posX_posY: 1
+    - _BlurInstance_posX_zeroY: 1
+    - _BlurInstance_zeroX_negY: 1
+    - _BlurInstance_zeroX_posY: 1
+    - _BlurInstance_zeroX_posY_1: 1
+    - _BlurInstancesSpacing: 0.515
+    - _BlurSpacing: 1
+    - _Boolean: 0
+    - _Float: 0.11111111
+    - _Frequency: 1.14
+    - _NoiseScale: 10
+    - _NoiseSpeed: 0.1
+    - _OutlineBlurSpacing: 0.426
+    - _OutlineBlurSpacingMultiplier: 100
+    - _OutlineBlurSpacingScale: 1
+    - _OutlineBlurValueScaling: 10
+    - _OutlineColorControlAmount: 1
+    - _OutlineColorControlValue: 0.21
+    - _OutlineColorIntensity: 0.18
+    - _OutlineColorOvertake: 0
+    - _OutlineColorSpriteOvertake: -1
+    - _OutlineColorSpriteTakeover: 0.39
+    - _OutlineColorTakeover: 0.52
+    - _OutlineControlsSpriteColor: 1
+    - _OutlineRotation: 0
+    - _OutlineSofteningNoiseScale: 10
+    - _OutlineSofteningNoiseSpeed: 0.1
+    - _OutlineSoftness: 0.33
+    - _OutlineThickness: 1.6
+    - _OutlineThreshold: 0.75
+    - _Outline_BlurInstancesSpacing: 0.502
+    - _Outline_BlurInstancesSpacingMultiplier: 100
+    - _Outline_BlurSpacing: 0.195
+    - _Outline_BlurSpacingMultiplier: 50
+    - _Outline_ControlsSpriteColor: 1
+    - _Outline_NoiseSofteningOffsetSpeed: 0.1
+    - _Outline_NoiseSofteningScale: 1
+    - _Outline_NoiseSofteningSpeed: 0.1
+    - _Outline_Noise_SofteningNoiseRotation: 0
+    - _Outline_Noise_SofteningOffsetSpeed: 0.1
+    - _Outline_OverrideColorValue: 0.3
+    - _Outline_OverrideSpriteColor: 1
+    - _Outline_SaturateSpriteColor: 1
+    - _Outline_SofteningNoiseOffsetSpeed: 0.1
+    - _Outline_SofteningNoiseRotation: 0.83
+    - _Outline_SofteningNoiseScale: 10
+    - _Outline_SofteningOffsetSpeed: 0.1
+    - _Outline_Softness: 0.664
+    - _Outline_Threshold: 0.5
+    - _OverrideColorValue: 1
+    - _OverrideSpriteColor: 1
+    - _PixelsPerUnit: 50
+    - _Rotation: 0
+    - _SaturateSprite: 1
+    - _SofteningNoiseRotation: 1
+    - _SofteningOffsetSpeed: 5
+    - _Softness: 0.75
+    - _Speed: -2
+    - _SpriteScale: 10
+    - _Sprite_PixelsPerUnit: 100
+    - _Strength: 0.66
+    - _Takeover: 1
+    - _TakeoverSpriteColor: 0
+    - _TilingSpeed: 0.94
+    - _WaveFreq: 2.83
+    - _WaveFrequency: 0
+    - _WaveSpeed: -2.5
+    - _WaveStrength: 0
+    - _Wave_Frequency: 1
+    - _Wave_Speed: 2.4
+    - _Wave_Strength: 0.01
+    - _Wave_X_Axis: 0
+    - _Wave_Y_Axis: 0
+    - _X0Y1: 1
+    - _X0Y_1: 1
+    - _X0_Y1: 1
+    - _X0_Y_1: 1
+    - _X1Y0: 1
+    - _X1Y1: 1
+    - _X1Y_1: 1
+    - _X1_Y0: 1
+    - _X1_Y1: 1
+    - _X1_Y_1: 1
+    - _X_1Y0: 1
+    - _X_1Y1: 1
+    - _X_1Y_1: 1
+    - _X_1_Y0: 1
+    - _X_1_Y1: 1
+    - _X_1_Y_1: 1
+    - _X_Axis: 1
+    - _X_axis_Wave: 1
+    - _Y_Axis: 1
+    - _Y_axis_Wave: 1
+    m_Colors:
+    - _0X_1: {r: 0, g: -1, b: 0, a: 0}
+    - _0X_1Y: {r: 0, g: 1, b: 0, a: 0}
+    - _0X_1Y_1: {r: 1, g: 0, b: 0, a: 0}
+    - _1X_0Y: {r: -1, g: 0, b: 0, a: 0}
+    - _1X_1: {r: 1, g: 1, b: 0, a: 0}
+    - _1X_1Y: {r: -1, g: 1, b: 0, a: 0}
+    - _1X_2: {r: 1, g: 0, b: 0, a: 0}
+    - _1X_3: {r: -1, g: -1, b: 0, a: 0}
+    - _1X_4: {r: 1, g: -1, b: 0, a: 0}
+    - _Animation_SofteningScale: {r: 1, g: 1, b: 0, a: 0}
+    - _BlurScale: {r: 1, g: 1, b: 0, a: 0}
+    - _Color: {r: 1.5002664, g: 0, b: 8.452829, a: 1}
+    - _Offset: {r: 0, g: 20, b: 0, a: 0}
+    - _OutlineColor: {r: 0.32382435, g: 0, b: 1.7416734, a: 0}
+    - _OutlinePosition: {r: 0, g: 0, b: 0, a: 0}
+    - _OutlineTexColor: {r: 1, g: 0.7610775, b: 0, a: 1}
+    - _Outline_Color: {r: 0.80967784, g: 0, b: 2.6663551, a: 1}
+    - _Outline_NoiseSofteningScale: {r: 0, g: 0, b: 0, a: 0}
+    - _Outline_Noise_SofteningScale: {r: 0.19, g: -0.59, b: 0, a: 0}
+    - _Outline_Position: {r: 0, g: 20.8, b: 0, a: 0}
+    - _Outline_SofteningScale: {r: 1, g: 1, b: 0, a: 0}
+    - _Position: {r: 0, g: 0, b: 0, a: 0}
+    - _SofteningScale: {r: 2.5, g: 2.5, b: 0, a: 0}
+    - _TilingPosition: {r: 0, g: 0, b: 0, a: 0}
+    - _TilingScaling: {r: 0.88, g: 1, b: 0, a: 0}
+    - _Vector2: {r: -1, g: 1, b: 0, a: 0}
+    - _Vector2_1: {r: 0, g: 1, b: 0, a: 0}
+    - _Vector2_2: {r: 1, g: 1, b: 0, a: 0}
+    - _Vector2_3: {r: 1, g: 0, b: 0, a: 0}
+    - _Vector2_4: {r: 1, g: -1, b: 0, a: 0}
+    - _Vector2_5: {r: 1, g: 0, b: 0, a: 0}
+    - _Vector2_6: {r: -1, g: -1, b: 0, a: 0}
+    - _Vector2_7: {r: 1, g: 0, b: 0, a: 0}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1
