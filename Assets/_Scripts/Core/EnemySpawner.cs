@@ -8,24 +8,24 @@ namespace _Scripts.Core
     public class EnemySpawner : MonoBehaviour
     {
         public float spawnRadius;
-        
-        public List<MovableEntitiy> enemyPrefabs;
+
+        [Header("Entity Prefabs")]
+        public MovableEntitiy friendlyPrefab;
+        public MovableEntitiy enemyPrefab;
 
         public float stepSize = 1;
 
         public float offset = 0.5f;
-
-        public int spawnEnemyInterval = 3;
 
         [Header("Spin Attack Settings")]
         [Tooltip("Maximum step value - entities pushed beyond this are destroyed")]
         public int maxStep = 4;
         [Tooltip("Sorting order for revealed entities")]
         public int revealSortingOrder = 1200;
-        // Let's keep this to 1 for now
-        public int numberOfEnemiesToSpawnPerInterval = 1;
-        
+
         private int _currentSpawnInterval;
+        private int _spawnCycleCounter;
+        private int _entityPatternIndex;
 
 
         private readonly List<Enemy> _aliveEnemies = new List<Enemy>();
@@ -38,25 +38,21 @@ namespace _Scripts.Core
             Instance = this;
         }
 
-        void SpawnEnemy()
+        void SpawnEntity(MovableEntitiy prefab)
         {
-            var enemyPrefab = enemyPrefabs[Random.Range(0, enemyPrefabs.Count)];
-            
             float angle = Random.Range(0f, Mathf.PI * 2);
 
-            // 2. Calculate the x and y positions
             float x = Mathf.Cos(angle) * spawnRadius;
             float y = Mathf.Sin(angle) * spawnRadius;
 
-            // 3. Create the position vector (relative to the spawner's center)
             Vector3 spawnPosition = new Vector3(x, y, 0) + transform.position;
-            
-            var newEntity = Instantiate(enemyPrefab, spawnPosition, Quaternion.identity);
-            
+
+            var newEntity = Instantiate(prefab, spawnPosition, Quaternion.identity);
+
             newEntity.Init(offset, stepSize);
-            
+
             Vector2 direction = (Vector2)transform.position - (Vector2)spawnPosition;
-            
+
             newEntity.transform.up = direction;
 
             newEntity.OnDestroyed += EnemyDestroyed;
@@ -68,6 +64,88 @@ namespace _Scripts.Core
             {
                 _aliveAllies.Add(ally);
             }
+        }
+
+        private MovableEntitiy GetEntityPrefabForCombo(int combo)
+        {
+            // Combo 1-10: Friendly only
+            if (combo <= 10)
+                return friendlyPrefab;
+
+            // Combo 11-20: Enemy only
+            if (combo <= 20)
+                return enemyPrefab;
+
+            // Combo 21-30: Alternate Friend - Enemy
+            if (combo <= 30)
+            {
+                bool isFriendly = (_entityPatternIndex % 2) == 0;
+                return isFriendly ? friendlyPrefab : enemyPrefab;
+            }
+
+            // Combo 31-40: Friend - Friend - Enemy pattern
+            if (combo <= 40)
+            {
+                int patternPos = _entityPatternIndex % 3;
+                return patternPos < 2 ? friendlyPrefab : enemyPrefab;
+            }
+
+            // Combo 41-50: Enemy - Enemy - Friend pattern
+            if (combo <= 50)
+            {
+                int patternPos = _entityPatternIndex % 3;
+                return patternPos < 2 ? enemyPrefab : friendlyPrefab;
+            }
+
+            // Combo 51-60: Friend - Friend - Enemy - Enemy pattern
+            if (combo <= 60)
+            {
+                int patternPos = _entityPatternIndex % 4;
+                return patternPos < 2 ? friendlyPrefab : enemyPrefab;
+            }
+
+            // Combo 61-70: F-F-F-E-E-F-F-E-E-E-F-F-E-E-F-F-F (17-element pattern)
+            if (combo <= 70)
+            {
+                int[] pattern = { 0, 0, 0, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 0, 0, 0 };
+                int patternPos = _entityPatternIndex % pattern.Length;
+                return pattern[patternPos] == 0 ? friendlyPrefab : enemyPrefab;
+            }
+
+            // Combo 71-100: Random
+            return Random.value < 0.5f ? friendlyPrefab : enemyPrefab;
+        }
+
+        private int GetSpawnIntervalForCombo(int combo)
+        {
+            if (combo <= 20) return 3;
+            if (combo <= 70) return 2;
+            return 2; // 71-100 base is also 2
+        }
+
+        private bool ShouldSpawnThisInterval(int combo)
+        {
+            // Combo 1-20: spawn every 3 intervals (handled by interval counter)
+            if (combo <= 20)
+                return true;
+
+            // Combo 21-40: 2-1 pattern (spawn, wait, spawn, wait, wait)
+            // Cycle of 5: spawn at 0, spawn at 2
+            if (combo <= 40)
+            {
+                int cyclePos = _spawnCycleCounter % 5;
+                return cyclePos == 0 || cyclePos == 2;
+            }
+
+            // Combo 41-70: spawn every 2 intervals (standard)
+            if (combo <= 70)
+                return true;
+
+            // Combo 71-100: 2+1 pattern (spawn, wait, spawn, spawn, wait, spawn, wait, spawn, spawn...)
+            // Every other spawn, spawn an extra one on the next interval
+            // Cycle of 4: spawn at 0, spawn at 2, spawn at 3
+            int cycle = _spawnCycleCounter % 4;
+            return cycle == 0 || cycle == 2 || cycle == 3;
         }
 
         private void EnemyDestroyed(MovableEntitiy entity)
@@ -109,6 +187,8 @@ namespace _Scripts.Core
                 }
             }
             _aliveAllies.Clear();
+
+            ResetProgression();
         }
 
         /// <summary>
@@ -153,26 +233,36 @@ namespace _Scripts.Core
             {
                 _aliveEnemies[i].UpdatePosition();
             }
-            
+
             for (int i = _aliveAllies.Count - 1; i >= 0; i--)
             {
                 _aliveAllies[i].UpdatePosition();
             }
-            
+
+            int combo = GameManager.Instance.combo;
+            int spawnInterval = GetSpawnIntervalForCombo(combo);
+
             if (_currentSpawnInterval < 1)
             {
-                _currentSpawnInterval = spawnEnemyInterval;
-                SpawnEnemies();
+                _currentSpawnInterval = spawnInterval;
+
+                if (ShouldSpawnThisInterval(combo))
+                {
+                    var prefab = GetEntityPrefabForCombo(combo);
+                    SpawnEntity(prefab);
+                    _entityPatternIndex++;
+                }
+
+                _spawnCycleCounter++;
             }
             _currentSpawnInterval--;
         }
 
-        private void SpawnEnemies()
+        public void ResetProgression()
         {
-            for (int i = 0; i < numberOfEnemiesToSpawnPerInterval; i++)
-            {
-                SpawnEnemy();
-            }
+            _spawnCycleCounter = 0;
+            _entityPatternIndex = 0;
+            _currentSpawnInterval = 0;
         }
     }
 }
