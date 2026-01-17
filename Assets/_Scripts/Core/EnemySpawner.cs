@@ -72,10 +72,14 @@ namespace _Scripts.Core
             }
         }
 
-        private MovableEntitiy GetEntityPrefabForCombo(int combo)
+        private MovableEntitiy GetEntityPrefabForCombo(int combo, out int count)
         {
-            if(combo <= 5)
+            count = 1;
+            if (combo <= 5)
+            {
+                count = Random.Range(2, 5);
                 return neutralPrefab;
+            }
             // Combo 1-10: Friendly only
             if (combo <= 10)
                 return friendlyPrefab;
@@ -304,8 +308,12 @@ namespace _Scripts.Core
 
                 if (ShouldSpawnThisInterval(combo))
                 {
-                    var prefab = GetEntityPrefabForCombo(combo);
-                    SpawnEntity(prefab);
+                    var prefab = GetEntityPrefabForCombo(combo, out int count);
+
+                    for (int i = 0; i < count; i++)
+                    {
+                        SpawnEntity(prefab);
+                    }
                     _entityPatternIndex++;
                 }
 
