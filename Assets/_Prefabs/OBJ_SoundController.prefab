@@ -48,13 +48,18 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 6c31dcd1f582c6f45b22ffe1dcbbea52, type: 3}
   - {fileID: 8300000, guid: bc91188bf2e2e76448520328bf247324, type: 3}
   - {fileID: 8300000, guid: 48734d23bc67a994492707ca0809d283, type: 3}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
+  - {fileID: 8300000, guid: 4bae39cb8b173c844a2e44a03ac2773b, type: 3}
+  - {fileID: 8300000, guid: dd5f0c75aabbb794190e7f7f1060351f, type: 3}
+  - {fileID: 8300000, guid: bb5b810190c65bf439877ca4a80fd5d6, type: 3}
+  - {fileID: 8300000, guid: 104170f3c5658574a860f869e3888a96, type: 3}
+  - {fileID: 8300000, guid: 49bd71c36495da745b988ccae852cade, type: 3}
+  - {fileID: 8300000, guid: 4d427a93a2b878f4194688d59f0dbc23, type: 3}
+  - {fileID: 8300000, guid: eeaa8adc54018cf4ba8448401235306c, type: 3}
+  - {fileID: 8300000, guid: d3bd5edde9260f346b1ed80ea518aedf, type: 3}
+  deathSoundClip: {fileID: 8300000, guid: c36d92e66f4270a4fbc9cd9b4b40833e, type: 3}
+  sfxVolume: 1
   musicVolume: 1
   crossfadeDuration: 1
   loopTracks: 1
+  volumePunchMultiplier: 1.25
+  volumePunchFadeDuration: 0.15

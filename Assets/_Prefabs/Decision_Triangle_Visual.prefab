@@ -121,9 +121,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 07f49b599d4528c47b9c0da192801455, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SCRIPT_RadarLineController
-  defaultColor: {r: 1, g: 1, b: 1, a: 0}
-  leftClickColor: {r: 1, g: 0, b: 0, a: 0.53333336}
-  rightClickColor: {r: 0, g: 1, b: 0, a: 0.45882353}
+  defaultColor: {r: 1, g: 1, b: 1, a: 0.11372549}
+  leftClickColor: {r: 1, g: 0, b: 0, a: 0.23137255}
+  rightClickColor: {r: 0, g: 1, b: 0, a: 0.23137255}
   revealSortingOrder: 30
   revealDuration: 0
   fadeDuration: 0
@@ -144,7 +144,7 @@ ParticleSystem:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1203874999527355732}
   serializedVersion: 8
-  lengthInSec: 1
+  lengthInSec: 0.5
   simulationSpeed: 1
   stopAction: 0
   cullingMode: 0
@@ -218,9 +218,9 @@ ParticleSystem:
     enabled: 1
     startLifetime:
       serializedVersion: 2
-      minMaxState: 0
-      scalar: 1
-      minScalar: 5
+      minMaxState: 3
+      scalar: 0.5
+      minScalar: 0.25
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -1147,14 +1147,23 @@ ParticleSystem:
         serializedVersion: 2
         m_Curve:
         - serializedVersion: 3
-          time: 0
-          value: 1
+          time: 0.0015335083
+          value: 0
           inSlope: -2
           outSlope: -2
           tangentMode: 0
           weightedMode: 0
           inWeight: 0
           outWeight: 0
+        - serializedVersion: 3
+          time: 0.54933655
+          value: 1
+          inSlope: -1.0852454
+          outSlope: -1.0852454
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0.33333334
+          outWeight: 0.33333334
         - serializedVersion: 3
           time: 1
           value: 0
@@ -4152,7 +4161,7 @@ ParticleSystem:
         m_PostInfinity: 2
         m_RotationOrder: 4
     minVertexDistance: 0.2
-    textureMode: 2
+    textureMode: 3
     textureScale: {x: 1, y: 1}
     ribbonCount: 1
     shadowBias: 0.5
