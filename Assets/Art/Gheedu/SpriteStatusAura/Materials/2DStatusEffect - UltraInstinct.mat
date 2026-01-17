@@ -38,10 +38,10 @@ Material:
     m_TexEnvs:
     - _AuraTexture:
         m_Texture: {fileID: 2800000, guid: 35b32820e5b23854d898c64cb515ae09, type: 3}
-        m_Scale: {x: 1, y: 1}
+        m_Scale: {x: 2, y: 2}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: 24c4959ed6ff8c8478befcce450a5d7b, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _OutlineSprite_e8708676ea3d485a8a11d98acd8fe95e_OutlineTexture_3492812294_Texture2D:
@@ -143,7 +143,7 @@ Material:
     - _BlurInstance_zeroX_negY: 1
     - _BlurInstance_zeroX_posY: 1
     - _BlurInstance_zeroX_posY_1: 1
-    - _BlurInstancesSpacing: 0.504
+    - _BlurInstancesSpacing: 0.483
     - _BlurSpacing: 1
     - _Boolean: 0
     - _Float: 0.11111111
@@ -167,7 +167,7 @@ Material:
     - _OutlineSofteningNoiseSpeed: 0.1
     - _OutlineSoftness: 0.33
     - _OutlineThickness: 1.6
-    - _OutlineThreshold: 0.677
+    - _OutlineThreshold: 0.543
     - _Outline_BlurInstancesSpacing: 0.502
     - _Outline_BlurInstancesSpacingMultiplier: 100
     - _Outline_BlurSpacing: 0.195
@@ -187,9 +187,9 @@ Material:
     - _Outline_SofteningOffsetSpeed: 0.1
     - _Outline_Softness: 0.664
     - _Outline_Threshold: 0.5
-    - _OverrideColorValue: -5
+    - _OverrideColorValue: -2.59
     - _OverrideSpriteColor: 0
-    - _PixelsPerUnit: 50
+    - _PixelsPerUnit: 64
     - _Rotation: 0
     - _SaturateSprite: 1
     - _SofteningNoiseRotation: 0.5
@@ -198,7 +198,7 @@ Material:
     - _Speed: -3.5
     - _SpriteScale: 10
     - _Sprite_PixelsPerUnit: 100
-    - _Strength: 1
+    - _Strength: 8.18
     - _Takeover: 1
     - _TakeoverSpriteColor: 0
     - _TilingSpeed: 0.94
@@ -232,6 +232,7 @@ Material:
     - _Y_Axis: 1
     - _Y_axis_Wave: 1
     m_Colors:
+    - White: {r: 1, g: 1, b: 1, a: 1}
     - _0X_1: {r: 0, g: -1, b: 0, a: 0}
     - _0X_1Y: {r: 0, g: 1, b: 0, a: 0}
     - _0X_1Y_1: {r: 1, g: 0, b: 0, a: 0}
@@ -243,7 +244,7 @@ Material:
     - _1X_4: {r: 1, g: -1, b: 0, a: 0}
     - _Animation_SofteningScale: {r: 1, g: 1, b: 0, a: 0}
     - _BlurScale: {r: 1, g: 1, b: 0, a: 0}
-    - _Color: {r: 11.984315, g: 11.984315, b: 11.984315, a: 1}
+    - _Color: {r: 0.7830189, g: 0, b: 0.108488984, a: 1}
     - _Offset: {r: 22.5, g: 45, b: 0, a: 0}
     - _OutlineColor: {r: 0.32382435, g: 0, b: 1.7416734, a: 0}
     - _OutlinePosition: {r: 0, g: 0, b: 0, a: 0}

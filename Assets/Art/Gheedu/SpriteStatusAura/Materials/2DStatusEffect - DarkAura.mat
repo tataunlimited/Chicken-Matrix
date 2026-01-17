@@ -39,9 +39,9 @@ Material:
     - _AuraTexture:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
+        m_Offset: {x: 2, y: 2}
     - _MainTex:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: 83dff496d6f17d642bfd0a1e9217d13d, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _OutlineSprite_e8708676ea3d485a8a11d98acd8fe95e_OutlineTexture_3492812294_Texture2D:
@@ -143,7 +143,7 @@ Material:
     - _BlurInstance_zeroX_negY: 1
     - _BlurInstance_zeroX_posY: 1
     - _BlurInstance_zeroX_posY_1: 1
-    - _BlurInstancesSpacing: 0.515
+    - _BlurInstancesSpacing: 0.754
     - _BlurSpacing: 1
     - _Boolean: 0
     - _Float: 0.11111111
@@ -167,7 +167,7 @@ Material:
     - _OutlineSofteningNoiseSpeed: 0.1
     - _OutlineSoftness: 0.33
     - _OutlineThickness: 1.6
-    - _OutlineThreshold: 0.75
+    - _OutlineThreshold: 0.211
     - _Outline_BlurInstancesSpacing: 0.502
     - _Outline_BlurInstancesSpacingMultiplier: 100
     - _Outline_BlurSpacing: 0.195
@@ -194,7 +194,7 @@ Material:
     - _SaturateSprite: 1
     - _SofteningNoiseRotation: 1
     - _SofteningOffsetSpeed: 5
-    - _Softness: 0.75
+    - _Softness: 0.482
     - _Speed: -2
     - _SpriteScale: 10
     - _Sprite_PixelsPerUnit: 100
@@ -232,6 +232,7 @@ Material:
     - _Y_Axis: 1
     - _Y_axis_Wave: 1
     m_Colors:
+    - White: {r: 1, g: 1, b: 1, a: 1}
     - _0X_1: {r: 0, g: -1, b: 0, a: 0}
     - _0X_1Y: {r: 0, g: 1, b: 0, a: 0}
     - _0X_1Y_1: {r: 1, g: 0, b: 0, a: 0}
@@ -244,7 +245,7 @@ Material:
     - _Animation_SofteningScale: {r: 1, g: 1, b: 0, a: 0}
     - _BlurScale: {r: 1, g: 1, b: 0, a: 0}
     - _Color: {r: 1.5002664, g: 0, b: 8.452829, a: 1}
-    - _Offset: {r: 0, g: 20, b: 0, a: 0}
+    - _Offset: {r: 15, g: 20, b: 0, a: 0}
     - _OutlineColor: {r: 0.32382435, g: 0, b: 1.7416734, a: 0}
     - _OutlinePosition: {r: 0, g: 0, b: 0, a: 0}
     - _OutlineTexColor: {r: 1, g: 0.7610775, b: 0, a: 1}
@@ -254,7 +255,7 @@ Material:
     - _Outline_Position: {r: 0, g: 20.8, b: 0, a: 0}
     - _Outline_SofteningScale: {r: 1, g: 1, b: 0, a: 0}
     - _Position: {r: 0, g: 0, b: 0, a: 0}
-    - _SofteningScale: {r: 2.5, g: 2.5, b: 0, a: 0}
+    - _SofteningScale: {r: 2, g: 2, b: 0, a: 0}
     - _TilingPosition: {r: 0, g: 0, b: 0, a: 0}
     - _TilingScaling: {r: 0.88, g: 1, b: 0, a: 0}
     - _Vector2: {r: -1, g: 1, b: 0, a: 0}
