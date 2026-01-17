@@ -49,6 +49,10 @@ namespace _Scripts.Core
         private float currentShakeMagnitude;
         private int currentRankIndex = -1;
 
+        // Neutral barrage auto-combo timer (combo 51-60)
+        private Coroutine neutralBarrageCoroutine;
+        private const float NeutralBarrageComboInterval = 1.6f;
+
         public static GameManager Instance; 
         public static Difficulty Difficulty = Difficulty.Easy;
         
@@ -141,11 +145,11 @@ namespace _Scripts.Core
             comboPulseCoroutine = null;
         }
 
-        public void UpdateCombo(bool entityDetected)
+        public void UpdateCombo(bool entityDetected, int comboValue = 1)
         {
             if (entityDetected)
             {
-                combo++;
+                combo += comboValue;
                 MiniShakeScreen();
                 UpdateComboRankDisplay();
             }
@@ -157,8 +161,25 @@ namespace _Scripts.Core
                     ShakeScreen(combo);
                     EnemySpawner.Instance.ClearAllEntities();
                 }
-                combo = Difficulty == Difficulty.Hard ? 1 : Mathf.Max(combo - 10, 1);
+                // Hard mode: reset to 1
+                // Easy mode: snap to start of previous tier (1, 11, 21, 31, etc.) to maintain music sync
+                if (Difficulty == Difficulty.Hard)
+                {
+                    combo = 1;
+                }
+                else
+                {
+                    // Calculate previous tier start: floor to nearest 10, then +1
+                    // e.g., combo 25 -> tier start 21, combo 15 -> tier start 11, combo 5 -> tier start 1
+                    int currentTier = (combo - 1) / 10; // 0-based tier index
+                    int previousTierStart = Mathf.Max((currentTier - 1) * 10 + 1, 1);
+                    combo = previousTierStart;
+                }
                 UpdateComboRankDisplay();
+
+                // Sync music and spawner to new combo position
+                SoundController.Instance?.SetTrackTimeForCombo(combo);
+                EnemySpawner.Instance?.SyncToCombo(combo);
             }
 
             comboText.text = combo.ToString();
@@ -176,6 +197,9 @@ namespace _Scripts.Core
                 }
             }
 
+            // Check if we need to start/stop neutral barrage auto-combo
+            UpdateNeutralBarrageState();
+
             if (combo >= 101)
             {
                 StopAllCoroutines();
@@ -189,6 +213,52 @@ namespace _Scripts.Core
             fadeToBlack.DOFade(1, 1.5f);
             yield return new WaitForSeconds(2);
             SceneManager.LoadScene("ChickenScene");
+        }
+
+        /// <summary>
+        /// Check if we're in the neutral barrage phase and manage the auto-combo timer.
+        /// </summary>
+        private void UpdateNeutralBarrageState()
+        {
+            bool inNeutralBarrage = combo >= 51 && combo <= 60;
+
+            if (inNeutralBarrage && neutralBarrageCoroutine == null)
+            {
+                // Start auto-combo timer
+                neutralBarrageCoroutine = StartCoroutine(NeutralBarrageCoroutine());
+            }
+            else if (!inNeutralBarrage && neutralBarrageCoroutine != null)
+            {
+                // Stop auto-combo timer
+                StopCoroutine(neutralBarrageCoroutine);
+                neutralBarrageCoroutine = null;
+            }
+        }
+
+        private IEnumerator NeutralBarrageCoroutine()
+        {
+            while (combo >= 51 && combo <= 60)
+            {
+                yield return new WaitForSeconds(NeutralBarrageComboInterval);
+
+                // Only increment if still in barrage range
+                if (combo >= 51 && combo < 61)
+                {
+                    combo++;
+                    comboText.text = combo.ToString();
+                    PulseComboText();
+                    MiniShakeScreen();
+                    UpdateComboRankDisplay();
+
+                    if (SoundController.Instance != null)
+                    {
+                        SoundController.Instance.UpdateMusicForCombo(combo);
+                        SoundController.Instance.PunchVolume();
+                    }
+                }
+            }
+
+            neutralBarrageCoroutine = null;
         }
 
         private void UpdateComboRankDisplay()

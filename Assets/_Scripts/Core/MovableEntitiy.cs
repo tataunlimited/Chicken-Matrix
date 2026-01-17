@@ -9,6 +9,9 @@ namespace _Scripts.Core
         public int currentStep = 4;
         public float speedMultiplier = 1;
 
+        // How much combo this entity grants when destroyed (set by spawner)
+        public int comboValue = 1;
+
         private float _stepSize = 20;
 
         private float _offset = 0.5f;

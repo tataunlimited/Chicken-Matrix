@@ -208,5 +208,21 @@ namespace _Scripts.Core
             activeSource.volume = musicVolume;
             volumePunchCoroutine = null;
         }
+
+        /// <summary>
+        /// Sync the music position to match a specific combo value.
+        /// Called when combo resets to align music with gameplay timing.
+        /// Each segment is 16 seconds, each combo point ~1.6 seconds.
+        /// </summary>
+        public void SetTrackTimeForCombo(int combo)
+        {
+            int comboInSegment = (combo - 1) % 10; // 0-9
+            float timeInSegment = comboInSegment * 1.6f;
+
+            if (activeSource != null && activeSource.clip != null)
+            {
+                activeSource.time = timeInSegment % activeSource.clip.length;
+            }
+        }
     }
 }

@@ -24,9 +24,30 @@ namespace _Scripts.Core
         [Tooltip("Sorting order for revealed entities")]
         public int revealSortingOrder = 1200;
 
-        private int _currentSpawnInterval;
-        private int _spawnCycleCounter;
         private int _entityPatternIndex;
+
+        // Track interval within current 32-interval segment (0-31)
+        // Each segment = 16 seconds = 10 combo points
+        private int _segmentIntervalCounter;
+
+        // Spawn schedules per tier - each must sum to 10 combo over 32 intervals
+        // Format: array of intervals within the 32-interval segment when spawns occur
+
+        // Tier 1-10: 5 spawns × +2 combo = 10 (very relaxed)
+        private static readonly int[] SpawnScheduleTier1 = { 0, 6, 12, 18, 24 };
+        // Tier 11-20: 5 spawns × +2 combo = 10 (still easy)
+        private static readonly int[] SpawnScheduleTier2 = { 0, 6, 12, 18, 24 };
+        // Tier 21-30: 7 spawns (5×+1, 2×+2 = 9, need adjustment) → use 5×+2 for simplicity
+        private static readonly int[] SpawnScheduleTier3 = { 0, 5, 10, 15, 20 };
+        // Tier 31-40: 7 spawns mixed timing
+        private static readonly int[] SpawnScheduleTier4 = { 0, 4, 9, 13, 18, 22, 27 };
+        // Tier 41-50: 10 spawns × +1 combo = 10 (standard difficulty)
+        private static readonly int[] SpawnScheduleTier5 = { 0, 2, 5, 7, 10, 13, 15, 18, 20, 23 };
+        // Tier 51-60: Neutral barrage (handled separately - spawns every interval)
+        // Tier 61-70: 10 spawns × +1 combo = 10
+        private static readonly int[] SpawnScheduleTier7 = { 0, 2, 5, 7, 10, 13, 15, 18, 20, 23 };
+        // Tier 71+: 12 spawns (10×+1 from main, extras are neutrals that don't count)
+        private static readonly int[] SpawnScheduleTier8 = { 0, 2, 4, 7, 9, 11, 14, 16, 18, 21, 23, 26 };
 
 
         private readonly List<Enemy> _aliveEnemies = new List<Enemy>();
@@ -40,7 +61,7 @@ namespace _Scripts.Core
             Instance = this;
         }
 
-        float SpawnEntityAtAngle(MovableEntitiy prefab, float angle)
+        MovableEntitiy SpawnEntityAtAngle(MovableEntitiy prefab, float angle, int comboValue)
         {
             float x = Mathf.Cos(angle) * spawnRadius;
             float y = Mathf.Sin(angle) * spawnRadius;
@@ -50,6 +71,7 @@ namespace _Scripts.Core
             var newEntity = Instantiate(prefab, spawnPosition, Quaternion.identity);
 
             newEntity.Init(offset, stepSize);
+            newEntity.comboValue = comboValue;
 
             Vector2 direction = (Vector2)transform.position - (Vector2)spawnPosition;
 
@@ -69,7 +91,7 @@ namespace _Scripts.Core
                 _aliveNeutrals.Add(neutral);
             }
 
-            return angle;
+            return newEntity;
         }
 
         private MovableEntitiy GetEntityPrefabForCombo(int combo, out int count)
@@ -104,10 +126,10 @@ namespace _Scripts.Core
                 return patternPos < 2 ? enemyPrefab : friendlyPrefab;
             }
 
-            // Combo 51-60: Neutral only, 2 per pulse
+            // Combo 51-60: Neutral barrage - random 1-4 per spawn
             if (combo <= 60)
             {
-                count = 2;
+                count = Random.Range(1, 5); // 1-4 neutrals
                 return neutralPrefab;
             }
 
@@ -121,13 +143,6 @@ namespace _Scripts.Core
 
             // Combo 71-100: Random
             return Random.value < 0.5f ? friendlyPrefab : enemyPrefab;
-        }
-
-        private int GetSpawnIntervalForCombo(int combo)
-        {
-            if (combo <= 20) return 3;
-            if (combo <= 70) return 2;
-            return 2; // 71-100 base is also 2
         }
 
         /// <summary>
@@ -147,35 +162,65 @@ namespace _Scripts.Core
             return 0.6f; // 71+
         }
 
+        /// <summary>
+        /// Get the spawn schedule for the current combo tier.
+        /// </summary>
+        private int[] GetSpawnScheduleForCombo(int combo)
+        {
+            if (combo <= 10) return SpawnScheduleTier1;
+            if (combo <= 20) return SpawnScheduleTier2;
+            if (combo <= 30) return SpawnScheduleTier3;
+            if (combo <= 40) return SpawnScheduleTier4;
+            if (combo <= 50) return SpawnScheduleTier5;
+            if (combo <= 60) return null; // Neutral barrage - spawns every interval
+            if (combo <= 70) return SpawnScheduleTier7;
+            return SpawnScheduleTier8;
+        }
+
+        /// <summary>
+        /// Get the combo value for entities spawned at current combo tier.
+        /// Uses spawn index to vary combo values within a tier when needed.
+        /// </summary>
+        private int GetComboValueForTier(int combo)
+        {
+            if (combo <= 10) return 2;  // 5 spawns × +2 = 10
+            if (combo <= 20) return 2;  // 5 spawns × +2 = 10
+            if (combo <= 30) return 2;  // 5 spawns × +2 = 10
+            if (combo <= 40)            // 7 spawns: 3×+2 + 4×+1 = 10
+            {
+                // Pattern: +2, +1, +2, +1, +1, +2, +1
+                int[] values = { 2, 1, 2, 1, 1, 2, 1 };
+                return values[_entityPatternIndex % values.Length];
+            }
+            if (combo <= 50) return 1;  // 10 spawns × +1 = 10
+            if (combo <= 60) return 0;  // Neutral barrage - auto-combo via timer
+            if (combo <= 70) return 1;  // 10 spawns × +1 = 10
+            return 1;                   // 12 spawns but neutrals mixed in (neutrals = 0)
+        }
+
+        /// <summary>
+        /// Check if we should spawn this interval based on the segment schedule.
+        /// </summary>
         private bool ShouldSpawnThisInterval(int combo)
         {
-            // Combo 1-20: spawn every 3 intervals (handled by interval counter)
-            if (combo <= 20)
+            // Neutral barrage phase - spawn every interval for maximum chaos
+            if (combo >= 51 && combo <= 60)
                 return true;
 
-            // Combo 21-40: 2-1 pattern (spawn, wait, spawn, wait, wait)
-            // Cycle of 5: spawn at 0, spawn at 2
-            if (combo <= 40)
-            {
-                int cyclePos = _spawnCycleCounter % 5;
-                return cyclePos == 0 || cyclePos == 2;
-            }
+            var schedule = GetSpawnScheduleForCombo(combo);
+            if (schedule == null) return true;
 
-            // Combo 41-70: spawn every 2 intervals (standard)
-            if (combo <= 70)
-                return true;
-
-            // Combo 71-100: 2+1 pattern (spawn, wait, spawn, spawn, wait, spawn, wait, spawn, spawn...)
-            // Every other spawn, spawn an extra one on the next interval
-            // Cycle of 4: spawn at 0, spawn at 2, spawn at 3
-            int cycle = _spawnCycleCounter % 4;
-            return cycle == 0 || cycle == 2 || cycle == 3;
+            return System.Array.IndexOf(schedule, _segmentIntervalCounter) >= 0;
         }
 
         private void EnemyDestroyed(MovableEntitiy entity)
         {
+            // Neutrals don't affect combo - keeps timing predictable
+            if (!(entity is Neutral))
+            {
+                GameManager.Instance.UpdateCombo(entity.Detected, entity.comboValue);
+            }
 
-            GameManager.Instance.UpdateCombo(entity.Detected);
             if (entity is Enemy enemy && _aliveEnemies.Contains(enemy))
             {
                 _aliveEnemies.Remove(enemy);
@@ -362,50 +407,66 @@ namespace _Scripts.Core
             {
                 _aliveAllies[i].UpdatePosition();
             }
-            
+
             for (int i = _aliveNeutrals.Count - 1; i >= 0; i--)
             {
                 _aliveNeutrals[i].UpdatePosition();
             }
 
             int combo = GameManager.Instance.combo;
-            int spawnInterval = GetSpawnIntervalForCombo(combo);
 
-            if (_currentSpawnInterval < 1)
+            // Check if we should spawn this interval based on the segment schedule
+            if (ShouldSpawnThisInterval(combo))
             {
-                _currentSpawnInterval = spawnInterval;
+                var prefab = GetEntityPrefabForCombo(combo, out int count);
+                float neutralChance = GetNeutralSpawnChance(combo);
+                int comboValue = GetComboValueForTier(combo);
 
-                if (ShouldSpawnThisInterval(combo))
+                for (int i = 0; i < count; i++)
                 {
-                    var prefab = GetEntityPrefabForCombo(combo, out int count);
-                    float neutralChance = GetNeutralSpawnChance(combo);
+                    // Spawn the main entity and get its angle
+                    float spawnAngle = Random.Range(0f, Mathf.PI * 2);
+                    SpawnEntityAtAngle(prefab, spawnAngle, comboValue);
 
-                    for (int i = 0; i < count; i++)
+                    // If not in neutral-only phase (51-60), check for bonus neutral spawn
+                    if (neutralChance >= 0f && Random.value < neutralChance)
                     {
-                        // Spawn the main entity and get its angle
-                        float spawnAngle = SpawnEntityAtAngle(prefab, Random.Range(0f, Mathf.PI * 2));
-
-                        // If not in neutral-only phase (51-60), check for bonus neutral spawn
-                        if (neutralChance >= 0f && Random.value < neutralChance)
-                        {
-                            // Spawn neutral on opposite tangent (180 degrees / PI radians offset)
-                            float oppositeAngle = spawnAngle + Mathf.PI;
-                            SpawnEntityAtAngle(neutralPrefab, oppositeAngle);
-                        }
+                        // Spawn neutral on opposite tangent (180 degrees / PI radians offset)
+                        float oppositeAngle = spawnAngle + Mathf.PI;
+                        SpawnEntityAtAngle(neutralPrefab, oppositeAngle, 0); // Neutrals give 0 combo
                     }
-                    _entityPatternIndex++;
                 }
-
-                _spawnCycleCounter++;
+                _entityPatternIndex++;
             }
-            _currentSpawnInterval--;
+
+            // Advance segment counter (wraps every 32 intervals = 16 seconds)
+            _segmentIntervalCounter = (_segmentIntervalCounter + 1) % 32;
         }
 
         public void ResetProgression()
         {
-            _spawnCycleCounter = 0;
+            _segmentIntervalCounter = 0;
             _entityPatternIndex = 0;
-            _currentSpawnInterval = 0;
+        }
+
+        /// <summary>
+        /// Sync the spawner to a specific combo value.
+        /// Called when combo resets to align spawn timing with music.
+        /// </summary>
+        public void SyncToCombo(int combo)
+        {
+            int comboInSegment = (combo - 1) % 10; // 0-9
+            var schedule = GetSpawnScheduleForCombo(combo);
+
+            if (schedule != null && comboInSegment < schedule.Length)
+            {
+                _segmentIntervalCounter = schedule[comboInSegment];
+            }
+            else
+            {
+                _segmentIntervalCounter = 0;
+            }
+            _entityPatternIndex = 0;
         }
     }
 }
