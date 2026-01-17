@@ -332,7 +332,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: -35.915, y: -14}
-  m_SizeDelta: {x: 185.123, y: 193.212}
+  m_SizeDelta: {x: 194.823, y: 200.75}
   m_Pivot: {x: 0, y: 1}
 --- !u!222 &6550549253147994847
 CanvasRenderer:
@@ -362,7 +362,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 2306122019298297485, guid: 6d6369e5c561dda4e990c871c4625a66, type: 3}
+  m_Sprite: {fileID: 5914480772357619567, guid: 24c4959ed6ff8c8478befcce450a5d7b, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -385,13 +385,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RadarColourSychComboIMG_Script
   targetImage: {fileID: 3446105017895975204}
-  defaultImage: {fileID: 2306122019298297485, guid: 6d6369e5c561dda4e990c871c4625a66, type: 3}
+  defaultImage: {fileID: 5914480772357619567, guid: 24c4959ed6ff8c8478befcce450a5d7b, type: 3}
   comboTxtImages:
+  - {fileID: 5914480772357619567, guid: 24c4959ed6ff8c8478befcce450a5d7b, type: 3}
   - {fileID: 1755065712900671524, guid: 4a374102b04d0b34fb62b26c47672cad, type: 3}
   - {fileID: -5397549682184685363, guid: 0d75fa4fcef6da14e93e6ffd2aab1326, type: 3}
-  - {fileID: 4895398933426513670, guid: 4c4de601b5d5f0c40a65003d00e7f25a, type: 3}
-  - {fileID: -7710883842479747434, guid: 6ff03dc0e9bea4b4894d8694d7b0cf1e, type: 3}
-  - {fileID: 5914480772357619567, guid: 24c4959ed6ff8c8478befcce450a5d7b, type: 3}
+  - {fileID: -7268937793234912984, guid: edfca39142d948d4f8cfb51eff78907b, type: 3}
+  - {fileID: 1755065712900671524, guid: 4a374102b04d0b34fb62b26c47672cad, type: 3}
+  - {fileID: -2025606425504999112, guid: e477ec69a464ae94995883eabd531bf9, type: 3}
   - {fileID: -2025606425504999112, guid: e477ec69a464ae94995883eabd531bf9, type: 3}
   - {fileID: -2207461569920873329, guid: 83dff496d6f17d642bfd0a1e9217d13d, type: 3}
 --- !u!1 &2638063983683115792
@@ -1493,7 +1494,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: 730792733742d18489de211f04ebc99d, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
