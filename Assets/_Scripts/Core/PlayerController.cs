@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
 
@@ -12,6 +13,8 @@ namespace _Scripts.Core
         public Collider2D detectionCollider;
         public SpriteRenderer spriteRenderer;
         public Collider2D neutralDetector;
+        
+        public List<float> rangeScaleMultipliers = new List<float>();
 
         public event Action OnPulse;
         
@@ -74,6 +77,12 @@ namespace _Scripts.Core
             StartCoroutine(DetectionCoroutine());
         }
 
+        public void UpdateRange(int range)
+        {
+            
+            if (range >= rangeScaleMultipliers.Count) return;
+            detectionCollider.transform.localScale = Vector3.one * rangeScaleMultipliers[range]; 
+        }
         private IEnumerator DetectionCoroutine()
         {
             detectionCollider.enabled = true;
