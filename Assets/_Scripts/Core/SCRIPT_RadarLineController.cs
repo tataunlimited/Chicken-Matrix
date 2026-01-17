@@ -35,8 +35,10 @@ public class SCRIPT_RadarLineController : MonoBehaviour
     [SerializeField] private float spinBoostThreshold = 0.5f;
 
     [Header("Spin Attack")]
-    [Tooltip("Number of successful entity destructions needed to recharge spin attack")]
-    [SerializeField] private int spinAttackCooldown = 3;
+    [Tooltip("Prefab with particle system to spawn at mouse during boost")]
+    [SerializeField] private GameObject mouseDestructionTrailPrefab;
+    [Tooltip("Maximum destruction radius during boost (at full boost)")]
+    [SerializeField] private float maxDestructionRadius = 1.5f;
 
     private SpriteRenderer spriteRenderer;
     private Camera mainCamera;
@@ -50,23 +52,10 @@ public class SCRIPT_RadarLineController : MonoBehaviour
     private float _rotationTimer = 0f;
     private float _lastAngle;
 
-    // Spin attack cooldown
-    private int _successfulDestructions = 0;
-    private bool _spinAttackReady = false;
+    // Active destruction trail instance
+    private GameObject _activeTrailInstance;
 
     public static SCRIPT_RadarLineController Instance { get; private set; }
-
-    /// <summary>
-    /// Called when particles successfully converge (entity was detected and destroyed)
-    /// </summary>
-    public void OnSuccessfulConvergence()
-    {
-        _successfulDestructions++;
-        if (_successfulDestructions >= spinAttackCooldown)
-        {
-            _spinAttackReady = true;
-        }
-    }
 
     private void Awake()
     {
@@ -98,6 +87,46 @@ public class SCRIPT_RadarLineController : MonoBehaviour
         UpdateColor();
         SyncScaleWithRadar();
         TrackSpinBoost();
+        UpdateBoostEffect();
+    }
+
+    private void UpdateBoostEffect()
+    {
+        if (CameraRotator.Instance == null) return;
+
+        bool isBoosting = CameraRotator.Instance.IsBoosting;
+        float boostProgress = CameraRotator.Instance.BoostProgress;
+
+        Vector3 mouseWorldPos = mainCamera.ScreenToWorldPoint(Input.mousePosition);
+        mouseWorldPos.z = 0f;
+
+        // Spawn trail prefab when boost starts
+        if (isBoosting && _activeTrailInstance == null && mouseDestructionTrailPrefab != null)
+        {
+            _activeTrailInstance = Instantiate(mouseDestructionTrailPrefab, mouseWorldPos, Quaternion.identity);
+        }
+
+        // Update trail position while boosting
+        if (_activeTrailInstance != null)
+        {
+            if (isBoosting)
+            {
+                _activeTrailInstance.transform.position = mouseWorldPos;
+            }
+            else
+            {
+                // Boost ended - destroy the trail instance
+                Destroy(_activeTrailInstance);
+                _activeTrailInstance = null;
+            }
+        }
+
+        // Destroy entities within radius while boosting
+        if (isBoosting && EnemySpawner.Instance != null)
+        {
+            float currentRadius = maxDestructionRadius * boostProgress;
+            EnemySpawner.Instance.DestroyEntitiesInRadius(mouseWorldPos, currentRadius);
+        }
     }
 
     private void TrackSpinBoost()
@@ -135,12 +164,10 @@ public class SCRIPT_RadarLineController : MonoBehaviour
                     }
                 }
 
-                // Spin attack - push back and reveal all entities if ready
-                if (_spinAttackReady && EnemySpawner.Instance != null)
+                // Spin attack - reveal all entities (no cooldown)
+                if (EnemySpawner.Instance != null)
                 {
-                    EnemySpawner.Instance.PushBackAndRevealAllEntities();
-                    _spinAttackReady = false;
-                    _successfulDestructions = 0;
+                    EnemySpawner.Instance.RevealAllEntities();
                 }
             }
 

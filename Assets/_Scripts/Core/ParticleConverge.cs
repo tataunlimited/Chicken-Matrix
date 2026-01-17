@@ -74,11 +74,6 @@ namespace _Scripts.Core
             // Destroy when all particles are gone
             if (_isConverging && _particleSystem.particleCount == 0)
             {
-                // Notify RadarLineController of successful convergence
-                if (SCRIPT_RadarLineController.Instance != null)
-                {
-                    SCRIPT_RadarLineController.Instance.OnSuccessfulConvergence();
-                }
                 Destroy(gameObject);
             }
         }

@@ -29,6 +29,17 @@ public class CameraRotator : MonoBehaviour
 
     public static CameraRotator Instance { get; private set; }
 
+    /// <summary>
+    /// Returns true if currently in a boosted state
+    /// </summary>
+    public bool IsBoosting => _isBoosting;
+
+    /// <summary>
+    /// Returns the current boost progress (1 = just started, 0 = finished/not boosting)
+    /// This value decays from 1 to 0 over the boost duration
+    /// </summary>
+    public float BoostProgress => _isBoosting ? 1f - (_boostDecayTimer / boostDecayDuration) : 0f;
+
     private void Awake()
     {
         Instance = this;

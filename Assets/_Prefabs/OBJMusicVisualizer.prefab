@@ -1,0 +1,70 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &537372642953834462
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4231170712271775669}
+  - component: {fileID: 8514376743840341453}
+  m_Layer: 0
+  m_Name: OBJMusicVisualizer
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4231170712271775669
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 537372642953834462}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.33, y: 0, z: 0}
+  m_LocalScale: {x: 0.08, y: 0.12759715, z: 0.6270726}
+  m_ConstrainProportionsScale: 1
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8514376743840341453
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 537372642953834462}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5372857a586cca84a96ac840f5b5832d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AudioSpectrumVisualizer
+  spectrumSamples: 512
+  fftWindow: 2
+  barCount: 32
+  barPrefab: {fileID: 0}
+  totalWidth: 8
+  maxBarHeight: 1.24
+  minBarHeight: 0.34
+  barWidth: 0.3
+  responseSpeed: 15
+  fallSpeed: 8
+  amplitudeMultiplier: 1.2
+  smoothSpectrum: 1
+  smoothingWindow: 2
+  sortingOrder: 1100
+  useGradient: 1
+  lowColor: {r: 0, g: 0.30817598, b: 0, a: 1}
+  highColor: {r: 0.14678907, g: 1, b: 0, a: 1}
+  syncWithRadarColor: 1
+  enableGlow: 1
+  glowIntensity: 2
+  debugMode: 1
+  showPeakIndicators: 0
+  peakHoldTime: 0.3
+  peakFallSpeed: 3

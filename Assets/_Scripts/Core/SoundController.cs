@@ -168,6 +168,15 @@ namespace _Scripts.Core
             }
         }
 
+        /// <summary>
+        /// Returns the currently active AudioSource for spectrum analysis.
+        /// Used by AudioSpectrumVisualizer to read audio data.
+        /// </summary>
+        public AudioSource GetActiveAudioSource()
+        {
+            return activeSource;
+        }
+
         public void PunchVolume()
         {
             if (activeSource == null || !activeSource.isPlaying) return;

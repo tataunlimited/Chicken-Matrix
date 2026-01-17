@@ -138,12 +138,12 @@ namespace _Scripts.Core
         private float GetNeutralSpawnChance(int combo)
         {
             if (combo <= 10) return 0f;
-            if (combo <= 20) return 0.1f;
-            if (combo <= 30) return 0.2f;
-            if (combo <= 40) return 0.3f;
-            if (combo <= 50) return 0.4f;
+            if (combo <= 20) return 0.05f;
+            if (combo <= 30) return 0.1f;
+            if (combo <= 40) return 0.15f;
+            if (combo <= 50) return 0f;
             if (combo <= 60) return -1f; // Neutral-only phase
-            if (combo <= 70) return 0.5f;
+            if (combo <= 70) return 0f;
             return 0.6f; // 71+
         }
 
@@ -259,38 +259,95 @@ namespace _Scripts.Core
         }
 
         /// <summary>
-        /// Push all current entities back by one step and reveal them permanently.
-        /// Entities pushed beyond maxStep are destroyed.
+        /// Reveal all current entities permanently (no push back).
         /// </summary>
-        public void PushBackAndRevealAllEntities()
+        public void RevealAllEntities()
         {
-            Debug.Log($"PushBackAndRevealAllEntities called. Enemies: {_aliveEnemies.Count}, Allies: {_aliveAllies.Count}");
+            Debug.Log($"RevealAllEntities called. Enemies: {_aliveEnemies.Count}, Allies: {_aliveAllies.Count}");
 
-            // Copy lists to avoid modification during iteration
-            var enemiesToProcess = new List<Enemy>(_aliveEnemies);
-            var alliesToProcess = new List<Ally>(_aliveAllies);
-
-            // Push back and reveal all enemies
-            foreach (var enemy in enemiesToProcess)
+            // Reveal all enemies
+            foreach (var enemy in _aliveEnemies)
             {
                 if (enemy != null)
                 {
-                    Debug.Log($"Processing enemy: {enemy.name}, step: {enemy.currentStep}");
                     enemy.RevealPermanently(revealSortingOrder);
-                    enemy.PushBack(maxStep);
                 }
             }
 
-            // Push back and reveal all allies
-            foreach (var ally in alliesToProcess)
+            // Reveal all allies
+            foreach (var ally in _aliveAllies)
             {
                 if (ally != null)
                 {
-                    Debug.Log($"Processing ally: {ally.name}, step: {ally.currentStep}");
                     ally.RevealPermanently(revealSortingOrder);
-                    ally.PushBack(maxStep);
                 }
             }
+        }
+
+        /// <summary>
+        /// Destroy all entities within the specified radius of a world position.
+        /// Destroyed entities count as detected (increase combo).
+        /// </summary>
+        /// <param name="worldPosition">Center point for the radius check</param>
+        /// <param name="radius">Radius in world units</param>
+        /// <param name="destroyedPositions">Optional list to receive positions of destroyed entities</param>
+        /// <returns>Number of entities destroyed</returns>
+        public int DestroyEntitiesInRadius(Vector3 worldPosition, float radius, List<Vector3> destroyedPositions = null)
+        {
+            int destroyedCount = 0;
+            float radiusSqr = radius * radius;
+
+            // Copy lists to avoid modification during iteration
+            var enemiesToCheck = new List<Enemy>(_aliveEnemies);
+            var alliesToCheck = new List<Ally>(_aliveAllies);
+            var neutralsToCheck = new List<Neutral>(_aliveNeutrals);
+
+            // Check and destroy enemies within radius
+            foreach (var enemy in enemiesToCheck)
+            {
+                if (enemy != null)
+                {
+                    float distSqr = (enemy.transform.position - worldPosition).sqrMagnitude;
+                    if (distSqr <= radiusSqr)
+                    {
+                        destroyedPositions?.Add(enemy.transform.position);
+                        enemy.Destroy(true); // detected = true for combo increase
+                        destroyedCount++;
+                    }
+                }
+            }
+
+            // Check and destroy allies within radius
+            foreach (var ally in alliesToCheck)
+            {
+                if (ally != null)
+                {
+                    float distSqr = (ally.transform.position - worldPosition).sqrMagnitude;
+                    if (distSqr <= radiusSqr)
+                    {
+                        destroyedPositions?.Add(ally.transform.position);
+                        ally.Destroy(true); // detected = true for combo increase
+                        destroyedCount++;
+                    }
+                }
+            }
+
+            // Check and destroy neutrals within radius
+            foreach (var neutral in neutralsToCheck)
+            {
+                if (neutral != null)
+                {
+                    float distSqr = (neutral.transform.position - worldPosition).sqrMagnitude;
+                    if (distSqr <= radiusSqr)
+                    {
+                        destroyedPositions?.Add(neutral.transform.position);
+                        neutral.Destroy(true); // detected = true for combo increase
+                        destroyedCount++;
+                    }
+                }
+            }
+
+            return destroyedCount;
         }
 
 
