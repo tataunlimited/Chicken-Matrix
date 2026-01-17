@@ -16,6 +16,12 @@ namespace _Scripts.Core
         public float offset = 0.5f;
 
         public int spawnEnemyInterval = 3;
+
+        [Header("Spin Attack Settings")]
+        [Tooltip("Maximum step value - entities pushed beyond this are destroyed")]
+        public int maxStep = 4;
+        [Tooltip("Sorting order for revealed entities")]
+        public int revealSortingOrder = 1200;
         // Let's keep this to 1 for now
         public int numberOfEnemiesToSpawnPerInterval = 1;
         
@@ -103,6 +109,41 @@ namespace _Scripts.Core
                 }
             }
             _aliveAllies.Clear();
+        }
+
+        /// <summary>
+        /// Push all current entities back by one step and reveal them permanently.
+        /// Entities pushed beyond maxStep are destroyed.
+        /// </summary>
+        public void PushBackAndRevealAllEntities()
+        {
+            Debug.Log($"PushBackAndRevealAllEntities called. Enemies: {_aliveEnemies.Count}, Allies: {_aliveAllies.Count}");
+
+            // Copy lists to avoid modification during iteration
+            var enemiesToProcess = new List<Enemy>(_aliveEnemies);
+            var alliesToProcess = new List<Ally>(_aliveAllies);
+
+            // Push back and reveal all enemies
+            foreach (var enemy in enemiesToProcess)
+            {
+                if (enemy != null)
+                {
+                    Debug.Log($"Processing enemy: {enemy.name}, step: {enemy.step}");
+                    enemy.RevealPermanently(revealSortingOrder);
+                    enemy.PushBack(maxStep);
+                }
+            }
+
+            // Push back and reveal all allies
+            foreach (var ally in alliesToProcess)
+            {
+                if (ally != null)
+                {
+                    Debug.Log($"Processing ally: {ally.name}, step: {ally.step}");
+                    ally.RevealPermanently(revealSortingOrder);
+                    ally.PushBack(maxStep);
+                }
+            }
         }
 
 

@@ -130,7 +130,7 @@ namespace _Scripts.Core
             float time = Time.time;
             float sineValue = Mathf.Sin(time * 2f); // Adjust frequency as needed
             int numLines = Mathf.RoundToInt(Mathf.Lerp(0, 4, (sineValue + 1f) / 2f));
-            SetNumCircularGridLines(numLines);
+            SetNumCircularGridLines(numLines); 
         }
 
         private void OscilateNumRadialLines()
@@ -198,10 +198,11 @@ namespace _Scripts.Core
 
         private void PulseGrid()
         {
-
             // Calculate scale and fade multipliers
             // Handle beat pulse
             float beatIntensity = 0f;
+            bool needsPositionUpdate = isPulsing;
+
             if (isPulsing)
             {
                 pulseTimer += Time.deltaTime;
@@ -210,6 +211,8 @@ namespace _Scripts.Core
                 if (t >= 1f)
                 {
                     isPulsing = false;
+                    // One final update to reset positions
+                    needsPositionUpdate = true;
                 }
                 else
                 {
@@ -219,13 +222,22 @@ namespace _Scripts.Core
 
             // Calculate breathing alpha (lerps between pulses)
             float breathingAlpha = 1f;
+            bool needsColorUpdate = false;
             if (enableAlphaBreathing && breathingDuration > 0f)
             {
+                float prevAlpha = Mathf.Lerp(breathingStartAlpha, breathingTargetAlpha, Mathf.Clamp01(breathingTimer / breathingDuration));
                 breathingTimer += Time.deltaTime;
                 float t = Mathf.Clamp01(breathingTimer / breathingDuration);
                 breathingAlpha = Mathf.Lerp(breathingStartAlpha, breathingTargetAlpha, t);
+                // Only update colors if alpha changed noticeably
+                needsColorUpdate = Mathf.Abs(breathingAlpha - prevAlpha) > 0.001f;
             }
 
+            // Skip all updates if nothing changed
+            if (!needsPositionUpdate && !needsColorUpdate)
+            {
+                return;
+            }
 
             float scaleMultiplier = 1f + (pulseScaleAmount * beatIntensity);
             currentScaleMultiplier = scaleMultiplier;
@@ -246,16 +258,19 @@ namespace _Scripts.Core
                 {
                     if (ringRenderers[i] == null) continue;
 
-                    // Update scale by recalculating positions
-                    float baseRadius = ringBaseRadii[i];
-                    float currentRadius = baseRadius * scaleMultiplier;
-
-                    for (int j = 0; j <= ringSegments; j++)
+                    // Only update positions when pulsing (scale is changing)
+                    if (needsPositionUpdate)
                     {
-                        float angle = (j / (float)ringSegments) * Mathf.PI * 2f;
-                        float x = Mathf.Cos(angle) * currentRadius;
-                        float y = Mathf.Sin(angle) * currentRadius;
-                        ringRenderers[i].SetPosition(j, new Vector3(x, y, 0));
+                        float baseRadius = ringBaseRadii[i];
+                        float currentRadius = baseRadius * scaleMultiplier;
+
+                        for (int j = 0; j <= ringSegments; j++)
+                        {
+                            float angle = (j / (float)ringSegments) * Mathf.PI * 2f;
+                            float x = Mathf.Cos(angle) * currentRadius;
+                            float y = Mathf.Sin(angle) * currentRadius;
+                            ringRenderers[i].SetPosition(j, new Vector3(x, y, 0));
+                        }
                     }
 
                     // Update color/brightness with breathing alpha
@@ -277,11 +292,14 @@ namespace _Scripts.Core
                 radialLineRenderers[i].startColor = pulsedGridColor;
                 radialLineRenderers[i].endColor = pulsedGridColor;
 
-                // Update length by recalculating end position
-                float angle = (i / (float)radialLineCount) * Mathf.PI * 2f;
-                float x = Mathf.Cos(angle) * maxRadius * scaleMultiplier;
-                float y = Mathf.Sin(angle) * maxRadius * scaleMultiplier;
-                radialLineRenderers[i].SetPosition(1, new Vector3(x, y, 0));
+                // Only update positions when pulsing
+                if (needsPositionUpdate)
+                {
+                    float angle = (i / (float)radialLineCount) * Mathf.PI * 2f;
+                    float x = Mathf.Cos(angle) * maxRadius * scaleMultiplier;
+                    float y = Mathf.Sin(angle) * maxRadius * scaleMultiplier;
+                    radialLineRenderers[i].SetPosition(1, new Vector3(x, y, 0));
+                }
             }
 
             // Apply to grid

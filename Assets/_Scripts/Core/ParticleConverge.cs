@@ -7,6 +7,14 @@ namespace _Scripts.Core
         [Header("Target")]
         [SerializeField] private Transform targetTransform;
 
+        [Header("Screen Space Target (Camera Rotation Safe)")]
+        [Tooltip("Use a fixed screen position instead of a transform")]
+        [SerializeField] private bool useScreenPosition = false;
+        [Tooltip("Screen position (0-1 normalized). 0.5, 0.5 = center")]
+        [SerializeField] private Vector2 screenPosition = new Vector2(0.5f, 0.5f);
+        [Tooltip("Distance from camera for the target point")]
+        [SerializeField] private float targetDepth = 10f;
+
         [Header("Timing")]
         [Tooltip("Delay before particles start converging")]
         [SerializeField] private float convergeDelay = 0.5f;
@@ -24,6 +32,8 @@ namespace _Scripts.Core
         private float _timer;
         private bool _isConverging;
         private bool _shouldConverge = true;
+        private bool _isLocalSpace;
+        private Camera _mainCamera;
 
         private void Awake()
         {
@@ -36,6 +46,8 @@ namespace _Scripts.Core
             }
 
             _particles = new ParticleSystem.Particle[_particleSystem.main.maxParticles];
+            _isLocalSpace = _particleSystem.main.simulationSpace == ParticleSystemSimulationSpace.Local;
+            _mainCamera = Camera.main;
         }
 
         private void Update()
@@ -52,7 +64,8 @@ namespace _Scripts.Core
             _timer += Time.deltaTime;
 
             // Only converge if we should (entity was detected, not a combo reset)
-            if (targetTransform != null && _timer >= convergeDelay)
+            bool hasValidTarget = useScreenPosition ? (_mainCamera != null) : (targetTransform != null);
+            if (hasValidTarget && _timer >= convergeDelay)
             {
                 _isConverging = true;
                 ConvergeParticles();
@@ -61,44 +74,74 @@ namespace _Scripts.Core
             // Destroy when all particles are gone
             if (_isConverging && _particleSystem.particleCount == 0)
             {
+                // Notify RadarLineController of successful convergence
+                if (SCRIPT_RadarLineController.Instance != null)
+                {
+                    SCRIPT_RadarLineController.Instance.OnSuccessfulConvergence();
+                }
                 Destroy(gameObject);
             }
+        }
+
+        private Vector3 GetTargetPosition()
+        {
+            if (useScreenPosition && _mainCamera != null)
+            {
+                // Convert normalized screen position to world position
+                // This stays fixed on screen regardless of camera rotation
+                Vector3 screenPoint = new Vector3(
+                    screenPosition.x * Screen.width,
+                    screenPosition.y * Screen.height,
+                    targetDepth
+                );
+                return _mainCamera.ScreenToWorldPoint(screenPoint);
+            }
+            return targetTransform != null ? targetTransform.position : Vector3.zero;
         }
 
         private void ConvergeParticles()
         {
             int particleCount = _particleSystem.GetParticles(_particles);
+            if (particleCount == 0) return;
 
-            Vector3 targetPos = targetTransform.position;
+            Vector3 targetPos = GetTargetPosition();
+            float deltaTime = Time.deltaTime;
+            float lerpFactor = lerpSpeed * deltaTime;
+            float minDistance = minSpeed * deltaTime;
+            float destroyDistSqr = destroyDistance * destroyDistance;
 
             for (int i = 0; i < particleCount; i++)
             {
                 // Convert particle position to world space if using local simulation
-                Vector3 particleWorldPos = _particleSystem.main.simulationSpace == ParticleSystemSimulationSpace.Local
+                Vector3 particleWorldPos = _isLocalSpace
                     ? transform.TransformPoint(_particles[i].position)
                     : _particles[i].position;
 
-                float distance = Vector3.Distance(particleWorldPos, targetPos);
+                // Use sqrMagnitude to avoid sqrt in distance calculation
+                Vector3 toTarget = targetPos - particleWorldPos;
+                float distanceSqr = toTarget.sqrMagnitude;
 
                 // Check if particle should be destroyed
-                if (distance <= destroyDistance)
+                if (distanceSqr <= destroyDistSqr)
                 {
                     _particles[i].remainingLifetime = 0f;
                 }
                 else
                 {
                     // Lerp toward target with minimum speed to ensure progress
-                    Vector3 lerpedPos = Vector3.Lerp(particleWorldPos, targetPos, lerpSpeed * Time.deltaTime);
+                    Vector3 lerpedPos = Vector3.Lerp(particleWorldPos, targetPos, lerpFactor);
 
                     // Calculate if lerp is too slow, use minimum speed instead
-                    float lerpDistance = Vector3.Distance(particleWorldPos, lerpedPos);
-                    float minDistance = minSpeed * Time.deltaTime;
+                    Vector3 lerpDelta = lerpedPos - particleWorldPos;
+                    float lerpDistSqr = lerpDelta.sqrMagnitude;
+                    float minDistSqr = minDistance * minDistance;
 
                     Vector3 newWorldPos;
-                    if (lerpDistance < minDistance)
+                    if (lerpDistSqr < minDistSqr)
                     {
-                        // Use minimum speed
-                        Vector3 direction = (targetPos - particleWorldPos).normalized;
+                        // Use minimum speed - normalize direction manually to avoid extra sqrt
+                        float distance = Mathf.Sqrt(distanceSqr);
+                        Vector3 direction = toTarget / distance;
                         newWorldPos = particleWorldPos + direction * minDistance;
                     }
                     else
@@ -107,14 +150,9 @@ namespace _Scripts.Core
                     }
 
                     // Convert back to local space if needed
-                    if (_particleSystem.main.simulationSpace == ParticleSystemSimulationSpace.Local)
-                    {
-                        _particles[i].position = transform.InverseTransformPoint(newWorldPos);
-                    }
-                    else
-                    {
-                        _particles[i].position = newWorldPos;
-                    }
+                    _particles[i].position = _isLocalSpace
+                        ? transform.InverseTransformPoint(newWorldPos)
+                        : newWorldPos;
 
                     // Override velocity to prevent original movement
                     _particles[i].velocity = Vector3.zero;
@@ -138,6 +176,18 @@ namespace _Scripts.Core
         public void SetShouldConverge(bool shouldConverge)
         {
             _shouldConverge = shouldConverge;
+        }
+
+        /// <summary>
+        /// Set a fixed screen position for convergence (camera rotation safe)
+        /// </summary>
+        /// <param name="normalizedScreenPos">Screen position (0-1 normalized)</param>
+        /// <param name="depth">Distance from camera</param>
+        public void SetScreenTarget(Vector2 normalizedScreenPos, float depth = 10f)
+        {
+            useScreenPosition = true;
+            screenPosition = normalizedScreenPos;
+            targetDepth = depth;
         }
     }
 }

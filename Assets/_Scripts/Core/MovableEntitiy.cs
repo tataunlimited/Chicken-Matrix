@@ -19,6 +19,9 @@ namespace _Scripts.Core
         public bool Detected => _detected;
 
         private bool _detected;
+        private bool _permanentlyRevealed;
+
+        public bool IsPermanentlyRevealed => _permanentlyRevealed;
 
         [SerializeField] private float lerpDuration = 0.15f;
         private Vector3 _direction;
@@ -76,6 +79,38 @@ namespace _Scripts.Core
 
             if (destroyAfter)
                 Destroy();
+        }
+
+        /// <summary>
+        /// Push the entity back by one step. Returns true if entity was destroyed (exceeded max step).
+        /// </summary>
+        public bool PushBack(int maxStep)
+        {
+            step++;
+            if (step > maxStep)
+            {
+                Destroy(false);
+                return true;
+            }
+
+            // Recalculate position moving outward
+            float distance = (_stepSize * step) + _offset;
+            Vector3 targetPosition = _sourcePosition + (_direction * distance);
+            StartCoroutine(LerpToPosition(targetPosition, false));
+            return false;
+        }
+
+        /// <summary>
+        /// Permanently reveal this entity by setting its sorting order
+        /// </summary>
+        public void RevealPermanently(int sortingOrder)
+        {
+            _permanentlyRevealed = true;
+            var spriteRenderer = GetComponentInChildren<SpriteRenderer>();
+            if (spriteRenderer != null)
+            {
+                spriteRenderer.sortingOrder = sortingOrder;
+            }
         }
 
         public void Destroy(bool detected = false)

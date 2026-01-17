@@ -26,7 +26,13 @@ namespace _Scripts.Core
         [SerializeField] private float baseShakeDuration = 1f;
         [SerializeField] private float baseShakeMagnitude = 0.5f;
 
+        [Header("Combo Text Pulse")]
+        [SerializeField] private float pulseDuration = 0.15f;
+        [SerializeField] private float pulseScale = 1.5f;
+
         private Camera mainCamera;
+        private Coroutine comboPulseCoroutine;
+        private Vector3 comboTextOriginalScale;
         private Vector3 originalCameraPosition;
         private Coroutine shakeCoroutine;
         private float currentShakeDuration;
@@ -41,6 +47,7 @@ namespace _Scripts.Core
         {
             Instance = this;
             comboText.text = combo.ToString();
+            comboTextOriginalScale = comboText.transform.localScale;
             mainCamera = Camera.main;
             if (mainCamera != null)
             {
@@ -79,6 +86,48 @@ namespace _Scripts.Core
         }
 
         #region Combo System Management
+
+        private void PulseComboText()
+        {
+            if (comboText == null) return;
+
+            if (comboPulseCoroutine != null)
+            {
+                StopCoroutine(comboPulseCoroutine);
+                comboText.transform.localScale = comboTextOriginalScale;
+            }
+
+            comboPulseCoroutine = StartCoroutine(PulseComboTextCoroutine());
+        }
+
+        private IEnumerator PulseComboTextCoroutine()
+        {
+            float elapsed = 0f;
+            float halfDuration = pulseDuration / 2f;
+
+            // Scale up
+            while (elapsed < halfDuration)
+            {
+                float t = elapsed / halfDuration;
+                comboText.transform.localScale = Vector3.Lerp(comboTextOriginalScale, comboTextOriginalScale * pulseScale, t);
+                elapsed += Time.deltaTime;
+                yield return null;
+            }
+
+            // Scale back down
+            elapsed = 0f;
+            while (elapsed < halfDuration)
+            {
+                float t = elapsed / halfDuration;
+                comboText.transform.localScale = Vector3.Lerp(comboTextOriginalScale * pulseScale, comboTextOriginalScale, t);
+                elapsed += Time.deltaTime;
+                yield return null;
+            }
+
+            comboText.transform.localScale = comboTextOriginalScale;
+            comboPulseCoroutine = null;
+        }
+
         public void UpdateCombo(bool entityDetected)
         {
             if (entityDetected)
@@ -99,6 +148,7 @@ namespace _Scripts.Core
             }
 
             comboText.text = combo.ToString();
+            PulseComboText();
 
             // Update music based on combo
             if (SoundController.Instance != null)

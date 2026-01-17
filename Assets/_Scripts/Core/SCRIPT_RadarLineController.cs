@@ -30,6 +30,14 @@ public class SCRIPT_RadarLineController : MonoBehaviour
     [Tooltip("Max rotation speed in degrees per second (limits how fast the line can rotate for smooth trails)")]
     [SerializeField] private float maxRotationSpeed = 720f;
 
+    [Header("Spin Boost Detection")]
+    [Tooltip("Time threshold for a full rotation to trigger boost (seconds)")]
+    [SerializeField] private float spinBoostThreshold = 0.5f;
+
+    [Header("Spin Attack")]
+    [Tooltip("Number of successful entity destructions needed to recharge spin attack")]
+    [SerializeField] private int spinAttackCooldown = 3;
+
     private SpriteRenderer spriteRenderer;
     private Camera mainCamera;
     private HashSet<MovableEntitiy> revealedEntities = new HashSet<MovableEntitiy>();
@@ -37,8 +45,32 @@ public class SCRIPT_RadarLineController : MonoBehaviour
     private TrailRenderer trailRenderer;
     private float currentAngle;
 
+    // Spin tracking
+    private float _accumulatedRotation = 0f;
+    private float _rotationTimer = 0f;
+    private float _lastAngle;
+
+    // Spin attack cooldown
+    private int _successfulDestructions = 0;
+    private bool _spinAttackReady = false;
+
+    public static SCRIPT_RadarLineController Instance { get; private set; }
+
+    /// <summary>
+    /// Called when particles successfully converge (entity was detected and destroyed)
+    /// </summary>
+    public void OnSuccessfulConvergence()
+    {
+        _successfulDestructions++;
+        if (_successfulDestructions >= spinAttackCooldown)
+        {
+            _spinAttackReady = true;
+        }
+    }
+
     private void Awake()
     {
+        Instance = this;
         spriteRenderer = GetComponent<SpriteRenderer>();
         mainCamera = Camera.main;
         baseScale = transform.localScale;
@@ -57,6 +89,7 @@ public class SCRIPT_RadarLineController : MonoBehaviour
 
         // Initialize current angle
         currentAngle = transform.eulerAngles.z;
+        _lastAngle = currentAngle;
     }
 
     private void Update()
@@ -64,6 +97,64 @@ public class SCRIPT_RadarLineController : MonoBehaviour
         RotateTowardsMouse();
         UpdateColor();
         SyncScaleWithRadar();
+        TrackSpinBoost();
+    }
+
+    private void TrackSpinBoost()
+    {
+        // Calculate the delta angle, handling wrap-around
+        float deltaAngle = Mathf.DeltaAngle(_lastAngle, currentAngle);
+        _lastAngle = currentAngle;
+
+        // Accumulate rotation (positive = counter-clockwise, negative = clockwise)
+        _accumulatedRotation += deltaAngle;
+        _rotationTimer += Time.deltaTime;
+
+        // Check if we've completed a full rotation (360 degrees)
+        if (Mathf.Abs(_accumulatedRotation) >= 360f)
+        {
+            // Check if it was fast enough
+            if (_rotationTimer <= spinBoostThreshold)
+            {
+                // Camera boost effect
+                if (CameraRotator.Instance != null)
+                {
+                    // Determine spin direction: positive = CCW, negative = CW
+                    bool spunClockwise = _accumulatedRotation < 0;
+                    bool cameraGoingClockwise = CameraRotator.Instance.direction > 0;
+
+                    if (spunClockwise == cameraGoingClockwise)
+                    {
+                        // Same direction - just boost
+                        CameraRotator.Instance.TriggerBoost();
+                    }
+                    else
+                    {
+                        // Opposite direction - flip and boost
+                        CameraRotator.Instance.FlipDirectionWithBoost();
+                    }
+                }
+
+                // Spin attack - push back and reveal all entities if ready
+                if (_spinAttackReady && EnemySpawner.Instance != null)
+                {
+                    EnemySpawner.Instance.PushBackAndRevealAllEntities();
+                    _spinAttackReady = false;
+                    _successfulDestructions = 0;
+                }
+            }
+
+            // Reset tracking
+            _accumulatedRotation = 0f;
+            _rotationTimer = 0f;
+        }
+
+        // Reset if taking too long (prevent stale accumulation)
+        if (_rotationTimer > spinBoostThreshold * 2f)
+        {
+            _accumulatedRotation = 0f;
+            _rotationTimer = 0f;
+        }
     }
 
     private void SyncScaleWithRadar()
@@ -150,11 +241,18 @@ public class SCRIPT_RadarLineController : MonoBehaviour
         // Wait for reveal duration
         yield return new WaitForSeconds(revealDuration);
 
-        // Fade back
+        // Fade back (unless permanently revealed)
         float elapsed = 0f;
         while (elapsed < fadeDuration)
         {
             if (entity == null || entityRenderer == null)
+            {
+                revealedEntities.Remove(entity);
+                yield break;
+            }
+
+            // If entity was permanently revealed, skip the fade-back
+            if (entity.IsPermanentlyRevealed)
             {
                 revealedEntities.Remove(entity);
                 yield break;
