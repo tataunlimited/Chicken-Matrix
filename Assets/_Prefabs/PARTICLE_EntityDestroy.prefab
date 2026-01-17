@@ -4909,7 +4909,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::_Scripts.Core.ParticleConverge
   targetTransform: {fileID: 4475224495883162572, guid: 6c2355d0af00cbc4ca5a024ce5c63c10, type: 3}
   useScreenPosition: 1
-  screenPosition: {x: 0.5, y: 0.5}
+  screenPosition: {x: 0.8, y: 0.05}
   targetDepth: 10
   convergeDelay: 0.85
   lerpSpeed: 5

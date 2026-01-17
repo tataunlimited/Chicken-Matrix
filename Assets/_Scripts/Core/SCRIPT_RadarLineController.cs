@@ -55,6 +55,9 @@ public class SCRIPT_RadarLineController : MonoBehaviour
     // Active destruction trail instance
     private GameObject _activeTrailInstance;
 
+    // Track if current boost is a charged (special) boost
+    private bool _isChargedBoost = false;
+
     public static SCRIPT_RadarLineController Instance { get; private set; }
 
     private void Awake()
@@ -100,32 +103,43 @@ public class SCRIPT_RadarLineController : MonoBehaviour
         Vector3 mouseWorldPos = mainCamera.ScreenToWorldPoint(Input.mousePosition);
         mouseWorldPos.z = 0f;
 
-        // Spawn trail prefab when boost starts
-        if (isBoosting && _activeTrailInstance == null && mouseDestructionTrailPrefab != null)
+        // Only spawn trail and do destruction on CHARGED boosts
+        if (_isChargedBoost)
         {
-            _activeTrailInstance = Instantiate(mouseDestructionTrailPrefab, mouseWorldPos, Quaternion.identity);
+            // Spawn trail prefab when charged boost starts
+            if (isBoosting && _activeTrailInstance == null && mouseDestructionTrailPrefab != null)
+            {
+                _activeTrailInstance = Instantiate(mouseDestructionTrailPrefab, mouseWorldPos, Quaternion.identity);
+            }
+
+            // Update trail position while boosting
+            if (_activeTrailInstance != null)
+            {
+                if (isBoosting)
+                {
+                    _activeTrailInstance.transform.position = mouseWorldPos;
+                }
+                else
+                {
+                    // Boost ended - destroy the trail instance and reset charged state
+                    Destroy(_activeTrailInstance);
+                    _activeTrailInstance = null;
+                    _isChargedBoost = false;
+                }
+            }
+
+            // Destroy entities within radius while charged boost is active
+            if (isBoosting && EnemySpawner.Instance != null)
+            {
+                float currentRadius = maxDestructionRadius * boostProgress;
+                EnemySpawner.Instance.DestroyEntitiesInRadius(mouseWorldPos, currentRadius);
+            }
         }
 
-        // Update trail position while boosting
-        if (_activeTrailInstance != null)
+        // Reset charged boost flag when boost ends (safety check)
+        if (!isBoosting && _isChargedBoost && _activeTrailInstance == null)
         {
-            if (isBoosting)
-            {
-                _activeTrailInstance.transform.position = mouseWorldPos;
-            }
-            else
-            {
-                // Boost ended - destroy the trail instance
-                Destroy(_activeTrailInstance);
-                _activeTrailInstance = null;
-            }
-        }
-
-        // Destroy entities within radius while boosting
-        if (isBoosting && EnemySpawner.Instance != null)
-        {
-            float currentRadius = maxDestructionRadius * boostProgress;
-            EnemySpawner.Instance.DestroyEntitiesInRadius(mouseWorldPos, currentRadius);
+            _isChargedBoost = false;
         }
     }
 
@@ -164,10 +178,17 @@ public class SCRIPT_RadarLineController : MonoBehaviour
                     }
                 }
 
-                // Spin attack - reveal all entities (no cooldown)
-                if (EnemySpawner.Instance != null)
+                // Check if we have a stored charge for special boost
+                if (SpinChargeManager.Instance != null && SpinChargeManager.Instance.HasCharge)
                 {
-                    EnemySpawner.Instance.RevealAllEntities();
+                    SpinChargeManager.Instance.ConsumeCharge();
+                    _isChargedBoost = true;
+
+                    // Reveal all entities on charged spin
+                    if (EnemySpawner.Instance != null)
+                    {
+                        EnemySpawner.Instance.RevealAllEntities();
+                    }
                 }
             }
 
