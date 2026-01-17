@@ -1,7 +1,9 @@
 using System;
 using System.Collections;
+using DG.Tweening;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 namespace _Scripts.Core
@@ -20,6 +22,7 @@ namespace _Scripts.Core
         [SerializeField] private TMP_Text comboText;
         [SerializeField] private Image MainComboMeterRankIMG;
         [SerializeField] private Image SSSComboMeterRankIMG;
+        [SerializeField] private Image fadeToBlack;
 
         [Header("Combo Rank Progression")]
         [SerializeField] private Sprite[] comboRankSprites;
@@ -172,6 +175,20 @@ namespace _Scripts.Core
                     SoundController.Instance.PunchVolume();
                 }
             }
+
+            if (combo >= 101)
+            {
+                StopAllCoroutines();
+                StartCoroutine(EndGameCoroutine());
+            }
+        }
+        private IEnumerator EndGameCoroutine()
+        {
+            _gameEnded = true;
+            fadeToBlack.gameObject.SetActive(true);
+            fadeToBlack.DOFade(1, 1.5f);
+            yield return new WaitForSeconds(2);
+            SceneManager.LoadScene("ChickenScene");
         }
 
         private void UpdateComboRankDisplay()
