@@ -1,42 +1,40 @@
 using UnityEngine;
 using UnityEngine.UI;
 using _Scripts.Core;
-public class RadarColourSychComboIMG_Script : MonoBehaviour
+
+public class RadarRankImageSync_Script : MonoBehaviour
 {
     #region VAR ZONE
     [Header("UI References")]
     [SerializeField] private Image targetImage;
 
-    [Header("Image Sprites")]
-    [SerializeField] private Sprite[] colorImages = new Sprite[10];
-    [Tooltip("Image to display when no combo color is active")]
+    [Header("Rank Sprites")]
     [SerializeField] private Sprite defaultImage;
+    [SerializeField] private Sprite[] comboTxtImages = new Sprite[7]; 
+    [Tooltip("Index 0=D, 1=C, 2=B, 3=A, 4=S, 5=SS, 6=SSS")]
 
-    [Header("Settings")]
-    [SerializeField] private float updateCheckInterval = 0.1f;
-
-    private RadarBackgroundGenerator radarGenerator;
-    private int currentColorIndex = -1;
-    private float timeSinceLastCheck = 0f;
+    private GameManager gameManager;
+    private int currentRankIndex = -1; // -1 = no rank, 0-6 = rank indices
 
     #endregion
+
     private void Start()
     {
-        radarGenerator = RadarBackgroundGenerator.Instance;
+        gameManager = GameManager.Instance;
 
         if (targetImage == null)
         {
-            Debug.LogError("RadarImageColorSync: Target Image not assigned!");
+            Debug.LogError("RadarRankImageSync: Target Image not assigned!");
             return;
         }
 
-        if (radarGenerator == null)
+        if (gameManager == null)
         {
-            Debug.LogWarning("RadarImageColorSync: RadarBackgroundGenerator instance not found!");
+            Debug.LogWarning("RadarRankImageSync: GameManager instance not found!");
             return;
         }
 
-        // Set default image
+        // Set default image initially
         if (defaultImage != null)
         {
             targetImage.sprite = defaultImage;
@@ -45,44 +43,53 @@ public class RadarColourSychComboIMG_Script : MonoBehaviour
 
     private void Update()
     {
-        if (radarGenerator == null || targetImage == null) return;
+        if (gameManager == null || targetImage == null) return;
 
-        timeSinceLastCheck += Time.deltaTime;
+        // Get current rank based on combo
+        int newRankIndex = GetRankIndex(gameManager.combo);
 
-        // Only check every interval to avoid performance issues
-        if (timeSinceLastCheck < updateCheckInterval) return;
-        timeSinceLastCheck = 0f;
-
-        // Get current combo and calculate which color is active
-        int combo = Mathf.Max(1, GameManager.Instance != null ? GameManager.Instance.combo : 1);
-        int colorIndex = Mathf.Clamp((combo - 1) / 10, 0, 9);
-
-        // Only update image if color index changed
-        if (colorIndex != currentColorIndex)
+        // Only update image if rank index changed
+        if (newRankIndex != currentRankIndex)
         {
-            currentColorIndex = colorIndex;
+            currentRankIndex = newRankIndex;
             UpdateImageSprite();
         }
     }
 
     private void UpdateImageSprite()
     {
-        if (colorImages == null || colorImages.Length < 10)
+        // ===== NO RANK STATE =====
+        if (currentRankIndex == -1)
         {
-            Debug.LogWarning("RadarImageColorSync: colorImages array not properly configured!");
+            if (defaultImage != null)
+            {
+                targetImage.sprite = defaultImage;
+            }
+            Debug.Log("RadarRankImageSync: No rank - displaying default image");
             return;
         }
 
-        // Get sprite for current color index
-        Sprite newSprite = colorImages[currentColorIndex];
+        // ===== RANKED STATE (D-SSS) =====
+        if (comboTxtImages == null || comboTxtImages.Length < 7)
+        {
+            Debug.LogWarning("RadarRankImageSync: rankImages array not properly configured! Need 7 sprites.");
+            if (defaultImage != null)
+            {
+                targetImage.sprite = defaultImage;
+            }
+            return;
+        }
+
+        Sprite newSprite = comboTxtImages[currentRankIndex];
 
         if (newSprite != null)
         {
             targetImage.sprite = newSprite;
+       
         }
         else
         {
-            Debug.LogWarning($"RadarImageColorSync: No sprite assigned for color index {currentColorIndex}");
+            Debug.LogWarning($"RadarRankImageSync: No sprite assigned for rank index {currentRankIndex}");
             if (defaultImage != null)
             {
                 targetImage.sprite = defaultImage;
@@ -90,13 +97,32 @@ public class RadarColourSychComboIMG_Script : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Manually set which image to display by color index (0-9)
-    /// </summary>
-    public void SetImageByColorIndex(int index)
+    private int GetRankIndex(int comboValue)
     {
-        index = Mathf.Clamp(index, 0, 9);
-        currentColorIndex = index;
+        if (comboValue <= 10) return -1;       // No rank display
+        if (comboValue <= 20) return 0;        // D Rank
+        if (comboValue <= 30) return 1;        // C Rank
+        if (comboValue <= 50) return 2;        // B Rank
+        if (comboValue <= 60) return 3;        // A Rank
+        if (comboValue <= 70) return 4;        // S Rank
+        if (comboValue <= 89) return 5;        // SS Rank
+        return 6;                              // SSS Rank (90+)
+    }
+
+    /// <summary>
+    /// Manually set which rank image to display (0-6, or -1 for default)
+    /// </summary>
+    public void SetImageByRankIndex(int index)
+    {
+        if (index == -1)
+        {
+            currentRankIndex = -1;
+        }
+        else
+        {
+            index = Mathf.Clamp(index, 0, 6);
+            currentRankIndex = index;
+        }
         UpdateImageSprite();
     }
 
@@ -105,6 +131,11 @@ public class RadarColourSychComboIMG_Script : MonoBehaviour
     /// </summary>
     public void ForceUpdate()
     {
-        timeSinceLastCheck = updateCheckInterval;
+        int newRankIndex = GetRankIndex(gameManager.combo);
+        if (newRankIndex != currentRankIndex)
+        {
+            currentRankIndex = newRankIndex;
+            UpdateImageSprite();
+        }
     }
 }
