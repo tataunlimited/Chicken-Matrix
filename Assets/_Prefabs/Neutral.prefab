@@ -94,6 +94,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Scripts.Core.Neutral
   currentStep: 4
+  speedMultiplier: 1.5
   lerpDuration: 1
   destructionParticlePrefab: {fileID: 2365869914289584045, guid: 19206d7d2ca074743a430fc1d90a2661, type: 3}
   particleColor: {r: 1, g: 1, b: 1, a: 1}

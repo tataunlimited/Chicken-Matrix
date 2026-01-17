@@ -7,6 +7,7 @@ namespace _Scripts.Core
     public class MovableEntitiy : MonoBehaviour
     {
         public int currentStep = 4;
+        public float speedMultiplier = 1;
 
         private float _stepSize = 20;
 
@@ -50,7 +51,7 @@ namespace _Scripts.Core
                 _direction = (transform.position - _sourcePosition).normalized;
 
             // Calculate the new distance: (Base Step Distance) + Offset
-            float distance = (_stepSize * currentStep) + _offset;
+            float distance = (_stepSize * currentStep * speedMultiplier) + _offset;
 
             // Calculate target position
             Vector3 targetPosition = _sourcePosition + (_direction * distance);

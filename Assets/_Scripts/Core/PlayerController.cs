@@ -11,6 +11,7 @@ namespace _Scripts.Core
         public static PlayerController Instance;
         public Collider2D detectionCollider;
         public SpriteRenderer spriteRenderer;
+        public GameObject neutralDetector;
 
         public event Action OnPulse;
         
@@ -51,14 +52,19 @@ namespace _Scripts.Core
             if (Input.GetMouseButton(0))
             {
                 _detectionMode = DetectionMode.Aggressive;
+                neutralDetector.SetActive(false);
+
             } 
             else if (Input.GetMouseButton(1))
             {
                 _detectionMode = DetectionMode.Friendly;
+                neutralDetector.SetActive(false);
+
             }
             else
             {
                 _detectionMode = DetectionMode.None;
+                neutralDetector.SetActive(true);
             }
             //UpdateColor();
         }
