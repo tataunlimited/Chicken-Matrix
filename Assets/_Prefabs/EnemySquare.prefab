@@ -47,7 +47,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f5492f5cee7acdc419c2dae100b2674e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Enemy
-  step: 4
+  currentStep: 4
+  step: 1
   lerpDuration: 0.15
   destructionParticlePrefab: {fileID: 2365869914289584045, guid: 19206d7d2ca074743a430fc1d90a2661, type: 3}
   particleColor: {r: 1, g: 1, b: 1, a: 1}

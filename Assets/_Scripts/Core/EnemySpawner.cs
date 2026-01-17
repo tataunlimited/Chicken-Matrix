@@ -12,6 +12,7 @@ namespace _Scripts.Core
         [Header("Entity Prefabs")]
         public MovableEntitiy friendlyPrefab;
         public MovableEntitiy enemyPrefab;
+        public MovableEntitiy neutralPrefab;
 
         public float stepSize = 1;
 
@@ -30,6 +31,7 @@ namespace _Scripts.Core
 
         private readonly List<Enemy> _aliveEnemies = new List<Enemy>();
         private readonly List<Ally> _aliveAllies = new List<Ally>();
+        private readonly List<Neutral> _aliveNeutrals = new List<Neutral>();
 
         public static EnemySpawner Instance;
         
@@ -64,10 +66,16 @@ namespace _Scripts.Core
             {
                 _aliveAllies.Add(ally);
             }
+            else if (newEntity is Neutral neutral)
+            {
+                _aliveNeutrals.Add(neutral);
+            }
         }
 
         private MovableEntitiy GetEntityPrefabForCombo(int combo)
         {
+            if(combo <= 5)
+                return neutralPrefab;
             // Combo 1-10: Friendly only
             if (combo <= 10)
                 return friendlyPrefab;
@@ -162,6 +170,11 @@ namespace _Scripts.Core
                 _aliveAllies.Remove(ally);
                 Debug.Log("ally Destroyed"+ ally.name);
             }
+            else if (entity is Neutral neutral && _aliveNeutrals.Contains(neutral))
+            {
+                _aliveNeutrals.Remove(neutral);
+                Debug.Log("neutral Destroyed"+ neutral.name);
+            }
         }
 
         public void ClearAllEntities()
@@ -188,6 +201,15 @@ namespace _Scripts.Core
             }
             _aliveAllies.Clear();
 
+            for (int i = _aliveNeutrals.Count - 1; i >= 0; i--)
+            {
+                if (_aliveNeutrals[i] != null)
+                {
+                    Destroy(_aliveNeutrals[i].gameObject);
+                }
+            }
+            _aliveNeutrals.Clear();
+
             ResetProgression();
         }
 
@@ -208,7 +230,7 @@ namespace _Scripts.Core
             {
                 if (enemy != null)
                 {
-                    Debug.Log($"Processing enemy: {enemy.name}, step: {enemy.step}");
+                    Debug.Log($"Processing enemy: {enemy.name}, step: {enemy.currentStep}");
                     enemy.RevealPermanently(revealSortingOrder);
                     enemy.PushBack(maxStep);
                 }
@@ -219,7 +241,7 @@ namespace _Scripts.Core
             {
                 if (ally != null)
                 {
-                    Debug.Log($"Processing ally: {ally.name}, step: {ally.step}");
+                    Debug.Log($"Processing ally: {ally.name}, step: {ally.currentStep}");
                     ally.RevealPermanently(revealSortingOrder);
                     ally.PushBack(maxStep);
                 }
@@ -237,6 +259,11 @@ namespace _Scripts.Core
             for (int i = _aliveAllies.Count - 1; i >= 0; i--)
             {
                 _aliveAllies[i].UpdatePosition();
+            }
+            
+            for (int i = _aliveNeutrals.Count - 1; i >= 0; i--)
+            {
+                _aliveNeutrals[i].UpdatePosition();
             }
 
             int combo = GameManager.Instance.combo;

@@ -6,7 +6,7 @@ namespace _Scripts.Core
 {
     public class MovableEntitiy : MonoBehaviour
     {
-        public int step = 4;
+        public int currentStep = 4;
 
         private float _stepSize = 20;
 
@@ -41,22 +41,22 @@ namespace _Scripts.Core
 
         public void UpdatePosition()
         {
-            if (step < 1)
+            if (currentStep < 1)
                 return;
-            step--;
+            currentStep --;
 
             // Calculate direction once if not set
             if (_direction == Vector3.zero)
                 _direction = (transform.position - _sourcePosition).normalized;
 
             // Calculate the new distance: (Base Step Distance) + Offset
-            float distance = (_stepSize * step) + _offset;
+            float distance = (_stepSize * currentStep) + _offset;
 
             // Calculate target position
             Vector3 targetPosition = _sourcePosition + (_direction * distance);
 
             // Start smooth lerp to target
-            StartCoroutine(LerpToPosition(targetPosition, step == 0));
+            StartCoroutine(LerpToPosition(targetPosition, currentStep == 0));
         }
 
         private IEnumerator LerpToPosition(Vector3 targetPosition, bool destroyAfter)
@@ -86,15 +86,15 @@ namespace _Scripts.Core
         /// </summary>
         public bool PushBack(int maxStep)
         {
-            step++;
-            if (step > maxStep)
+            currentStep++;
+            if (currentStep > maxStep)
             {
                 Destroy(false);
                 return true;
             }
 
             // Recalculate position moving outward
-            float distance = (_stepSize * step) + _offset;
+            float distance = (_stepSize * currentStep) + _offset;
             Vector3 targetPosition = _sourcePosition + (_direction * distance);
             StartCoroutine(LerpToPosition(targetPosition, false));
             return false;

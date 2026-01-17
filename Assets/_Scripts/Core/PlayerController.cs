@@ -111,6 +111,10 @@ namespace _Scripts.Core
             switch (_detectionMode)
             {
                 case DetectionMode.None:
+                    if (other.TryGetComponent(out Neutral neutral))
+                    {
+                        neutral.Destroy(true);
+                    }
                     break;
                 case DetectionMode.Friendly:
                     if (other.TryGetComponent(out Ally ally))
