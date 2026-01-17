@@ -11,7 +11,7 @@ namespace _Scripts.Core
         public static PlayerController Instance;
         public Collider2D detectionCollider;
         public SpriteRenderer spriteRenderer;
-        public GameObject neutralDetector;
+        public Collider2D neutralDetector;
 
         public event Action OnPulse;
         
@@ -52,19 +52,19 @@ namespace _Scripts.Core
             if (Input.GetMouseButton(0))
             {
                 _detectionMode = DetectionMode.Aggressive;
-                neutralDetector.SetActive(false);
+                neutralDetector.gameObject.SetActive(false);
 
             } 
             else if (Input.GetMouseButton(1))
             {
                 _detectionMode = DetectionMode.Friendly;
-                neutralDetector.SetActive(false);
+                neutralDetector.gameObject.SetActive(false);
 
             }
             else
             {
                 _detectionMode = DetectionMode.None;
-                neutralDetector.SetActive(true);
+                neutralDetector.gameObject.SetActive(true);
             }
             //UpdateColor();
         }
@@ -77,6 +77,7 @@ namespace _Scripts.Core
         private IEnumerator DetectionCoroutine()
         {
             detectionCollider.enabled = true;
+            neutralDetector.enabled = true;
             _isPulsing = true;
             OnPulse?.Invoke();
             var cloneSprite = Instantiate(spriteRenderer, spriteRenderer.transform.position, spriteRenderer.transform.rotation);
@@ -89,6 +90,7 @@ namespace _Scripts.Core
 
             yield return new WaitForSeconds(detectionInterval);
             detectionCollider.enabled = false;
+            neutralDetector.enabled = false;
             _isPulsing = false;
         }
 
