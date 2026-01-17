@@ -37,11 +37,11 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - _AuraTexture:
-        m_Texture: {fileID: 2800000, guid: 8de16feda1984604786536293604890b, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: cff7f7f3264535b4bb3439495e1a2e2f, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _OutlineSprite_e8708676ea3d485a8a11d98acd8fe95e_OutlineTexture_3492812294_Texture2D:
@@ -127,7 +127,7 @@ Material:
     - _BlurInstance_posX_zeroY: 1
     - _BlurInstance_zeroX_negY: 1
     - _BlurInstance_zeroX_posY: 1
-    - _BlurInstancesSpacing: 1
+    - _BlurInstancesSpacing: 0.352
     - _BlurSpacing: 3.17
     - _Boolean: 0
     - _Float: 0.11111111
@@ -150,19 +150,19 @@ Material:
     - _OutlineSofteningNoiseSpeed: 0
     - _OutlineSoftness: 0
     - _OutlineThickness: 1.6
-    - _OutlineThreshold: 0
+    - _OutlineThreshold: 0.923
     - _Outline_Threshold: 0.5
-    - _OverrideColorValue: 0
+    - _OverrideColorValue: -1.31
     - _OverrideSpriteColor: 0
-    - _PixelsPerUnit: 10
+    - _PixelsPerUnit: 55
     - _Rotation: 0
     - _SaturateSprite: 1
     - _SofteningNoiseRotation: 10
-    - _SofteningOffsetSpeed: 1
-    - _Softness: 0
-    - _Speed: 0
+    - _SofteningOffsetSpeed: 0.65
+    - _Softness: 0.176
+    - _Speed: 4
     - _SpriteScale: 1
-    - _Strength: 0.01
+    - _Strength: 4.51
     - _Takeover: 0
     - _TakeoverSpriteColor: 0
     - _TilingSpeed: 0.94
@@ -186,11 +186,12 @@ Material:
     - _X_1_Y0: 1
     - _X_1_Y1: 1
     - _X_1_Y_1: 1
-    - _X_Axis: 0
+    - _X_Axis: 1
     - _X_axis_Wave: 0
-    - _Y_Axis: 0
+    - _Y_Axis: 1
     - _Y_axis_Wave: 0
     m_Colors:
+    - White: {r: 1, g: 1, b: 1, a: 1}
     - _0X_1: {r: 1, g: 0, b: 0, a: 0}
     - _0X_1Y: {r: 0, g: 1, b: 0, a: 0}
     - _1X_0Y: {r: 1, g: 0, b: 0, a: 0}
@@ -199,13 +200,13 @@ Material:
     - _1X_2: {r: 1, g: 0, b: 0, a: 0}
     - _1X_3: {r: -1, g: -1, b: 0, a: 0}
     - _1X_4: {r: 1, g: -1, b: 0, a: 0}
-    - _Color: {r: 22.363522, g: 22.363522, b: 22.363522, a: 1}
+    - _Color: {r: 0.73399353, g: 0.025689792, b: 0.35623157, a: 1}
     - _Offset: {r: 0, g: 0, b: 0, a: 0}
     - _OutlineColor: {r: 2.9960785, g: 2.9960785, b: 2.9960785, a: 1}
     - _OutlinePosition: {r: 0, g: 0, b: 0, a: 0}
     - _OutlineTexColor: {r: 1, g: 0.7610775, b: 0, a: 1}
     - _Outline_Position: {r: 0, g: -1, b: 0, a: 0}
-    - _SofteningScale: {r: 2, g: 2, b: 0, a: 0}
+    - _SofteningScale: {r: 1, g: 1, b: 0, a: 0}
     - _TilingPosition: {r: 0, g: 0, b: 0, a: 0}
     - _TilingScaling: {r: 0.88, g: 1, b: 0, a: 0}
   m_BuildTextureStacks: []
