@@ -75,11 +75,6 @@ namespace _Scripts.Core
         private MovableEntitiy GetEntityPrefabForCombo(int combo, out int count)
         {
             count = 1;
-            if (combo <= 5)
-            {
-                count = Random.Range(2, 5);
-                return neutralPrefab;
-            }
             // Combo 1-10: Friendly only
             if (combo <= 10)
                 return friendlyPrefab;
