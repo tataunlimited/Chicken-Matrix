@@ -308,6 +308,7 @@ GameObject:
   - component: {fileID: 6550549253147994847}
   - component: {fileID: 3446105017895975204}
   - component: {fileID: 8465332453200086015}
+  - component: {fileID: 1269790812365701625}
   m_Layer: 5
   m_Name: ComboTXT_IMG
   m_TagString: Untagged
@@ -373,6 +374,31 @@ MonoBehaviour:
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
 --- !u!114 &8465332453200086015
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1885781139269460253}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fd3b9cef0947c8f48bdb36094034bd53, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RadarColourSychComboIMG_Script
+  targetImage: {fileID: 3446105017895975204}
+  colorImages:
+  - {fileID: 2306122019298297485, guid: 6d6369e5c561dda4e990c871c4625a66, type: 3}
+  - {fileID: 1755065712900671524, guid: 4a374102b04d0b34fb62b26c47672cad, type: 3}
+  - {fileID: -5397549682184685363, guid: 0d75fa4fcef6da14e93e6ffd2aab1326, type: 3}
+  - {fileID: -7710883842479747434, guid: 6ff03dc0e9bea4b4894d8694d7b0cf1e, type: 3}
+  - {fileID: 5914480772357619567, guid: 24c4959ed6ff8c8478befcce450a5d7b, type: 3}
+  - {fileID: 5914480772357619567, guid: 24c4959ed6ff8c8478befcce450a5d7b, type: 3}
+  - {fileID: -2025606425504999112, guid: e477ec69a464ae94995883eabd531bf9, type: 3}
+  - {fileID: -7268937793234912984, guid: edfca39142d948d4f8cfb51eff78907b, type: 3}
+  - {fileID: -2207461569920873329, guid: 83dff496d6f17d642bfd0a1e9217d13d, type: 3}
+  defaultImage: {fileID: 2306122019298297485, guid: 6d6369e5c561dda4e990c871c4625a66, type: 3}
+  updateCheckInterval: 0.365
+--- !u!114 &1269790812365701625
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
