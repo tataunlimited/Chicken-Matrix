@@ -74,6 +74,19 @@ public class AudioReactiveCanvasPulseSystem : MonoBehaviour
             }
         }
     }
+
+    private void OnEnable()
+    {
+        // Allow animations to run again when the object is re-enabled
+        isDestroyed = false;
+
+        // Optionally recreate breathing if needed
+        if (CanPlayAnimation() && baseBreathingSequence == null)
+        {
+            CreateBaseBreathingSequence();
+        }
+    }
+
     #endregion
 
     #region Init & References
@@ -114,10 +127,10 @@ public class AudioReactiveCanvasPulseSystem : MonoBehaviour
         baseBreathingSequence = DOTween.Sequence();
 
         // Scale up from min to max
-        baseBreathingSequence.Append(canvasRectTransform.DOScale(Vector3.one * breatheMaxScale, breatheDuration * 0.5f).SetEase(breatheEase));
+        baseBreathingSequence.Append(canvasRectTransform.DOScale(Vector3.one * breatheMaxScale, breatheDuration * 0.5f).SetEase(breatheEase)).SetUpdate(true);
 
         // Scale down from max to min
-        baseBreathingSequence.Append(canvasRectTransform.DOScale(Vector3.one * breatheMinScale, breatheDuration * 0.5f).SetEase(breatheEase));
+        baseBreathingSequence.Append(canvasRectTransform.DOScale(Vector3.one * breatheMinScale, breatheDuration * 0.5f).SetEase(breatheEase)).SetUpdate(true);
 
         // Loop infinitely
         baseBreathingSequence.SetLoops(-1, LoopType.Restart);

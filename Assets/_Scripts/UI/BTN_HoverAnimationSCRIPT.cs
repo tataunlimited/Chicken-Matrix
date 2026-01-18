@@ -65,7 +65,7 @@ public class BTN_HoverAnimationSCRIPT : MonoBehaviour, IPointerEnterHandler, IPo
         }
 
         // Scale up smoothly
-        scaleTween = BTNrectTransform.DOScale(new Vector3(hoverScale, hoverScale, 1f), scaleUpDuration).SetEase(scaleUpEase).OnKill(() => scaleTween = null);
+        scaleTween = BTNrectTransform.DOScale(new Vector3(hoverScale, hoverScale, 1f), scaleUpDuration).SetEase(scaleUpEase).OnKill(() => scaleTween = null).SetUpdate(true);
     }
 
     public void OnPointerExit(PointerEventData eventData)
@@ -75,7 +75,7 @@ public class BTN_HoverAnimationSCRIPT : MonoBehaviour, IPointerEnterHandler, IPo
         KillTween();
 
         // Scale back down quickly
-        scaleTween = BTNrectTransform.DOScale(Vector3.one, scaleDownDuration).SetEase(scaleDownEase).OnKill(() => scaleTween = null);
+        scaleTween = BTNrectTransform.DOScale(Vector3.one, scaleDownDuration).SetEase(scaleDownEase).OnKill(() => scaleTween = null).SetUpdate(true);
     }
 
     public void OnPointerClick(PointerEventData eventData)
@@ -156,6 +156,11 @@ public class BTN_HoverAnimationSCRIPT : MonoBehaviour, IPointerEnterHandler, IPo
     #endregion
 
     #region Cleanup
+    private void OnEnable()
+    {
+        isDestroyed = false;
+    }
+
     private void OnDisable()
     {
         CleanupAllTweens();
