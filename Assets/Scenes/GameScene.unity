@@ -900,25 +900,9 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 4096101566368363245, guid: 03f887daedde2e047b70f5dec970420e, type: 3}
-      propertyPath: m_margin.x
-      value: -109.30408
-      objectReference: {fileID: 0}
-    - target: {fileID: 4096101566368363245, guid: 03f887daedde2e047b70f5dec970420e, type: 3}
-      propertyPath: m_TextWrappingMode
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4096101566368363245, guid: 03f887daedde2e047b70f5dec970420e, type: 3}
-      propertyPath: m_HorizontalAlignment
-      value: 4
-      objectReference: {fileID: 0}
     - target: {fileID: 4640272611369917658, guid: 03f887daedde2e047b70f5dec970420e, type: 3}
       propertyPath: m_Name
       value: Canvas
-      objectReference: {fileID: 0}
-    - target: {fileID: 7799537211152533180, guid: 03f887daedde2e047b70f5dec970420e, type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: 39
       objectReference: {fileID: 0}
     - target: {fileID: 8468380907067646647, guid: 03f887daedde2e047b70f5dec970420e, type: 3}
       propertyPath: m_Camera
@@ -1003,10 +987,6 @@ PrefabInstance:
     - target: {fileID: 9055926376400877754, guid: 03f887daedde2e047b70f5dec970420e, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 9213914959998333932, guid: 03f887daedde2e047b70f5dec970420e, type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: 207
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
