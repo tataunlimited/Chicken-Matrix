@@ -18,6 +18,7 @@ namespace _Scripts.Core
         [SerializeField] private TMP_Text creditsText;
         [SerializeField] private RectTransform creditsContainer;
         [SerializeField] private RectMask2D scrollMask;
+        [SerializeField] private Image thankYouImage;
 
         [Header("Fade In Settings")]
         [SerializeField] private float delayBeforeFadeIn = 2f;
@@ -93,11 +94,17 @@ namespace _Scripts.Core
         {
             _isPlaying = true;
 
-            // Calculate positions upfront
+            // Calculate total content height (thank you image + credits text)
+            float imageHeight = 0f;
+            if (thankYouImage != null)
+            {
+                imageHeight = thankYouImage.rectTransform.rect.height;
+            }
             float textHeight = creditsText.preferredHeight;
+            float totalContentHeight = imageHeight + textHeight;
             float viewportHeight = scrollMask != null ? scrollMask.rectTransform.rect.height : 800f;
 
-            // Set initial position BEFORE fade-in (text starts below the viewport)
+            // Set initial position BEFORE fade-in (content starts below the viewport)
             creditsContainer.anchoredPosition = new Vector2(0, -viewportHeight);
 
             // Wait before starting fade in
@@ -107,8 +114,8 @@ namespace _Scripts.Core
             _canvasGroup.DOFade(1f, fadeInDuration).SetEase(Ease.InOutSine);
             yield return new WaitForSeconds(fadeInDuration);
 
-            // Scroll the credits upward
-            creditsContainer.DOAnchorPosY(textHeight, _scrollDuration)
+            // Scroll the credits upward (scroll enough to move all content through)
+            creditsContainer.DOAnchorPosY(totalContentHeight, _scrollDuration)
                 .SetEase(Ease.Linear);
 
             yield return new WaitForSeconds(_scrollDuration);

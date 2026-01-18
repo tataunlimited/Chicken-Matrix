@@ -30,6 +30,14 @@ namespace _Scripts.Core
         [Tooltip("Maximum entities per cluster")]
         [SerializeField] private int maxClusterSize = 3;
 
+        [Header("Tutorial Indicators")]
+        [Tooltip("Tutorial indicator prefab for allies (right mouse button)")]
+        [SerializeField] private TutorialIndicator allyTutorialIndicatorPrefab;
+        [Tooltip("Tutorial indicator prefab for enemies (left mouse button)")]
+        [SerializeField] private TutorialIndicator enemyTutorialIndicatorPrefab;
+        [Tooltip("Tutorial indicator prefab for neutrals (no mouse button)")]
+        [SerializeField] private TutorialIndicator neutralTutorialIndicatorPrefab;
+
         private int _entityPatternIndex;
 
         // Track interval within current 32-interval segment (0-31)
@@ -89,14 +97,17 @@ namespace _Scripts.Core
             if (newEntity is Enemy enemy)
             {
                 _aliveEnemies.Add(enemy);
+                TrySpawnEnemyTutorial(enemy);
             }
             else if (newEntity is Ally ally)
             {
                 _aliveAllies.Add(ally);
+                TrySpawnAllyTutorial(ally);
             }
             else if (newEntity is Neutral neutral)
             {
                 _aliveNeutrals.Add(neutral);
+                TrySpawnNeutralTutorial(neutral);
             }
 
             return newEntity;
@@ -522,6 +533,36 @@ namespace _Scripts.Core
 
             // Advance segment counter (wraps every 32 intervals = 16 seconds)
             _segmentIntervalCounter = (_segmentIntervalCounter + 1) % 32;
+        }
+
+        private void TrySpawnAllyTutorial(Ally ally)
+        {
+            // Show ally tutorial while combo is exactly 1, respawn if previous indicator was destroyed
+            if (allyTutorialIndicatorPrefab != null && GameManager.Instance.combo == 1)
+            {
+                var indicator = Instantiate(allyTutorialIndicatorPrefab, ally.transform.position, Quaternion.identity);
+                indicator.Initialize(ally);
+            }
+        }
+
+        private void TrySpawnEnemyTutorial(Enemy enemy)
+        {
+            // Show enemy tutorial at combo 11 (first enemy spawn), respawn if previous was destroyed
+            if (enemyTutorialIndicatorPrefab != null && GameManager.Instance.combo == 11)
+            {
+                var indicator = Instantiate(enemyTutorialIndicatorPrefab, enemy.transform.position, Quaternion.identity);
+                indicator.Initialize(enemy);
+            }
+        }
+
+        private void TrySpawnNeutralTutorial(Neutral neutral)
+        {
+            // Show neutral tutorial at combo 11 (first neutral spawn), respawn if previous was destroyed
+            if (neutralTutorialIndicatorPrefab != null && GameManager.Instance.combo == 11)
+            {
+                var indicator = Instantiate(neutralTutorialIndicatorPrefab, neutral.transform.position, Quaternion.identity);
+                indicator.Initialize(neutral);
+            }
         }
 
         public void ResetProgression()

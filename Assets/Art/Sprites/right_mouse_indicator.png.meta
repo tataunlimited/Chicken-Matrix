@@ -1,19 +1,10 @@
 fileFormatVersion: 2
-guid: 8796930d0513c3f4a9114ed3a17efc61
+guid: 82a0387986d9f4349a8adc5b652f9cd6
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 2882635189878905924
-    second: ThanksForPlaying_0
-  - first:
-      213: 1567157970691507074
-    second: ThanksForPlaying_1
-  - first:
-      213: -802905157808609260
-    second: ThanksForPlaying_2
-  - first:
-      213: -2644405309390500231
-    second: ThanksForPlaying_3
+      213: 4049537266012130311
+    second: pixellab-computer-mouse-with-right-butt-1768727659021 (1)_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -55,7 +46,7 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 1
+  spriteMode: 2
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -109,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: ThanksForPlaying_0
+      name: pixellab-computer-mouse-with-right-butt-1768727659021 (1)_0
       rect:
         serializedVersion: 2
-        x: 100
-        y: 175
-        width: 390
-        height: 107
+        x: 37
+        y: 25
+        width: 54
+        height: 78
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -124,74 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 44cd5cdae6d210820800000000000000
-      internalID: 2882635189878905924
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: ThanksForPlaying_1
-      rect:
-        serializedVersion: 2
-        x: 480
-        y: 193
-        width: 228
-        height: 89
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 2834df50fd9afb510800000000000000
-      internalID: 1567157970691507074
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: ThanksForPlaying_2
-      rect:
-        serializedVersion: 2
-        x: 56
-        y: 45
-        width: 244
-        height: 94
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 4182d7053028bd4f0800000000000000
-      internalID: -802905157808609260
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: ThanksForPlaying_3
-      rect:
-        serializedVersion: 2
-        x: 325
-        y: 45
-        width: 457
-        height: 106
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 97e4f9bb16f2d4bd0800000000000000
-      internalID: -2644405309390500231
+      spriteID: 70c0c5520b8d23830800000000000000
+      internalID: 4049537266012130311
       vertices: []
       indices: 
       edges: []
@@ -200,7 +125,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 5e97eb03825dee720800000000000000
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -210,10 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      ThanksForPlaying_0: 2882635189878905924
-      ThanksForPlaying_1: 1567157970691507074
-      ThanksForPlaying_2: -802905157808609260
-      ThanksForPlaying_3: -2644405309390500231
+      pixellab-computer-mouse-with-right-butt-1768727659021 (1)_0: 4049537266012130311
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
