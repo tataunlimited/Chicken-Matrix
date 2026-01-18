@@ -544,6 +544,7 @@ namespace _Scripts.Core
         public void TriggerKonamiEffect()
         {
             Debug.Log("Konami Code Triggered!");
+            Difficulty = Difficulty.KonamiMode;
             PlayerController.Instance.EnableKonamiMode();
         }
     }
