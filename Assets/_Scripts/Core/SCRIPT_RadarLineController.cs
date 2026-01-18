@@ -156,8 +156,10 @@ public class SCRIPT_RadarLineController : MonoBehaviour
         // Check if we've completed a full rotation (360 degrees)
         if (Mathf.Abs(_accumulatedRotation) >= 360f)
         {
-            // Check if it was fast enough
-            if (_rotationTimer <= spinBoostThreshold)
+            // Check if it was fast enough AND not already boosting
+            // (must wait for current boost to decay before another spin can succeed)
+            bool alreadyBoosting = CameraRotator.Instance != null && CameraRotator.Instance.IsBoosting;
+            if (_rotationTimer <= spinBoostThreshold && !alreadyBoosting)
             {
                 // Camera boost effect
                 if (CameraRotator.Instance != null)

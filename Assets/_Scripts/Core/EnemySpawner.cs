@@ -217,11 +217,8 @@ namespace _Scripts.Core
 
         private void EnemyDestroyed(MovableEntitiy entity)
         {
-            // Neutrals don't affect combo - keeps timing predictable
-            if (!(entity is Neutral))
-            {
-                GameManager.Instance.UpdateCombo(entity.Detected, entity.comboValue);
-            }
+            // All entities affect combo - missing any entity causes setback
+            GameManager.Instance.UpdateCombo(entity.Detected, entity.comboValue);
 
             if (entity is Enemy enemy && _aliveEnemies.Contains(enemy))
             {
@@ -310,7 +307,7 @@ namespace _Scripts.Core
         /// </summary>
         public void RevealAllEntities()
         {
-            Debug.Log($"RevealAllEntities called. Enemies: {_aliveEnemies.Count}, Allies: {_aliveAllies.Count}");
+            Debug.Log($"RevealAllEntities called. Enemies: {_aliveEnemies.Count}, Allies: {_aliveAllies.Count}, Neutrals: {_aliveNeutrals.Count}");
 
             // Reveal all enemies
             foreach (var enemy in _aliveEnemies)
@@ -327,6 +324,15 @@ namespace _Scripts.Core
                 if (ally != null)
                 {
                     ally.RevealPermanently(revealSortingOrder);
+                }
+            }
+
+            // Reveal all neutrals
+            foreach (var neutral in _aliveNeutrals)
+            {
+                if (neutral != null)
+                {
+                    neutral.RevealPermanently(revealSortingOrder);
                 }
             }
         }

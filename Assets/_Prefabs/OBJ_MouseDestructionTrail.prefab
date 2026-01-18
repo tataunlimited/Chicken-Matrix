@@ -29,7 +29,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -2.26, y: 0.09337, z: 0}
-  m_LocalScale: {x: 0.85, y: 0.85, z: 0.85}
+  m_LocalScale: {x: 1.11, y: 1.11, z: 1.11}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
@@ -83,11 +83,11 @@ TrailRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 1200
   m_MaskInteraction: 0
-  m_Time: 0.18
+  m_Time: 0.22
   m_PreviewTimeScale: 1
   m_Parameters:
     serializedVersion: 3
-    widthMultiplier: 0.8683818
+    widthMultiplier: 1.2741807
     widthCurve:
       serializedVersion: 2
       m_Curve:
@@ -407,7 +407,7 @@ ParticleSystem:
     startSize:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 0.11
+      scalar: 0.19
       minScalar: 1
       maxCurve:
         serializedVersion: 2
@@ -4200,7 +4200,7 @@ ParticleSystem:
     widthOverTrail:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 2.95
+      scalar: 3.03
       minScalar: 1
       maxCurve:
         serializedVersion: 2
