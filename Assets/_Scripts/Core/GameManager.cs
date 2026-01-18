@@ -171,6 +171,10 @@ namespace _Scripts.Core
 
                     // Play combo fail sound
                     SoundController.Instance?.PlayComboFailSound();
+                    
+                    // Notify egg manager of combo fail (halves/resets egg score)
+                    EggManager.Instance?.OnEntityComboFail();
+
                 }
                 // Hard mode: reset to 1
                 // Easy mode: snap to start of previous tier (1, 11, 21, 31, etc.) to maintain music sync
