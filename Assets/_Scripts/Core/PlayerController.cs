@@ -13,6 +13,7 @@ namespace _Scripts.Core
         public Collider2D detectionCollider;
         public SpriteRenderer spriteRenderer;
         public Collider2D neutralDetector;
+        public Transform rangeVisualIndicator;
         
         public List<float> rangeScaleMultipliers = new List<float>();
 
@@ -30,6 +31,8 @@ namespace _Scripts.Core
 
         private Enemy _detectedEnemy;
         private DetectionMode _detectionMode;
+        
+        private int _range = 0;
         void Awake()
         {
             Instance = this;
@@ -50,6 +53,10 @@ namespace _Scripts.Core
             float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
             transform.rotation = Quaternion.Euler(0, 0, angle);
 
+            // if (Input.GetKeyDown(KeyCode.A))
+            // {
+            //     UpdateRange(_range+1);
+            // }
             if(_isPulsing)
                 return;
             if (Input.GetMouseButton(0))
@@ -81,7 +88,9 @@ namespace _Scripts.Core
         {
             
             if (range >= rangeScaleMultipliers.Count) return;
+            _range = range;
             detectionCollider.transform.localScale = Vector3.one * rangeScaleMultipliers[range]; 
+            rangeVisualIndicator.localScale = Vector3.one * rangeScaleMultipliers[range];
         }
         private IEnumerator DetectionCoroutine()
         {
