@@ -1134,6 +1134,7 @@ GameObject:
   - component: {fileID: 2142920008467418285}
   - component: {fileID: 87897283931669972}
   - component: {fileID: 8438111996234465355}
+  - component: {fileID: 1872203253266201164}
   m_Layer: 5
   m_Name: DifficultyScreen_TITLE_TXT
   m_TagString: Untagged
@@ -1215,6 +1216,33 @@ MonoBehaviour:
   pulseLoops: -1
   pulseEase: 4
   rectTransform: {fileID: 4498033460999015245}
+--- !u!114 &1872203253266201164
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5010216556047284342}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0f44d2756baa70742b3cb5960d8148cc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AudioReactiveCanvasPulseSystem
+  breatheMinScale: 1
+  breatheMaxScale: 1.04
+  breatheDuration: 3
+  breatheEase: 4
+  audioTweenDuration: 1.92
+  audioEase: 6
+  audioAmplitudeMultiplier: 0.28
+  minAmplitudeDelta: 0.135
+  useAverageBass: 1
+  useMidrange: 0
+  useTreble: 1
+  customBandIndex: -1
+  debugMode: 0
+  canvasRectTransform: {fileID: 4498033460999015245}
+  audioVisualizer: {fileID: 8188767683290398816}
 --- !u!1 &5018455025370159336
 GameObject:
   m_ObjectHideFlags: 0
