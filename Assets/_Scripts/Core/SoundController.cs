@@ -20,12 +20,18 @@ namespace _Scripts.Core
         [SerializeField] private AudioClip comboFailSoundClip;
         [SerializeField] private AudioClip directionFlipSoundClip;
         [SerializeField] private AudioClip rankUpSoundClip;
+        [SerializeField] private AudioClip buttonHoverSoundClip;
+        [SerializeField] private AudioClip buttonClickSoundClip;
         [SerializeField] private float sfxVolume = 1f;
+        [SerializeField] private float buttonHoverPitch = 1f;
+        [SerializeField] private float buttonClickPitch = 1f;
 
         [Header("Audio Settings")]
         [SerializeField] private float musicVolume = 1f;
         [SerializeField] private float crossfadeDuration = 1f;
         [SerializeField] private bool loopTracks = true;
+        [Tooltip("Volume multiplier applied per track (e.g., 1.15 = 15% louder each track)")]
+        [SerializeField] private float volumeIncreasePerTrack = 1.15f;
 
         [Header("Volume Punch")]
         [SerializeField] private float volumePunchMultiplier = 1.25f;
@@ -38,6 +44,7 @@ namespace _Scripts.Core
         private int currentTrackIndex = -1;
         private Coroutine crossfadeCoroutine;
         private Coroutine volumePunchCoroutine;
+        private float currentTrackVolume; // Cached volume for current track
 
         private void Awake()
         {
@@ -68,6 +75,19 @@ namespace _Scripts.Core
         public void UpdateMusicForCombo(int combo)
         {
             PlayTrackForCombo(combo);
+        }
+
+        /// <summary>
+        /// Calculate the volume for a given track index.
+        /// Each track is 15% louder than the previous (configurable via volumeIncreasePerTrack).
+        /// </summary>
+        private float GetVolumeForTrack(int trackIndex)
+        {
+            // Track 0 = musicVolume * 1.0
+            // Track 1 = musicVolume * 1.15
+            // Track 2 = musicVolume * 1.15^2
+            // etc.
+            return Mathf.Min(musicVolume * Mathf.Pow(volumeIncreasePerTrack, trackIndex), 1f);
         }
 
         private void PlayTrackForCombo(int combo)
@@ -111,6 +131,9 @@ namespace _Scripts.Core
             AudioSource fadeOutSource = activeSource;
             AudioSource fadeInSource = (activeSource == audioSourceA) ? audioSourceB : audioSourceA;
 
+            // Calculate the target volume for the new track
+            float targetVolume = GetVolumeForTrack(newTrackIndex);
+
             // Set up the new track at the same playback position
             fadeInSource.clip = musicTracks[newTrackIndex];
             fadeInSource.time = fadeOutSource.time % musicTracks[newTrackIndex].length;
@@ -125,27 +148,33 @@ namespace _Scripts.Core
                 float t = elapsed / crossfadeDuration;
 
                 fadeOutSource.volume = Mathf.Lerp(startVolume, 0f, t);
-                fadeInSource.volume = Mathf.Lerp(0f, musicVolume, t);
+                fadeInSource.volume = Mathf.Lerp(0f, targetVolume, t);
 
                 yield return null;
             }
 
             fadeOutSource.volume = 0f;
             fadeOutSource.Stop();
-            fadeInSource.volume = musicVolume;
+            fadeInSource.volume = targetVolume;
+            currentTrackVolume = targetVolume;
 
             activeSource = fadeInSource;
             crossfadeCoroutine = null;
 
-            Debug.Log($"SoundController: Crossfaded to track {newTrackIndex + 1}");
+            Debug.Log($"SoundController: Crossfaded to track {newTrackIndex + 1} (volume: {targetVolume:F2})");
         }
 
         public void SetVolume(float volume)
         {
             musicVolume = Mathf.Clamp01(volume);
+            // Recalculate current track volume based on new base volume
+            if (currentTrackIndex >= 0)
+            {
+                currentTrackVolume = GetVolumeForTrack(currentTrackIndex);
+            }
             if (activeSource != null && activeSource.isPlaying)
             {
-                activeSource.volume = musicVolume;
+                activeSource.volume = currentTrackVolume;
             }
         }
 
@@ -215,6 +244,26 @@ namespace _Scripts.Core
             }
         }
 
+        public void PlayButtonHoverSound()
+        {
+            if (buttonHoverSoundClip != null && sfxSource != null)
+            {
+                sfxSource.pitch = buttonHoverPitch;
+                sfxSource.PlayOneShot(buttonHoverSoundClip, sfxVolume);
+                sfxSource.pitch = 1f;
+            }
+        }
+
+        public void PlayButtonClickSound()
+        {
+            if (buttonClickSoundClip != null && sfxSource != null)
+            {
+                sfxSource.pitch = buttonClickPitch;
+                sfxSource.PlayOneShot(buttonClickSoundClip, sfxVolume);
+                sfxSource.pitch = 1f;
+            }
+        }
+
         /// <summary>
         /// Returns the currently active AudioSource for spectrum analysis.
         /// Used by AudioSpectrumVisualizer to read audio data.
@@ -238,8 +287,8 @@ namespace _Scripts.Core
 
         private IEnumerator VolumePunchCoroutine()
         {
-            // Immediately boost volume
-            float punchedVolume = Mathf.Min(musicVolume * volumePunchMultiplier, 1f);
+            // Immediately boost volume based on current track's volume
+            float punchedVolume = Mathf.Min(currentTrackVolume * volumePunchMultiplier, 1f);
             activeSource.volume = punchedVolume;
 
             // Fade back to normal
@@ -248,11 +297,11 @@ namespace _Scripts.Core
             {
                 elapsed += Time.deltaTime;
                 float t = elapsed / volumePunchFadeDuration;
-                activeSource.volume = Mathf.Lerp(punchedVolume, musicVolume, t);
+                activeSource.volume = Mathf.Lerp(punchedVolume, currentTrackVolume, t);
                 yield return null;
             }
 
-            activeSource.volume = musicVolume;
+            activeSource.volume = currentTrackVolume;
             volumePunchCoroutine = null;
         }
 
@@ -298,6 +347,9 @@ namespace _Scripts.Core
             AudioSource fadeOutSource = activeSource;
             AudioSource fadeInSource = (activeSource == audioSourceA) ? audioSourceB : audioSourceA;
 
+            // Final track plays at the highest track volume (track 9 equivalent)
+            float finalVolume = GetVolumeForTrack(musicTracks.Length - 1);
+
             // Set up the final track (non-looping, start from beginning)
             fadeInSource.clip = finalTrack;
             fadeInSource.loop = false;
@@ -313,19 +365,20 @@ namespace _Scripts.Core
                 float t = elapsed / crossfadeDuration;
 
                 fadeOutSource.volume = Mathf.Lerp(startVolume, 0f, t);
-                fadeInSource.volume = Mathf.Lerp(0f, musicVolume, t);
+                fadeInSource.volume = Mathf.Lerp(0f, finalVolume, t);
 
                 yield return null;
             }
 
             fadeOutSource.volume = 0f;
             fadeOutSource.Stop();
-            fadeInSource.volume = musicVolume;
+            fadeInSource.volume = finalVolume;
+            currentTrackVolume = finalVolume;
 
             activeSource = fadeInSource;
             crossfadeCoroutine = null;
 
-            Debug.Log("SoundController: Crossfaded to final track");
+            Debug.Log($"SoundController: Crossfaded to final track (volume: {finalVolume:F2})");
         }
 
         /// <summary>

@@ -2,8 +2,9 @@ using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
 using UnityEngine.EventSystems;
+using _Scripts.Core;
 
-public class BTN_HoverAnimationSCRIPT : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+public class BTN_HoverAnimationSCRIPT : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
 {
     #region VAR ZONE
     [Header("Hover Scale Settings")]
@@ -12,6 +13,10 @@ public class BTN_HoverAnimationSCRIPT : MonoBehaviour, IPointerEnterHandler, IPo
     [SerializeField] private float scaleDownDuration = 0.15f;
     [SerializeField] private Ease scaleUpEase = Ease.OutQuad;
     [SerializeField] private Ease scaleDownEase = Ease.InQuad;
+
+    [Header("Sound Settings")]
+    [SerializeField] private bool playHoverSound = true;
+    [SerializeField] private bool playClickSound = true;
 
     [SerializeField] private RectTransform BTNrectTransform;
     private Tween scaleTween;
@@ -53,6 +58,12 @@ public class BTN_HoverAnimationSCRIPT : MonoBehaviour, IPointerEnterHandler, IPo
 
         KillTween();
 
+        // Play hover sound
+        if (playHoverSound)
+        {
+            SoundController.Instance?.PlayButtonHoverSound();
+        }
+
         // Scale up smoothly
         scaleTween = BTNrectTransform.DOScale(new Vector3(hoverScale, hoverScale, 1f), scaleUpDuration).SetEase(scaleUpEase).OnKill(() => scaleTween = null);
     }
@@ -65,6 +76,15 @@ public class BTN_HoverAnimationSCRIPT : MonoBehaviour, IPointerEnterHandler, IPo
 
         // Scale back down quickly
         scaleTween = BTNrectTransform.DOScale(Vector3.one, scaleDownDuration).SetEase(scaleDownEase).OnKill(() => scaleTween = null);
+    }
+
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        // Play click sound
+        if (playClickSound)
+        {
+            SoundController.Instance?.PlayButtonClickSound();
+        }
     }
     #endregion
 
