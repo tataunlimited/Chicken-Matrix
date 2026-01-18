@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 2547003169882420127}
   - component: {fileID: 2365525704868690723}
   - component: {fileID: 1500366240258402411}
+  - component: {fileID: 7194873866552335344}
   m_Layer: 5
   m_Name: Easy
   m_TagString: Untagged
@@ -133,6 +134,24 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+--- !u!114 &7194873866552335344
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2084352579945794}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 41947825bc9663242ad9a8326412c2c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BTN_HoverAnimationSCRIPT
+  hoverScale: 1.325
+  scaleUpDuration: 0.785
+  scaleDownDuration: 0.45
+  scaleUpEase: 6
+  scaleDownEase: 5
+  BTNrectTransform: {fileID: 9027025496350204818}
 --- !u!1 &1868532854592685266
 GameObject:
   m_ObjectHideFlags: 0
@@ -334,6 +353,7 @@ GameObject:
   - component: {fileID: 1111103456765332204}
   - component: {fileID: 4516833701255985229}
   - component: {fileID: 2642203553446110193}
+  - component: {fileID: 5113284894682430717}
   m_Layer: 5
   m_Name: Quit
   m_TagString: Untagged
@@ -455,6 +475,24 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+--- !u!114 &5113284894682430717
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2981170586815034432}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 41947825bc9663242ad9a8326412c2c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BTN_HoverAnimationSCRIPT
+  hoverScale: 1.235
+  scaleUpDuration: 0.65
+  scaleDownDuration: 0.25
+  scaleUpEase: 6
+  scaleDownEase: 5
+  BTNrectTransform: {fileID: 2356476556363309683}
 --- !u!1 &3026799174007596471
 GameObject:
   m_ObjectHideFlags: 0
@@ -767,7 +805,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 500, y: 500}
+  m_SizeDelta: {x: 800, y: 800}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &6078334507157822327
 MonoBehaviour:
@@ -787,7 +825,7 @@ MonoBehaviour:
     m_Top: 0
     m_Bottom: 0
   m_ChildAlignment: 4
-  m_Spacing: 15.48
+  m_Spacing: 35
   m_ChildForceExpandWidth: 0
   m_ChildForceExpandHeight: 0
   m_ChildControlWidth: 0
@@ -944,6 +982,7 @@ GameObject:
   - component: {fileID: 1208302449625988415}
   - component: {fileID: 213016038140737474}
   - component: {fileID: 8224019724597216291}
+  - component: {fileID: 2350526089029251792}
   m_Layer: 5
   m_Name: Start
   m_TagString: Untagged
@@ -1065,6 +1104,24 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+--- !u!114 &2350526089029251792
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4863720229885564994}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 41947825bc9663242ad9a8326412c2c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BTN_HoverAnimationSCRIPT
+  hoverScale: 1.235
+  scaleUpDuration: 0.65
+  scaleDownDuration: 0.25
+  scaleUpEase: 6
+  scaleDownEase: 5
+  BTNrectTransform: {fileID: 3262737321580940082}
 --- !u!1 &5010216556047284342
 GameObject:
   m_ObjectHideFlags: 0
@@ -1076,6 +1133,7 @@ GameObject:
   - component: {fileID: 4498033460999015245}
   - component: {fileID: 2142920008467418285}
   - component: {fileID: 87897283931669972}
+  - component: {fileID: 8438111996234465355}
   m_Layer: 5
   m_Name: DifficultyScreen_TITLE_TXT
   m_TagString: Untagged
@@ -1140,6 +1198,23 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &8438111996234465355
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5010216556047284342}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 313f342dfc62d3a4a92cfc40894411e1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CanvasPulse_SCRIPT
+  pulseScale: 1.085
+  pulseDuration: 1.865
+  pulseLoops: -1
+  pulseEase: 4
+  rectTransform: {fileID: 4498033460999015245}
 --- !u!1 &5018455025370159336
 GameObject:
   m_ObjectHideFlags: 0
@@ -1174,7 +1249,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 2}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6415011374508871691
@@ -1289,6 +1364,7 @@ GameObject:
   - component: {fileID: 3631741623691015426}
   - component: {fileID: 6044536609626500461}
   - component: {fileID: 7930585145218356109}
+  - component: {fileID: 3304317381655201588}
   m_Layer: 5
   m_Name: Hard
   m_TagString: Untagged
@@ -1410,6 +1486,24 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+--- !u!114 &3304317381655201588
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5489506297904175229}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 41947825bc9663242ad9a8326412c2c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BTN_HoverAnimationSCRIPT
+  hoverScale: 1.325
+  scaleUpDuration: 0.785
+  scaleDownDuration: 0.45
+  scaleUpEase: 6
+  scaleDownEase: 5
+  BTNrectTransform: {fileID: 6551508848267888089}
 --- !u!1 &6584366569433115700
 GameObject:
   m_ObjectHideFlags: 0

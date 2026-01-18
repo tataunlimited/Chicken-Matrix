@@ -214,6 +214,26 @@ PrefabInstance:
       propertyPath: m_Camera
       value: 
       objectReference: {fileID: 1920772941}
+    - target: {fileID: 6551508848267888089, guid: 77c5204e11001f7488cc180bcaca86a6, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6551508848267888089, guid: 77c5204e11001f7488cc180bcaca86a6, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6551508848267888089, guid: 77c5204e11001f7488cc180bcaca86a6, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6551508848267888089, guid: 77c5204e11001f7488cc180bcaca86a6, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6897182283788305419, guid: 77c5204e11001f7488cc180bcaca86a6, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8737785563045269323, guid: 77c5204e11001f7488cc180bcaca86a6, type: 3}
       propertyPath: m_Pivot.x
       value: 0
@@ -292,6 +312,22 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8737785563045269323, guid: 77c5204e11001f7488cc180bcaca86a6, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9027025496350204818, guid: 77c5204e11001f7488cc180bcaca86a6, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9027025496350204818, guid: 77c5204e11001f7488cc180bcaca86a6, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9027025496350204818, guid: 77c5204e11001f7488cc180bcaca86a6, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9027025496350204818, guid: 77c5204e11001f7488cc180bcaca86a6, type: 3}
+      propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
