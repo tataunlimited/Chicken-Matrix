@@ -5,6 +5,7 @@ using _Scripts.Core;
 
 public class SCRIPT_RadarLineController : MonoBehaviour
 {
+    public bool mirrored;
     [Header("Colors")]
     [SerializeField] private Color defaultColor = Color.white;
     [SerializeField] private Color leftClickColor = Color.red;
@@ -235,8 +236,17 @@ public class SCRIPT_RadarLineController : MonoBehaviour
 
         // Smoothly rotate towards target with max speed limit for smooth trails
         currentAngle = Mathf.MoveTowardsAngle(currentAngle, targetAngle, maxRotationSpeed * Time.deltaTime);
+        // Create a temporary variable for the actual rotation we will apply
+        float finalAngle = currentAngle;
 
-        transform.rotation = Quaternion.Euler(0f, 0f, currentAngle);
+        if (mirrored)
+        {
+            // Add 180 degrees to the visual rotation only
+            finalAngle += 180f;
+        }
+
+        // Apply the finalAngle (with the offset included)
+        transform.rotation = Quaternion.Euler(0f, 0f, finalAngle);
     }
 
     private void UpdateColor()

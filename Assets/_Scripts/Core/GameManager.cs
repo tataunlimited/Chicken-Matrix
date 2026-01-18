@@ -526,6 +526,12 @@ namespace _Scripts.Core
             mainCamera.transform.localPosition = originalCameraPosition;
             shakeCoroutine = null;
         }
+
+        public void TriggerKonamiEffect()
+        {
+            Debug.Log("Konami Code Triggered!");
+            PlayerController.Instance.EnableKonamiMode();
+        }
     }
     #endregion
 
