@@ -12,6 +12,8 @@ namespace _Scripts.Core
         [SerializeField] private AudioClip[] musicTracks = new AudioClip[10];
         [Tooltip("Final victory track - plays when reaching 100 combo")]
         [SerializeField] private AudioClip finalTrack;
+        [Tooltip("Music that plays while in the pause menu")]
+        [SerializeField] private AudioClip pauseMenuMusic;
 
         [Header("Sound Effects")]
         [SerializeField] private AudioClip enemyDeathSoundClip;
@@ -43,6 +45,7 @@ namespace _Scripts.Core
         private AudioSource audioSourceB;
         private AudioSource activeSource;
         private AudioSource sfxSource;
+        private AudioSource pauseMenuSource;
         private int currentTrackIndex = -1;
         private Coroutine crossfadeCoroutine;
         private Coroutine volumePunchCoroutine;
@@ -66,6 +69,12 @@ namespace _Scripts.Core
             // Create SFX audio source
             sfxSource = gameObject.AddComponent<AudioSource>();
             sfxSource.playOnAwake = false;
+
+            // Create pause menu audio source
+            pauseMenuSource = gameObject.AddComponent<AudioSource>();
+            pauseMenuSource.playOnAwake = false;
+            pauseMenuSource.loop = true;
+            pauseMenuSource.volume = musicVolume;
         }
 
         private void Start()
@@ -190,6 +199,26 @@ namespace _Scripts.Core
         {
             audioSourceA?.UnPause();
             audioSourceB?.UnPause();
+        }
+
+        /// <summary>
+        /// Start playing the pause menu music track.
+        /// </summary>
+        public void PlayPauseMenuMusic()
+        {
+            if (pauseMenuMusic == null || pauseMenuSource == null) return;
+
+            pauseMenuSource.clip = pauseMenuMusic;
+            pauseMenuSource.volume = musicVolume;
+            pauseMenuSource.Play();
+        }
+
+        /// <summary>
+        /// Stop the pause menu music track.
+        /// </summary>
+        public void StopPauseMenuMusic()
+        {
+            pauseMenuSource?.Stop();
         }
 
         public void StopMusic()
