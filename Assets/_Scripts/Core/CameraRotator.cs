@@ -87,6 +87,7 @@ public class CameraRotator : MonoBehaviour
         _currentBoostMultiplier = boostMultiplier;
         _boostDecayTimer = 0f;
         _isBoosting = true;
+        SoundController.Instance?.PlayDirectionFlipSound();
     }
 
     /// <summary>
@@ -96,8 +97,5 @@ public class CameraRotator : MonoBehaviour
     {
         direction = -direction;
         TriggerBoost();
-
-        // Play direction flip sound
-        SoundController.Instance?.PlayDirectionFlipSound();
     }
 }

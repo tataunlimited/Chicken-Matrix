@@ -13,7 +13,7 @@ namespace _Scripts.Core
 
         [Header("Charge Settings")]
         [Tooltip("Base fill percentage per detection (at 0 stored spins)")]
-        [SerializeField] private float baseChargePerDetection = 0.5f;
+        [SerializeField] private float baseChargePerDetection = 0.25f;
 
         [Header("Animation Settings")]
         [Tooltip("Duration to animate each particle's charge increment")]
