@@ -392,7 +392,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_text: You hacked the simulation and corrupted the source code, turning every
-    copy of Egg-gent Smith into a bucket of extra crispy.
+    copy of agent fox into a bucket of extra crispy.
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 6efe720f15d5c9a468c36f0b48188fb4, type: 2}
   m_sharedMaterial: {fileID: 1535899802910449392, guid: 6efe720f15d5c9a468c36f0b48188fb4, type: 2}
@@ -940,9 +940,9 @@ MonoBehaviour:
   hardModeEndingTxt: {fileID: 1976829755}
   konamiModeEndingTxt: {fileID: 662305591}
   fadeToBlack: {fileID: 1068372996}
-  delayToFadeToBlack: 7
+  delayToFadeToBlack: 5
   delayAfterFadeToBlack: 12
-  overrideDifficulty: 1
+  overrideDifficulty: 0
   difficulty: 1
 --- !u!1 &1976829755
 GameObject:
