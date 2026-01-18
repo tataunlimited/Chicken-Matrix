@@ -75,6 +75,9 @@ namespace _Scripts.Core
         // Multiplier values for each consecutive egg level
         private static readonly int[] MultiplierAdditions = { 1, 2, 4, 8, 16 };
 
+        // High score persistence key
+        private const string HighScoreKey = "EggHighScore";
+
         private void Awake()
         {
             Instance = this;
@@ -588,6 +591,23 @@ namespace _Scripts.Core
         /// Get current egg score
         /// </summary>
         public int EggScore => _eggScore;
+
+        /// <summary>
+        /// Get the saved high score from PlayerPrefs
+        /// </summary>
+        public static int HighScore => PlayerPrefs.GetInt(HighScoreKey, 0);
+
+        /// <summary>
+        /// Save high score if current score beats the saved value
+        /// </summary>
+        public void TrySaveHighScore()
+        {
+            if (_eggScore > HighScore)
+            {
+                PlayerPrefs.SetInt(HighScoreKey, _eggScore);
+                PlayerPrefs.Save();
+            }
+        }
 
         /// <summary>
         /// Get current consecutive eggs count

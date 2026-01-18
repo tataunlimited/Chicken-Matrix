@@ -241,6 +241,10 @@ namespace _Scripts.Core
         {
             _gameEnded = true;
 
+            // Save egg high score before transitioning
+            if (EggManager.Instance != null)
+                EggManager.Instance.TrySaveHighScore();
+
             // Stop spawning new entities
             EnemySpawner.Instance.StopSpawning();
 

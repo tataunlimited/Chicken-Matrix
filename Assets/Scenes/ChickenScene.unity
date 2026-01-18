@@ -942,7 +942,7 @@ MonoBehaviour:
   fadeToBlack: {fileID: 1068372996}
   delayToFadeToBlack: 7
   delayAfterFadeToBlack: 12
-  overrideDifficulty: 0
+  overrideDifficulty: 1
   difficulty: 1
 --- !u!1 &1976829755
 GameObject:
