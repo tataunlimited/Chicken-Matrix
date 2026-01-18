@@ -4,30 +4,30 @@ public class AudioReactiveCanvasPulseSystem : MonoBehaviour
 {
     #region VAR ZONE
     [Header("Base Breathing Tween (Always Running)")]
-    [SerializeField] private float breatheMinScale = 1.0f;          // Bottom of breathing pulse
-    [SerializeField] private float breatheMaxScale = 1.04f;         // Top of breathing pulse
-    [SerializeField] private float breatheDuration = 3f;            // Full cycle time (slow, zen)
+    [SerializeField] private float breatheMinScale = 1.0f; // Bottom of breathing pulse
+    [SerializeField] private float breatheMaxScale = 1.04f; // Top of breathing pulse
+    [SerializeField] private float breatheDuration = 3f; // Full cycle time (slow, zen)
     [SerializeField] private Ease breatheEase = Ease.InOutSine;
 
     [Header("Audio Reactive Tween (Responds to Music)")]
-    [SerializeField] private float audioTweenDuration = 0.08f;      // How fast audio bumps happen
-    [SerializeField] private Ease audioEase = Ease.OutQuad;         // Punchy, snappy reaction
+    [SerializeField] private float audioTweenDuration = 0.08f; // How fast audio bumps happen
+    [SerializeField] private Ease audioEase = Ease.OutQuad; // Punchy, snappy reaction
     [SerializeField] private float audioAmplitudeMultiplier = 0.08f; // How much extra scale from audio
-    [SerializeField] private float minAmplitudeDelta = 0.01f;       // Ignore tiny amplitude changes
+    [SerializeField] private float minAmplitudeDelta = 0.01f; // Ignore tiny amplitude changes
 
     [Header("Frequency Band Selection")]
-    [SerializeField] private bool useAverageBass = true;            // Bands 0-3
-    [SerializeField] private bool useMidrange = false;              // Bands 4-10
-    [SerializeField] private bool useTreble = false;                // Bands 11-15
-    [SerializeField] private int customBandIndex = -1;              // Specific band, -1 = off
+    [SerializeField] private bool useAverageBass = true; // Bands 0-3
+    [SerializeField] private bool useMidrange = false; // Bands 4-10
+    [SerializeField] private bool useTreble = false; // Bands 11-15
+    [SerializeField] private int customBandIndex = -1; // Specific band, -1 = off
 
     [Header("Debug")]
     [SerializeField] private bool debugMode = false;
 
     [SerializeField] private RectTransform canvasRectTransform;
 
-    private Sequence baseBreathingSequence;  // The infinite breathing loop
-    private Tween audioReactiveTween;        // The reactive bump on top
+    private Sequence baseBreathingSequence; // The infinite breathing loop
+    private Tween audioReactiveTween; // The reactive bump on top
     private bool isDestroyed = false;
 
     [SerializeField] private AudioSpectrumVisualizer audioVisualizer;
