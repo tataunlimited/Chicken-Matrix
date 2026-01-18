@@ -21,6 +21,11 @@ namespace _Scripts.Core
         [Tooltip("Time window around the beat pulse where clicks are valid (in seconds)")]
         [SerializeField] private float beatWindowTime = 0.15f;
 
+        /// <summary>
+        /// Public accessor for beat window time (used by EggCollectable for growth animation)
+        /// </summary>
+        public float BeatWindowTime => beatWindowTime;
+
         // Ring radii are fetched automatically from RadarBackgroundGenerator
         private float[] _ringRadii;
 
@@ -46,12 +51,8 @@ namespace _Scripts.Core
         [SerializeField] private float textPulseScale = 1.5f;
 
         [Header("Spin Charge Integration")]
-        [Tooltip("Base spin charge percentage per egg (at x1 multiplier)")]
-        [SerializeField] private float baseSpinChargePerEgg = 0.1f;
-        [Tooltip("Additional spin charge per multiplier level (10% per level)")]
-        [SerializeField] private float spinChargePerMultiplierLevel = 0.1f;
-        [Tooltip("Maximum spin charge per egg (at x4 multiplier)")]
-        [SerializeField] private float maxSpinChargePerEgg = 0.4f;
+        [Tooltip("Fixed spin charge percentage per egg collected")]
+        [SerializeField] private float spinChargePerEgg = 0.25f;
 
         // Scoring
         private int _eggScore;
@@ -61,6 +62,7 @@ namespace _Scripts.Core
         // Current egg state
         private EggCollectable _currentEgg;
         private bool _eggClickedThisPulse;
+        private bool _eggReadyForCollection; // True after the egg has survived one pulse (collection window is next pulse)
         private bool _inBeatWindow;
         private float _beatWindowTimer;
 
@@ -96,8 +98,8 @@ namespace _Scripts.Core
                 PlayerController.Instance.OnPulse += OnBeatPulse;
             }
 
-            // Auto-start egg spawning
-            SpawnEgg();
+            // Auto-start egg spawning (skip SpawnedThisPulse check for initial spawn)
+            SpawnEggInitial();
         }
 
         /// <summary>
@@ -150,12 +152,29 @@ namespace _Scripts.Core
                 }
             }
 
-            // Check for egg click during beat window
-            if (_currentEgg != null && _inBeatWindow && !_eggClickedThisPulse)
+            // Check for egg click
+            if (_currentEgg != null && !_eggClickedThisPulse)
             {
                 if (Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1))
                 {
-                    TryClickEgg();
+                    // Check if click is within range of egg
+                    Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                    mouseWorldPos.z = 0;
+                    float distance = Vector3.Distance(mouseWorldPos, _currentEgg.transform.position);
+
+                    if (distance <= clickDetectionRadius)
+                    {
+                        if (_eggReadyForCollection && _inBeatWindow)
+                        {
+                            // On beat during collection window - good collect
+                            TryClickEgg();
+                        }
+                        else
+                        {
+                            // Off beat or before collection window - bad collect (destroy without collecting)
+                            OnEggBadCollect();
+                        }
+                    }
                 }
             }
         }
@@ -165,10 +184,55 @@ namespace _Scripts.Core
         /// </summary>
         private void OnBeatPulse()
         {
-            // Start the beat window
-            _inBeatWindow = true;
-            _beatWindowTimer = beatWindowTime;
-            _eggClickedThisPulse = false;
+            // Beat window is managed by StartBeatWindowBeforePulse coroutine
+            // which starts the window centered on the pulse
+
+            // If no egg currently exists, try to spawn one
+            // Use a coroutine to wait a frame so EnemySpawner.UpdateEnemies() runs first
+            if (_currentEgg == null)
+            {
+                StartCoroutine(TrySpawnEggAfterEnemySpawner());
+            }
+        }
+
+        /// <summary>
+        /// Wait a frame for EnemySpawner to update, then try to spawn an egg
+        /// </summary>
+        private IEnumerator TrySpawnEggAfterEnemySpawner()
+        {
+            yield return null; // Wait one frame for EnemySpawner.UpdateEnemies() to set SpawnedThisPulse
+
+            if (_currentEgg == null)
+            {
+                SpawnEgg();
+            }
+        }
+
+        /// <summary>
+        /// Start the beat window before the next pulse arrives.
+        /// Beat window is centered on the pulse, so we start it (interval - beatWindowTime) after spawn.
+        /// </summary>
+        private IEnumerator StartBeatWindowBeforePulse()
+        {
+            float interval = GameManager.Instance != null ? GameManager.Instance.interval : 0.5f;
+            float waitTime = interval - beatWindowTime;
+
+            if (waitTime > 0)
+            {
+                yield return new WaitForSeconds(waitTime);
+            }
+
+            // Only start beat window if egg still exists and hasn't been collected yet
+            if (_currentEgg != null && !_eggReadyForCollection)
+            {
+                _eggReadyForCollection = true;
+                _inBeatWindow = true;
+                _beatWindowTimer = beatWindowTime * 2f; // Full window: half before pulse + half after pulse
+                _eggClickedThisPulse = false;
+
+                // Trigger the egg's scale-up animation
+                _currentEgg.OnCollectionWindowStart();
+            }
         }
 
         /// <summary>
@@ -176,30 +240,47 @@ namespace _Scripts.Core
         /// </summary>
         private void OnBeatWindowEnded()
         {
-            // If there's an egg and player didn't click it, it's a miss
-            if (_currentEgg != null && !_eggClickedThisPulse)
+            // If there's an egg that was ready for collection but wasn't clicked, it's a miss
+            if (_currentEgg != null && _eggReadyForCollection && !_eggClickedThisPulse)
             {
                 OnEggMissed();
             }
         }
 
         /// <summary>
-        /// Try to click the current egg if mouse is within range
+        /// Try to click the current egg (distance already checked in Update)
         /// </summary>
         private void TryClickEgg()
         {
             if (_currentEgg == null) return;
 
-            Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            mouseWorldPos.z = 0;
+            _eggClickedThisPulse = true;
+            OnEggCollected();
+        }
 
-            float distance = Vector3.Distance(mouseWorldPos, _currentEgg.transform.position);
+        /// <summary>
+        /// Called when the egg is clicked off the beat (bad collect)
+        /// </summary>
+        private void OnEggBadCollect()
+        {
+            if (_currentEgg == null) return;
 
-            if (distance <= clickDetectionRadius)
-            {
-                _eggClickedThisPulse = true;
-                OnEggCollected();
-            }
+            _eggClickedThisPulse = true;
+
+            // Play bad collect sound
+            SoundController.Instance?.PlayEggBadCollectSound();
+
+            // Reset multiplier
+            _consecutiveEggs = 0;
+            UpdateMultiplierLevel();
+
+            // Destroy egg instantly (no animation)
+            _currentEgg.Miss();
+            _currentEgg = null;
+
+            // Update UI
+            UpdateUI();
+            // Next egg will spawn on next pulse via OnBeatPulse()
         }
 
         /// <summary>
@@ -235,9 +316,7 @@ namespace _Scripts.Core
             UpdateUI();
             PulseScoreText();
             PulseMultiplierText();
-
-            // Spawn next egg on next pulse
-            StartCoroutine(SpawnEggNextPulse());
+            // Next egg will spawn on next pulse via OnBeatPulse()
         }
 
         /// <summary>
@@ -257,9 +336,7 @@ namespace _Scripts.Core
 
             // Update UI
             UpdateUI();
-
-            // Spawn next egg on next pulse
-            StartCoroutine(SpawnEggNextPulse());
+            // Next egg will spawn on next pulse via OnBeatPulse()
         }
 
         /// <summary>
@@ -303,13 +380,8 @@ namespace _Scripts.Core
         {
             if (SpinChargeManager.Instance == null) return;
 
-            // Calculate charge: 10% base + 10% per multiplier level
-            // x1 = 10%, x2 = 20%, x4 = 30%, x8/x16 = 40% (capped)
-            float chargeAmount = baseSpinChargePerEgg + (spinChargePerMultiplierLevel * _currentMultiplierLevel);
-            chargeAmount = Mathf.Min(chargeAmount, maxSpinChargePerEgg);
-
-            // Add charge directly (bypassing the particle system for eggs)
-            SpinChargeManager.Instance.OnParticleConverged(chargeAmount);
+            // Fixed 25% charge per egg collected
+            SpinChargeManager.Instance.OnParticleConverged(spinChargePerEgg);
         }
 
         /// <summary>
@@ -344,9 +416,33 @@ namespace _Scripts.Core
         }
 
         /// <summary>
-        /// Spawn a new egg on a random ring at a random angle
+        /// Spawn a new egg on the 3rd ring at a random angle.
+        /// Only spawns if no entities were spawned this pulse.
         /// </summary>
         public void SpawnEgg()
+        {
+            // Only spawn egg if no entities were spawned this pulse
+            if (EnemySpawner.Instance != null && EnemySpawner.Instance.SpawnedThisPulse)
+            {
+                Debug.Log("EggManager: Skipping egg spawn - entities spawned this pulse");
+                return;
+            }
+
+            SpawnEggInternal();
+        }
+
+        /// <summary>
+        /// Spawn initial egg without checking SpawnedThisPulse (used at game start)
+        /// </summary>
+        private void SpawnEggInitial()
+        {
+            SpawnEggInternal();
+        }
+
+        /// <summary>
+        /// Internal method to actually spawn an egg
+        /// </summary>
+        private void SpawnEggInternal()
         {
             if (eggPrefab == null)
             {
@@ -354,9 +450,9 @@ namespace _Scripts.Core
                 return;
             }
 
-            if (_ringRadii == null || _ringRadii.Length == 0)
+            if (_ringRadii == null || _ringRadii.Length < 3)
             {
-                Debug.LogWarning("EggManager: Cannot spawn egg - ring radii not available!");
+                Debug.LogWarning("EggManager: Cannot spawn egg - not enough ring radii available (need at least 3)!");
                 return;
             }
 
@@ -366,28 +462,23 @@ namespace _Scripts.Core
                 Destroy(_currentEgg.gameObject);
             }
 
-            // Random ring and angle
-            float ringRadius = _ringRadii[Random.Range(0, _ringRadii.Length)];
+            // Use the 2nd ring (index 1) and random angle
+            float ringRadius = _ringRadii[1];
             float angle = Random.Range(0f, Mathf.PI * 2f);
 
             // Instantiate and initialize
             _currentEgg = Instantiate(eggPrefab, Vector3.zero, Quaternion.identity);
             _currentEgg.Init(angle, ringRadius);
+            _eggReadyForCollection = false; // Egg needs to survive one pulse before it can be collected
             _currentEgg.OnEggDestroyed += HandleEggDestroyed;
 
             _eggClickedThisPulse = false;
 
-            Debug.Log($"EggManager: Spawned egg at angle {angle * Mathf.Rad2Deg:F1}° on ring radius {ringRadius:F1}");
-        }
+            // Start coroutine to enable beat window before next pulse
+            // Beat window is centered on the pulse: half before, half after
+            StartCoroutine(StartBeatWindowBeforePulse());
 
-        /// <summary>
-        /// Coroutine to spawn egg on next pulse (waits for half interval)
-        /// </summary>
-        private IEnumerator SpawnEggNextPulse()
-        {
-            float interval = GameManager.Instance != null ? GameManager.Instance.interval : 1f;
-            yield return new WaitForSeconds(interval / 2f);
-            SpawnEgg();
+            Debug.Log($"EggManager: Spawned egg at angle {angle * Mathf.Rad2Deg:F1}° on ring radius {ringRadius:F1}");
         }
 
         /// <summary>

@@ -23,6 +23,7 @@ namespace _Scripts.Core
         [SerializeField] private AudioClip buttonHoverSoundClip;
         [SerializeField] private AudioClip buttonClickSoundClip;
         [SerializeField] private AudioClip eggCollectSoundClip;
+        [SerializeField] private AudioClip eggBadCollectSoundClip;
         [SerializeField] private float sfxVolume = 1f;
         [SerializeField] private float buttonHoverPitch = 1f;
         [SerializeField] private float buttonClickPitch = 1f;
@@ -270,6 +271,14 @@ namespace _Scripts.Core
             if (eggCollectSoundClip != null && sfxSource != null)
             {
                 sfxSource.PlayOneShot(eggCollectSoundClip, sfxVolume);
+            }
+        }
+
+        public void PlayEggBadCollectSound()
+        {
+            if (eggBadCollectSoundClip != null && sfxSource != null)
+            {
+                sfxSource.PlayOneShot(eggBadCollectSoundClip, sfxVolume);
             }
         }
 

@@ -69,6 +69,12 @@ namespace _Scripts.Core
         private readonly List<Neutral> _aliveNeutrals = new List<Neutral>();
 
         private bool _spawningEnabled = true;
+        private bool _spawnedThisPulse;
+
+        /// <summary>
+        /// Returns true if any entities were spawned during the last UpdateEnemies call
+        /// </summary>
+        public bool SpawnedThisPulse => _spawnedThisPulse;
 
         public static EnemySpawner Instance;
         
@@ -477,6 +483,9 @@ namespace _Scripts.Core
 
         public void UpdateEnemies()
         {
+            // Reset spawn flag at start of each pulse
+            _spawnedThisPulse = false;
+
             for (int i = _aliveEnemies.Count - 1; i >= 0; i--)
             {
                 _aliveEnemies[i].UpdatePosition();
@@ -500,6 +509,7 @@ namespace _Scripts.Core
             // Check if we should spawn this interval based on the segment schedule
             if (ShouldSpawnThisInterval(combo))
             {
+                _spawnedThisPulse = true;
                 var prefab = GetEntityPrefabForCombo(combo, out int count);
                 float neutralChance = GetNeutralSpawnChance(combo);
                 int comboValue = GetComboValueForTier(combo);
