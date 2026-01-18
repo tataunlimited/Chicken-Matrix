@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 
 namespace _Scripts.Core
@@ -16,10 +17,22 @@ namespace _Scripts.Core
         [Tooltip("Base distance from center (matches a radar ring)")]
         [SerializeField] private float baseRadius = 4f;
 
+        [Header("Destruction Animation")]
+        [Tooltip("Duration of the grow and fade animation")]
+        [SerializeField] private float destroyAnimDuration = 0.25f;
+        [Tooltip("Scale multiplier at the end of the animation")]
+        [SerializeField] private float destroyScaleMultiplier = 2.5f;
+
         private float _angleRadians;
         private bool _isDestroyed;
+        private Vector3 _originalScale;
 
         public event Action<EggCollectable, bool> OnEggDestroyed;
+
+        private void Awake()
+        {
+            _originalScale = transform.localScale;
+        }
 
         /// <summary>
         /// Initialize the egg at a specific angle on a radar ring
@@ -30,6 +43,7 @@ namespace _Scripts.Core
         {
             _angleRadians = angleRadians;
             baseRadius = ringRadius;
+            _originalScale = transform.localScale;
             UpdatePositionForPulse(1f);
         }
 
@@ -67,7 +81,7 @@ namespace _Scripts.Core
             _isDestroyed = true;
 
             OnEggDestroyed?.Invoke(this, true);
-            Destroy(gameObject);
+            StartCoroutine(DestroyAnimation());
         }
 
         /// <summary>
@@ -79,6 +93,42 @@ namespace _Scripts.Core
             _isDestroyed = true;
 
             OnEggDestroyed?.Invoke(this, false);
+            Destroy(gameObject);
+        }
+
+        /// <summary>
+        /// Animate the egg growing rapidly and fading out
+        /// </summary>
+        private IEnumerator DestroyAnimation()
+        {
+            if (spriteRenderer == null)
+            {
+                Destroy(gameObject);
+                yield break;
+            }
+
+            float elapsed = 0f;
+            Color startColor = spriteRenderer.color;
+            Color endColor = new Color(startColor.r, startColor.g, startColor.b, 0f);
+            Vector3 targetScale = _originalScale * destroyScaleMultiplier;
+
+            while (elapsed < destroyAnimDuration)
+            {
+                elapsed += Time.deltaTime;
+                float t = elapsed / destroyAnimDuration;
+
+                // Ease out for snappy growth
+                float easedT = 1f - (1f - t) * (1f - t);
+
+                // Scale up
+                transform.localScale = Vector3.Lerp(_originalScale, targetScale, easedT);
+
+                // Fade out
+                spriteRenderer.color = Color.Lerp(startColor, endColor, easedT);
+
+                yield return null;
+            }
+
             Destroy(gameObject);
         }
 

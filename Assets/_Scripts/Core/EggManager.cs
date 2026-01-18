@@ -95,6 +95,9 @@ namespace _Scripts.Core
             {
                 PlayerController.Instance.OnPulse += OnBeatPulse;
             }
+
+            // Auto-start egg spawning
+            SpawnEgg();
         }
 
         /// <summary>
@@ -345,7 +348,17 @@ namespace _Scripts.Core
         /// </summary>
         public void SpawnEgg()
         {
-            if (eggPrefab == null || _ringRadii == null || _ringRadii.Length == 0) return;
+            if (eggPrefab == null)
+            {
+                Debug.LogWarning("EggManager: Cannot spawn egg - eggPrefab is not assigned!");
+                return;
+            }
+
+            if (_ringRadii == null || _ringRadii.Length == 0)
+            {
+                Debug.LogWarning("EggManager: Cannot spawn egg - ring radii not available!");
+                return;
+            }
 
             // Destroy existing egg if any
             if (_currentEgg != null)
@@ -363,6 +376,8 @@ namespace _Scripts.Core
             _currentEgg.OnEggDestroyed += HandleEggDestroyed;
 
             _eggClickedThisPulse = false;
+
+            Debug.Log($"EggManager: Spawned egg at angle {angle * Mathf.Rad2Deg:F1}° on ring radius {ringRadius:F1}");
         }
 
         /// <summary>

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using _Scripts.Core;
 using DG.Tweening;
@@ -12,6 +13,10 @@ namespace _Scripts.UI
         public GameObject easyModeEnding;
         public GameObject hardModeEnding;
         public GameObject konamiModeEnding;
+        
+        public GameObject easyModeEndingTxt;
+        public GameObject hardModeEndingTxt;
+        public GameObject konamiModeEndingTxt;
 
         public Image fadeToBlack;
         public float delayToFadeToBlack = 4;
@@ -28,24 +33,43 @@ namespace _Scripts.UI
                 GameManager.Difficulty = difficulty;
             }
             
+            switch (GameManager.Difficulty)
+            {
+                case Difficulty.Easy:
+                    easyModeEnding.SetActive(true);
+                    break;
+                case Difficulty.Hard:
+                    hardModeEnding.SetActive(true);
+                    break;
+                case Difficulty.KonamiMode:
+                    konamiModeEnding.SetActive(true);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
             
-            if (GameManager.Difficulty == Difficulty.Easy)
-            {
-                easyModeEnding.SetActive(true);
-            }
-            else if(GameManager.Difficulty == Difficulty.Hard)
-            {
-                hardModeEnding.SetActive(true);
-            }
-            else
-            {
-                konamiModeEnding.SetActive(true);
-            }
             yield return new WaitForSeconds(delayToFadeToBlack);
             fadeToBlack.DOFade(1, 1);
         
+            yield return new WaitForSeconds(1);
+            
+            switch (GameManager.Difficulty)
+            {
+                case Difficulty.Easy:
+                    easyModeEndingTxt.SetActive(true);
+                    break;
+                case Difficulty.Hard:
+                    hardModeEndingTxt.SetActive(true);
+                    break;
+                case Difficulty.KonamiMode:
+                    konamiModeEndingTxt.SetActive(true);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+            
             yield return new WaitForSeconds(delayAfterFadeToBlack);
-
+            
             SceneManager.LoadScene("MainMenu");
         }
 
