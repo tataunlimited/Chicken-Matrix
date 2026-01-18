@@ -10,9 +10,16 @@ namespace _Scripts.Core
         [Header("Music Tracks")]
         [Tooltip("10 music iterations - switches every 10 combo")]
         [SerializeField] private AudioClip[] musicTracks = new AudioClip[10];
+        [Tooltip("Final victory track - plays when reaching 100 combo")]
+        [SerializeField] private AudioClip finalTrack;
 
         [Header("Sound Effects")]
-        [SerializeField] private AudioClip deathSoundClip;
+        [SerializeField] private AudioClip enemyDeathSoundClip;
+        [SerializeField] private AudioClip allyDeathSoundClip;
+        [SerializeField] private AudioClip neutralDeathSoundClip;
+        [SerializeField] private AudioClip comboFailSoundClip;
+        [SerializeField] private AudioClip directionFlipSoundClip;
+        [SerializeField] private AudioClip rankUpSoundClip;
         [SerializeField] private float sfxVolume = 1f;
 
         [Header("Audio Settings")]
@@ -160,11 +167,51 @@ namespace _Scripts.Core
             audioSourceB?.Stop();
         }
 
-        public void PlayDeathSound()
+        public void PlayEnemyDeathSound()
         {
-            if (deathSoundClip != null && sfxSource != null)
+            if (enemyDeathSoundClip != null && sfxSource != null)
             {
-                sfxSource.PlayOneShot(deathSoundClip, sfxVolume);
+                sfxSource.PlayOneShot(enemyDeathSoundClip, sfxVolume);
+            }
+        }
+
+        public void PlayAllyDeathSound()
+        {
+            if (allyDeathSoundClip != null && sfxSource != null)
+            {
+                sfxSource.PlayOneShot(allyDeathSoundClip, sfxVolume);
+            }
+        }
+
+        public void PlayNeutralDeathSound()
+        {
+            if (neutralDeathSoundClip != null && sfxSource != null)
+            {
+                sfxSource.PlayOneShot(neutralDeathSoundClip, sfxVolume);
+            }
+        }
+
+        public void PlayComboFailSound()
+        {
+            if (comboFailSoundClip != null && sfxSource != null)
+            {
+                sfxSource.PlayOneShot(comboFailSoundClip, sfxVolume);
+            }
+        }
+
+        public void PlayDirectionFlipSound()
+        {
+            if (directionFlipSoundClip != null && sfxSource != null)
+            {
+                sfxSource.PlayOneShot(directionFlipSoundClip, sfxVolume);
+            }
+        }
+
+        public void PlayRankUpSound()
+        {
+            if (rankUpSoundClip != null && sfxSource != null)
+            {
+                sfxSource.PlayOneShot(rankUpSoundClip, sfxVolume);
             }
         }
 
@@ -223,6 +270,74 @@ namespace _Scripts.Core
             {
                 activeSource.time = timeInSegment % activeSource.clip.length;
             }
+        }
+
+        /// <summary>
+        /// Play the final victory track (non-looping).
+        /// Returns the track duration, or 0 if no track is assigned.
+        /// </summary>
+        public float PlayFinalTrack()
+        {
+            if (finalTrack == null)
+            {
+                Debug.LogWarning("SoundController: Final track is not assigned");
+                return 0f;
+            }
+
+            if (crossfadeCoroutine != null)
+            {
+                StopCoroutine(crossfadeCoroutine);
+            }
+
+            crossfadeCoroutine = StartCoroutine(CrossfadeToFinalTrack());
+            return finalTrack.length;
+        }
+
+        private IEnumerator CrossfadeToFinalTrack()
+        {
+            AudioSource fadeOutSource = activeSource;
+            AudioSource fadeInSource = (activeSource == audioSourceA) ? audioSourceB : audioSourceA;
+
+            // Set up the final track (non-looping, start from beginning)
+            fadeInSource.clip = finalTrack;
+            fadeInSource.loop = false;
+            fadeInSource.time = 0f;
+            fadeInSource.Play();
+
+            float startVolume = fadeOutSource.volume;
+            float elapsed = 0f;
+
+            while (elapsed < crossfadeDuration)
+            {
+                elapsed += Time.deltaTime;
+                float t = elapsed / crossfadeDuration;
+
+                fadeOutSource.volume = Mathf.Lerp(startVolume, 0f, t);
+                fadeInSource.volume = Mathf.Lerp(0f, musicVolume, t);
+
+                yield return null;
+            }
+
+            fadeOutSource.volume = 0f;
+            fadeOutSource.Stop();
+            fadeInSource.volume = musicVolume;
+
+            activeSource = fadeInSource;
+            crossfadeCoroutine = null;
+
+            Debug.Log("SoundController: Crossfaded to final track");
+        }
+
+        /// <summary>
+        /// Gets the remaining time of the currently playing track.
+        /// </summary>
+        public float GetRemainingTrackTime()
+        {
+            if (activeSource != null && activeSource.clip != null && activeSource.isPlaying)
+            {
+                return activeSource.clip.length - activeSource.time;
+            }
+            return 0f;
         }
     }
 }

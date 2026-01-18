@@ -160,6 +160,9 @@ namespace _Scripts.Core
                 {
                     ShakeScreen(combo);
                     EnemySpawner.Instance.ClearAllEntities();
+
+                    // Play combo fail sound
+                    SoundController.Instance?.PlayComboFailSound();
                 }
                 // Hard mode: reset to 1
                 // Easy mode: snap to start of previous tier (1, 11, 21, 31, etc.) to maintain music sync
@@ -200,18 +203,70 @@ namespace _Scripts.Core
             // Check if we need to start/stop neutral barrage auto-combo
             UpdateNeutralBarrageState();
 
-            if (combo >= 101)
+            if (combo >= 100 && !_gameEnded)
             {
-                StopAllCoroutines();
-                StartCoroutine(EndGameCoroutine());
+                StartCoroutine(VictorySequence());
             }
         }
-        private IEnumerator EndGameCoroutine()
+
+        private IEnumerator VictorySequence()
         {
             _gameEnded = true;
+
+            // Stop spawning new entities
+            EnemySpawner.Instance.StopSpawning();
+
+            // Trigger rank up effects (explosion particles)
+            OnRankUp();
+
+            // Destroy all entities on the board with particles
+            EnemySpawner.Instance.DestroyAllEntitiesWithParticles();
+
+            // Start the final track and get its duration
+            float trackDuration = 0f;
+            if (SoundController.Instance != null)
+            {
+                trackDuration = SoundController.Instance.PlayFinalTrack();
+            }
+
+            // Start cycling radar colors
+            if (RadarBackgroundGenerator.Instance != null)
+            {
+                RadarBackgroundGenerator.Instance.StartVictoryColorCycle();
+            }
+
+            // Continue pulsing the radar and cycling colors while the final track plays
+            // Wait until 3 seconds before the track ends to start fading
+            float fadeStartDelay = Mathf.Max(0f, trackDuration - 3f);
+
+            float elapsed = 0f;
+            while (elapsed < fadeStartDelay)
+            {
+                elapsed += interval;
+                yield return new WaitForSeconds(interval / 2);
+
+                // Pulse radar on beat
+                if (RadarBackgroundGenerator.Instance != null)
+                {
+                    RadarBackgroundGenerator.Instance.CycleVictoryColor();
+                    RadarBackgroundGenerator.Instance.Pulse();
+                }
+
+                yield return new WaitForSeconds(interval / 2);
+            }
+
+            // Stop color cycling
+            if (RadarBackgroundGenerator.Instance != null)
+            {
+                RadarBackgroundGenerator.Instance.StopVictoryColorCycle();
+            }
+
+            // Fade to black over the final 3 seconds
             fadeToBlack.gameObject.SetActive(true);
-            fadeToBlack.DOFade(1, 1.5f);
-            yield return new WaitForSeconds(2);
+            fadeToBlack.DOFade(1, 3f);
+            yield return new WaitForSeconds(3.5f);
+
+            // Transition to chicken room
             SceneManager.LoadScene("ChickenScene");
         }
 
@@ -349,6 +404,9 @@ namespace _Scripts.Core
 
         private void OnRankUp()
         {
+            // Play rank-up sound
+            SoundController.Instance?.PlayRankUpSound();
+
             // Spawn explosion at origin with radar grid color
             if (rankUpExplosionPrefab != null)
             {

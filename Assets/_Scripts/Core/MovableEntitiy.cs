@@ -124,8 +124,8 @@ namespace _Scripts.Core
 
             SpawnDestructionParticles(detected);
 
-            // Play death sound effect
-            SoundController.Instance?.PlayDeathSound();
+            // Play death sound effect (overridden by subclasses for specific sounds)
+            PlayDeathSound();
 
             GetComponentInChildren<SpriteRenderer>().color = Color.ghostWhite;
             Destroy(gameObject,0.2f);
@@ -160,6 +160,12 @@ namespace _Scripts.Core
             {
                 Destroy(particles.gameObject, main.duration + main.startLifetime.constantMax);
             }
+        }
+
+        protected virtual void PlayDeathSound()
+        {
+            // Base implementation - subclasses override for specific sounds
+            SoundController.Instance?.PlayEnemyDeathSound();
         }
     }
 }

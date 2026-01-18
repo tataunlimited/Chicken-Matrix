@@ -96,5 +96,8 @@ public class CameraRotator : MonoBehaviour
     {
         direction = -direction;
         TriggerBoost();
+
+        // Play direction flip sound
+        SoundController.Instance?.PlayDirectionFlipSound();
     }
 }

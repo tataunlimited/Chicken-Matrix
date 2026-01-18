@@ -54,6 +54,8 @@ namespace _Scripts.Core
         private readonly List<Ally> _aliveAllies = new List<Ally>();
         private readonly List<Neutral> _aliveNeutrals = new List<Neutral>();
 
+        private bool _spawningEnabled = true;
+
         public static EnemySpawner Instance;
         
         void Awake()
@@ -143,7 +145,7 @@ namespace _Scripts.Core
 
             // Combo 71-100: Random
             return Random.value < 0.5f ? friendlyPrefab : enemyPrefab;
-        }
+        } 
 
         /// <summary>
         /// Returns the chance (0-1) to spawn a neutral alongside regular entities.
@@ -396,6 +398,22 @@ namespace _Scripts.Core
         }
 
 
+        /// <summary>
+        /// Stop all spawning (used for victory sequence)
+        /// </summary>
+        public void StopSpawning()
+        {
+            _spawningEnabled = false;
+        }
+
+        /// <summary>
+        /// Resume spawning
+        /// </summary>
+        public void ResumeSpawning()
+        {
+            _spawningEnabled = true;
+        }
+
         public void UpdateEnemies()
         {
             for (int i = _aliveEnemies.Count - 1; i >= 0; i--)
@@ -412,6 +430,9 @@ namespace _Scripts.Core
             {
                 _aliveNeutrals[i].UpdatePosition();
             }
+
+            // Don't spawn if spawning is disabled
+            if (!_spawningEnabled) return;
 
             int combo = GameManager.Instance.combo;
 
