@@ -9,7 +9,7 @@ using UnityEngine.UI;
 namespace _Scripts.Core
 {
     
-    public enum Difficulty {Easy, Hard}
+    public enum Difficulty {Easy, Hard, KonamiMode}
     public class GameManager : MonoBehaviour
     {
 
@@ -213,12 +213,22 @@ namespace _Scripts.Core
 
             if (combo >= 100 && !_gameEnded)
             {
-                var currentTrophy = PlayerPrefs.GetString("Trophy");
-                if (currentTrophy != nameof(Difficulty.Hard))
+
+                switch (Difficulty)
                 {
-                    PlayerPrefs.SetString("Trophy", Difficulty.ToString());
+                    case Difficulty.Easy:
+                        PlayerPrefs.SetInt("Trophy_Easy", 1);
+                        break;
+                    case Difficulty.Hard:
+                        PlayerPrefs.SetInt("Trophy_Hard", 1);
+                        break;
+                    case Difficulty.KonamiMode:
+                        PlayerPrefs.SetInt("Trophy_Konami", 1);
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
                 }
-                
+
                 StartCoroutine(VictorySequence());
             }
         }

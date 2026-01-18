@@ -13,19 +13,14 @@ namespace _Scripts.UI
 
         public GameObject easyModeTrophy;
         public GameObject hardModeTrophy;
+        public GameObject konamiModeTrophy;
 
 
         private void Start()
         {
-            easyModeTrophy.SetActive(false);
-            hardModeTrophy.SetActive(false);
-            
-            if(PlayerPrefs.GetString("Trophy") == nameof(Difficulty.Easy)) easyModeTrophy.SetActive(true);
-            if (PlayerPrefs.GetString("Trophy") == nameof(Difficulty.Hard))
-            {
-                easyModeTrophy.SetActive(true);
-                hardModeTrophy.SetActive(true);
-            }
+            easyModeTrophy.SetActive(PlayerPrefs.GetInt("Trophy_Easy") == 1);
+            hardModeTrophy.SetActive(PlayerPrefs.GetInt("Trophy_Hard") == 1);
+            konamiModeTrophy.SetActive(PlayerPrefs.GetInt("Trophy_Konami") == 1);
         }
 
         public void OnStartGame()
