@@ -50,6 +50,7 @@ GameObject:
   - component: {fileID: 1355658693777386760}
   - component: {fileID: 426697042803357094}
   - component: {fileID: 1108854541460856989}
+  - component: {fileID: 2441078382665535656}
   m_Layer: 5
   m_Name: Resume
   m_TagString: Untagged
@@ -74,8 +75,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 250, y: -200.15}
-  m_SizeDelta: {x: 350, y: 80}
+  m_AnchoredPosition: {x: 400, y: -182.5}
+  m_SizeDelta: {x: 600, y: 250}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1355658693777386760
 CanvasRenderer:
@@ -105,8 +106,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
-  m_Type: 1
+  m_Sprite: {fileID: 21300000, guid: ed3bddb2c5fa2fd4fa5d890fce217a08, type: 3}
+  m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -171,6 +172,26 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+--- !u!114 &2441078382665535656
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 266427996890835879}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 41947825bc9663242ad9a8326412c2c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BTN_HoverAnimationSCRIPT
+  hoverScale: 1.4
+  scaleUpDuration: 0.65
+  scaleDownDuration: 0.35
+  scaleUpEase: 6
+  scaleDownEase: 5
+  playHoverSound: 1
+  playClickSound: 1
+  BTNrectTransform: {fileID: 780820669337434690}
 --- !u!1 &576873651125491733
 GameObject:
   m_ObjectHideFlags: 0
@@ -517,7 +538,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_text: '\n\n\n\n\n\n\nSOUND: \n\nLOGAN ZIMMERMAN\n\n\n\nPROGRAMMING: \n\nCONNOR
-    MORAN \n\nTAHER SAMADI SHAL\n\n\n\nSPECIAL EFFECTS:\n\nDEVAK GOUNDEN\n\n\n\nTESTERS\n\nAUSTIN\n\nKELLEN'
+    MORAN \n\nTAHER SAMADI SHAL\n\n\n\nUI:\n\nDEVAK GOUNDEN\n\n\n\nTESTERS\n\nAUSTIN\n\nKELLEN'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 95eb695e4f49e164687a9d02e07e233a, type: 2}
   m_sharedMaterial: {fileID: 6583458765384812997, guid: 95eb695e4f49e164687a9d02e07e233a, type: 2}
@@ -762,7 +783,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 500, y: 500}
+  m_SizeDelta: {x: 800, y: 800}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &8858029483588094402
 MonoBehaviour:
@@ -782,7 +803,7 @@ MonoBehaviour:
     m_Top: 0
     m_Bottom: 0
   m_ChildAlignment: 4
-  m_Spacing: 19.7
+  m_Spacing: 35
   m_ChildForceExpandWidth: 0
   m_ChildForceExpandHeight: 0
   m_ChildControlWidth: 0
@@ -979,7 +1000,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3889850517811612343}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
   m_Name: 
@@ -1316,6 +1337,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 2835079544901967947}
   - {fileID: 5542972738122782190}
   m_Father: {fileID: 3983924617456765635}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -1536,7 +1558,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4728387305774771043}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
   m_Name: 
@@ -2059,6 +2081,7 @@ GameObject:
   - component: {fileID: 1389650164049152316}
   - component: {fileID: 6482151775056940083}
   - component: {fileID: 6324752069402756306}
+  - component: {fileID: 5217840574168084085}
   m_Layer: 5
   m_Name: MainMenu
   m_TagString: Untagged
@@ -2083,8 +2106,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 250, y: -299.85}
-  m_SizeDelta: {x: 350, y: 80}
+  m_AnchoredPosition: {x: 400, y: -542.5}
+  m_SizeDelta: {x: 800, y: 400}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1389650164049152316
 CanvasRenderer:
@@ -2114,8 +2137,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
-  m_Type: 1
+  m_Sprite: {fileID: 21300000, guid: fcea3568b0052c24cbc023a294fd0ac2, type: 3}
+  m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -2180,6 +2203,26 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+--- !u!114 &5217840574168084085
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7700823424011730549}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 41947825bc9663242ad9a8326412c2c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BTN_HoverAnimationSCRIPT
+  hoverScale: 1.4
+  scaleUpDuration: 0.65
+  scaleDownDuration: 0.35
+  scaleUpEase: 6
+  scaleDownEase: 5
+  playHoverSound: 1
+  playClickSound: 1
+  BTNrectTransform: {fileID: 5703267158995982989}
 --- !u!1 &7971854086343534010
 GameObject:
   m_ObjectHideFlags: 0
@@ -2403,6 +2446,7 @@ GameObject:
   - component: {fileID: 7011702147124399683}
   - component: {fileID: 6604220882495787526}
   - component: {fileID: 8265299589737608620}
+  - component: {fileID: 8010110531456304839}
   m_Layer: 5
   m_Name: ComboRankIMG_SSS
   m_TagString: Untagged
@@ -2449,7 +2493,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
-  m_Material: {fileID: 2100000, guid: 730792733742d18489de211f04ebc99d, type: 2}
+  m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -2467,3 +2511,133 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &8010110531456304839
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8706764026159088848}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0f44d2756baa70742b3cb5960d8148cc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AudioReactiveCanvasPulseSystem
+  breatheMinScale: 1
+  breatheMaxScale: 1.165
+  breatheDuration: 3
+  breatheEase: 4
+  audioTweenDuration: 0.12
+  audioEase: 6
+  audioAmplitudeMultiplier: 0.065
+  minAmplitudeDelta: 0.02
+  useAverageBass: 1
+  useMidrange: 0
+  useTreble: 1
+  customBandIndex: -1
+  debugMode: 0
+  canvasRectTransform: {fileID: 7011702147124399683}
+  audioVisualizer: {fileID: 0}
+--- !u!1 &9202103874817622198
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2835079544901967947}
+  - component: {fileID: 7148944033565855704}
+  - component: {fileID: 2425012824357750231}
+  - component: {fileID: 1282884856712891540}
+  m_Layer: 5
+  m_Name: PauseMenuTitle
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &2835079544901967947
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9202103874817622198}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5403541921400526397}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 24.558, y: 621}
+  m_SizeDelta: {x: 1500, y: 500}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &7148944033565855704
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9202103874817622198}
+  m_CullTransparentMesh: 1
+--- !u!114 &2425012824357750231
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9202103874817622198}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 21300000, guid: bb82daa3e0f2c1242856c53e98a80433, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!114 &1282884856712891540
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9202103874817622198}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0f44d2756baa70742b3cb5960d8148cc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AudioReactiveCanvasPulseSystem
+  breatheMinScale: 0.925
+  breatheMaxScale: 1.34
+  breatheDuration: 2.17
+  breatheEase: 4
+  audioTweenDuration: 0.06
+  audioEase: 6
+  audioAmplitudeMultiplier: 0.7915
+  minAmplitudeDelta: 0.3
+  useAverageBass: 1
+  useMidrange: 0
+  useTreble: 1
+  customBandIndex: -1
+  debugMode: 0
+  canvasRectTransform: {fileID: 2835079544901967947}
+  audioVisualizer: {fileID: 0}
