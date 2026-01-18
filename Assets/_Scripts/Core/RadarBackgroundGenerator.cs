@@ -59,6 +59,21 @@ namespace _Scripts.Core
         private float currentScaleMultiplier = 1f;
         public float CurrentScaleMultiplier => currentScaleMultiplier;
 
+        /// <summary>
+        /// Gets the base radii of all rings (before pulse scaling)
+        /// </summary>
+        public float[] RingRadii => ringBaseRadii;
+
+        /// <summary>
+        /// Gets the number of rings
+        /// </summary>
+        public int RingCount => ringCount;
+
+        /// <summary>
+        /// Gets the maximum radius of the radar
+        /// </summary>
+        public float MaxRadius => maxRadius;
+
         // Victory color cycling
         private bool isVictoryColorCycling = false;
         private int victoryColorIndex = 0;
