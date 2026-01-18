@@ -1,25 +1,41 @@
 using System.Collections;
+using _Scripts.Core;
 using DG.Tweening;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-public class CutSceneManager : MonoBehaviour
+namespace _Scripts.UI
 {
-
-    public Image fadeToBlack;
-    public float delayToFadeToBlack = 4;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    IEnumerator Start()
+    public class CutSceneManager : MonoBehaviour
     {
-        
-        yield return new WaitForSeconds(delayToFadeToBlack);
-        fadeToBlack.DOFade(1, 1);
+        public GameObject easyModeEnding;
+        public GameObject hardModeEnding;
 
-    }
+        public Image fadeToBlack;
+        public float delayToFadeToBlack = 4;
+        // Start is called once before the first execution of Update after the MonoBehaviour is created
+        IEnumerator Start()
+        {
 
-    // Update is called once per frame
-    void Update()
-    {
+            if (GameManager.Difficulty == Difficulty.Easy)
+            {
+                easyModeEnding.SetActive(true);
+                hardModeEnding.SetActive(false);
+            }
+            else
+            {
+                easyModeEnding.SetActive(false);
+                hardModeEnding.SetActive(true);
+            }
+            yield return new WaitForSeconds(delayToFadeToBlack);
+            fadeToBlack.DOFade(1, 1);
         
+            yield return new WaitForSeconds(1);
+
+            SceneManager.LoadScene("MainMenu");
+        }
+
+       
     }
 }

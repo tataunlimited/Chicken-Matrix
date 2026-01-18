@@ -85,7 +85,14 @@ namespace _Scripts.Core
             StartCoroutine(UpdateInterval());
         }
 
-
+        private void Update()
+        {
+            if (Input.GetKeyDown(KeyCode.Space))
+            {
+                //increase combo by 10 for testing
+                UpdateCombo(true, 10);
+            }
+        }
 
         IEnumerator UpdateInterval()
         {
@@ -240,6 +247,14 @@ namespace _Scripts.Core
             if (RadarBackgroundGenerator.Instance != null)
             {
                 RadarBackgroundGenerator.Instance.StartVictoryColorCycle();
+            }
+
+            // Start the credits sequence - it should complete 3 seconds before track ends
+            // Credits will handle its own fade-in delay and scroll timing
+            float creditsAvailableTime = Mathf.Max(0f, trackDuration - 3f);
+            if (CreditsController.Instance != null && creditsAvailableTime > 0f)
+            {
+                CreditsController.Instance.StartCredits(creditsAvailableTime);
             }
 
             // Continue pulsing the radar and cycling colors while the final track plays

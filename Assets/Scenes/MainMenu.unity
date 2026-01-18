@@ -210,6 +210,38 @@ PrefabInstance:
       propertyPath: m_Name
       value: StartGameCanvas
       objectReference: {fileID: 0}
+    - target: {fileID: 2356476556363309683, guid: 77c5204e11001f7488cc180bcaca86a6, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2356476556363309683, guid: 77c5204e11001f7488cc180bcaca86a6, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2356476556363309683, guid: 77c5204e11001f7488cc180bcaca86a6, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2356476556363309683, guid: 77c5204e11001f7488cc180bcaca86a6, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3262737321580940082, guid: 77c5204e11001f7488cc180bcaca86a6, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3262737321580940082, guid: 77c5204e11001f7488cc180bcaca86a6, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3262737321580940082, guid: 77c5204e11001f7488cc180bcaca86a6, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3262737321580940082, guid: 77c5204e11001f7488cc180bcaca86a6, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4303019692895643207, guid: 77c5204e11001f7488cc180bcaca86a6, type: 3}
       propertyPath: m_Camera
       value: 
@@ -444,6 +476,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 4806214145418162607, guid: 43ae82298fa689241a02b4fe981c486b, type: 3}
+      propertyPath: buttonHoverPitch
+      value: 0.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 4806214145418162607, guid: 43ae82298fa689241a02b4fe981c486b, type: 3}
+      propertyPath: buttonClickSoundClip
+      value: 
+      objectReference: {fileID: 8300000, guid: b7717d4bf86e24f4aa5c4b2bf6f238b0, type: 3}
+    - target: {fileID: 4806214145418162607, guid: 43ae82298fa689241a02b4fe981c486b, type: 3}
+      propertyPath: buttonHoverSoundClip
+      value: 
+      objectReference: {fileID: 8300000, guid: 50640b811238d084bacfffe2410d2f5d, type: 3}
     - target: {fileID: 6001219055875736889, guid: 43ae82298fa689241a02b4fe981c486b, type: 3}
       propertyPath: m_Name
       value: OBJ_SoundController
