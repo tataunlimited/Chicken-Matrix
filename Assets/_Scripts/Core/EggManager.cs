@@ -26,7 +26,14 @@ namespace _Scripts.Core
 
         [Header("Particle Effects")]
         [SerializeField] private ParticleSystem eggExplosionPrefab;
-        [SerializeField] private Color eggParticleColor = Color.yellow;
+        [Tooltip("Particle colors for each multiplier level: x1, x2, x4, x4+ (index 0-3)")]
+        [SerializeField] private Color[] multiplierParticleColors = new Color[]
+        {
+            new Color(1f, 1f, 0.5f, 1f),    // x1 - Light yellow
+            new Color(1f, 0.8f, 0f, 1f),    // x2 - Orange-yellow
+            new Color(1f, 0.5f, 0f, 1f),    // x4 - Orange
+            new Color(1f, 0.2f, 0f, 1f)     // x4+ - Red-orange
+        };
         [SerializeField] private int eggParticleBurstCount = 20;
 
         [Header("UI References")]
@@ -303,7 +310,7 @@ namespace _Scripts.Core
         }
 
         /// <summary>
-        /// Spawn egg explosion particles at position
+        /// Spawn egg explosion particles at position with color based on current multiplier
         /// </summary>
         private void SpawnEggExplosion(Vector3 position)
         {
@@ -315,7 +322,14 @@ namespace _Scripts.Core
             particles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
 
             var main = particles.main;
-            main.startColor = eggParticleColor;
+
+            // Set particle color based on multiplier level (0=x1, 1=x2, 2=x4, 3+=x4+)
+            int colorIndex = Mathf.Min(_currentMultiplierLevel, multiplierParticleColors.Length - 1);
+            if (multiplierParticleColors != null && multiplierParticleColors.Length > 0)
+            {
+                main.startColor = multiplierParticleColors[colorIndex];
+            }
+
             main.playOnAwake = false;
             main.loop = false;
 
