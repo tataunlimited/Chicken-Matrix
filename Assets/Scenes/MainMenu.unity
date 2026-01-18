@@ -214,10 +214,6 @@ PrefabInstance:
       propertyPath: m_Camera
       value: 
       objectReference: {fileID: 1920772941}
-    - target: {fileID: 8188767683290398816, guid: 77c5204e11001f7488cc180bcaca86a6, type: 3}
-      propertyPath: maxBarHeight
-      value: 4.615
-      objectReference: {fileID: 0}
     - target: {fileID: 8737785563045269323, guid: 77c5204e11001f7488cc180bcaca86a6, type: 3}
       propertyPath: m_Pivot.x
       value: 0

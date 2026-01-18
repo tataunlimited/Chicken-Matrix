@@ -182,7 +182,7 @@ MonoBehaviour:
   barCount: 32
   barPrefab: {fileID: 0}
   totalWidth: 8
-  maxBarHeight: 5.685
+  maxBarHeight: 4.615
   minBarHeight: 0.135
   barWidth: 0.325
   cameraZOffset: 10
@@ -1634,6 +1634,7 @@ GameObject:
   - component: {fileID: 7001932362152769375}
   - component: {fileID: 1808828841526516354}
   - component: {fileID: 5898681941025296658}
+  - component: {fileID: 702193502845833550}
   m_Layer: 5
   m_Name: TitleImage
   m_TagString: Untagged
@@ -1698,6 +1699,23 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &702193502845833550
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8753437406624798529}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 313f342dfc62d3a4a92cfc40894411e1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CanvasPulse_SCRIPT
+  pulseScale: 1.03165
+  pulseDuration: 2.15
+  pulseLoops: -1
+  pulseEase: 4
+  rectTransform: {fileID: 7001932362152769375}
 --- !u!1 &8766028410046694087
 GameObject:
   m_ObjectHideFlags: 0
