@@ -90,7 +90,7 @@ namespace _Scripts.Core
             if (Input.GetKeyDown(KeyCode.Space))
             {
                 //increase combo by 10 for testing
-                UpdateCombo(true, 10);
+                //UpdateCombo(true, 10);
             }
         }
 
