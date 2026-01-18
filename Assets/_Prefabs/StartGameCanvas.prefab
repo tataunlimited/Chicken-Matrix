@@ -35,9 +35,9 @@ RectTransform:
   - {fileID: 2254570685148659685}
   m_Father: {fileID: 5315877784755789800}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 400, y: -200}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 800, y: 400}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2547003169882420127
@@ -1387,9 +1387,9 @@ RectTransform:
   - {fileID: 6732901658833556730}
   m_Father: {fileID: 5315877784755789800}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 400, y: -615.48}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 800, y: 400}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3631741623691015426
@@ -1729,6 +1729,7 @@ GameObject:
   - component: {fileID: 1808828841526516354}
   - component: {fileID: 5898681941025296658}
   - component: {fileID: 702193502845833550}
+  - component: {fileID: 4339277652442057023}
   m_Layer: 5
   m_Name: TitleImage
   m_TagString: Untagged
@@ -1800,7 +1801,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8753437406624798529}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 313f342dfc62d3a4a92cfc40894411e1, type: 3}
   m_Name: 
@@ -1810,6 +1811,33 @@ MonoBehaviour:
   pulseLoops: -1
   pulseEase: 4
   rectTransform: {fileID: 7001932362152769375}
+--- !u!114 &4339277652442057023
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8753437406624798529}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0f44d2756baa70742b3cb5960d8148cc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AudioReactiveCanvasPulseSystem
+  breatheMinScale: 1
+  breatheMaxScale: 1.03325
+  breatheDuration: 3
+  breatheEase: 4
+  audioTweenDuration: 1.92
+  audioEase: 6
+  audioAmplitudeMultiplier: 0.28
+  minAmplitudeDelta: 0.135
+  useAverageBass: 1
+  useMidrange: 0
+  useTreble: 1
+  customBandIndex: -1
+  debugMode: 0
+  canvasRectTransform: {fileID: 7001932362152769375}
+  audioVisualizer: {fileID: 8188767683290398816}
 --- !u!1 &8766028410046694087
 GameObject:
   m_ObjectHideFlags: 0
