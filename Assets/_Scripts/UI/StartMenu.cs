@@ -10,7 +10,24 @@ namespace _Scripts.UI
         
         public GameObject difficultyMenu;
         public GameObject startMenu;
-        
+
+        public GameObject easyModeTrophy;
+        public GameObject hardModeTrophy;
+
+
+        private void Start()
+        {
+            easyModeTrophy.SetActive(false);
+            hardModeTrophy.SetActive(false);
+            
+            if(PlayerPrefs.GetString("Trophy") == nameof(Difficulty.Easy)) easyModeTrophy.SetActive(true);
+            if (PlayerPrefs.GetString("Trophy") == nameof(Difficulty.Hard))
+            {
+                easyModeTrophy.SetActive(true);
+                hardModeTrophy.SetActive(true);
+            }
+        }
+
         public void OnStartGame()
         {
             difficultyMenu.SetActive(true);
