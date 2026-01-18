@@ -206,6 +206,12 @@ namespace _Scripts.Core
 
             if (combo >= 100 && !_gameEnded)
             {
+                var currentTrophy = PlayerPrefs.GetString("Trophy");
+                if (currentTrophy != nameof(Difficulty.Hard))
+                {
+                    PlayerPrefs.SetString("Trophy", Difficulty.ToString());
+                }
+                
                 StartCoroutine(VictorySequence());
             }
         }
