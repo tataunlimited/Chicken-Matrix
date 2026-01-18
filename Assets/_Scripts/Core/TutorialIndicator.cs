@@ -50,6 +50,19 @@ namespace _Scripts.Core
             }
         }
 
+        private void Start()
+        {
+            // Fallback: try to get sprite renderer if not found during Initialize
+            if (_spriteRenderer == null)
+            {
+                _spriteRenderer = GetComponent<SpriteRenderer>();
+                if (_spriteRenderer == null)
+                {
+                    _spriteRenderer = GetComponentInChildren<SpriteRenderer>();
+                }
+            }
+        }
+
         private void Update()
         {
             if (_targetEntity == null)
@@ -70,11 +83,11 @@ namespace _Scripts.Core
                 Vector3 targetPos = _targetEntity.transform.position;
                 transform.position = targetPos + Vector3.up * verticalOffset;
 
-                // Counter the camera's Z rotation so the sprite always appears upright on screen
+                // Match the camera's Z rotation so the sprite always appears upright on screen
                 if (_mainCamera != null)
                 {
                     float cameraZ = _mainCamera.transform.eulerAngles.z;
-                    transform.rotation = Quaternion.Euler(0f, 0f, -cameraZ);
+                    transform.rotation = Quaternion.Euler(0f, 0f, cameraZ);
                 }
             }
         }
