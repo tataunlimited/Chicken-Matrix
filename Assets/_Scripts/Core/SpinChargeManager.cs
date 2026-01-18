@@ -48,6 +48,7 @@ namespace _Scripts.Core
             {
                 _spinTextOriginalScale = spinCountText.transform.localScale;
             }
+            
         }
 
         private void Start()

@@ -81,6 +81,7 @@ namespace _Scripts.Core
         
         private void Start()
         {
+            Cursor.lockState = CursorLockMode.Confined;
             StartCoroutine(UpdateInterval());
         }
 

@@ -24,6 +24,12 @@ namespace _Scripts.Core
         [Tooltip("Sorting order for revealed entities")]
         public int revealSortingOrder = 1200;
 
+        [Header("Cluster Spawning")]
+        [Tooltip("Angular spacing between entities in a cluster (in degrees)")]
+        [SerializeField] private float clusterAngleSpacing = 8f;
+        [Tooltip("Maximum entities per cluster")]
+        [SerializeField] private int maxClusterSize = 3;
+
         private int _entityPatternIndex;
 
         // Track interval within current 32-interval segment (0-31)
@@ -96,6 +102,42 @@ namespace _Scripts.Core
             return newEntity;
         }
 
+        /// <summary>
+        /// Spawns a cluster of entities in a tight arc. Only the first entity gets combo value,
+        /// the rest get 0 (but still cause setback if missed).
+        /// </summary>
+        void SpawnClusterAtAngle(MovableEntitiy prefab, float centerAngle, int clusterSize, int comboValue)
+        {
+            // Calculate starting angle to center the cluster
+            float totalArc = (clusterSize - 1) * clusterAngleSpacing * Mathf.Deg2Rad;
+            float startAngle = centerAngle - totalArc / 2f;
+
+            for (int i = 0; i < clusterSize; i++)
+            {
+                float angle = startAngle + (i * clusterAngleSpacing * Mathf.Deg2Rad);
+                // Only first entity in cluster gets combo value
+                int entityComboValue = (i == 0) ? comboValue : 0;
+                SpawnEntityAtAngle(prefab, angle, entityComboValue);
+            }
+        }
+
+        /// <summary>
+        /// Returns a random cluster size for the current combo tier.
+        /// Higher tiers allow larger clusters, but size is randomized each spawn.
+        /// </summary>
+        private int GetClusterSizeForCombo(int combo)
+        {
+            int maxForTier;
+            if (combo <= 30) maxForTier = 1;       // No clustering for early game
+            else if (combo <= 50) maxForTier = 2;  // Up to pairs at mid game
+            else if (combo <= 60) maxForTier = 1;  // Neutral barrage stays single
+            else if (combo <= 70) maxForTier = 2;  // Up to pairs
+            else maxForTier = maxClusterSize;      // Up to full clusters (3) at 71+
+
+            // Random from 1 to max for this tier
+            return Random.Range(1, maxForTier + 1);
+        }
+
         private MovableEntitiy GetEntityPrefabForCombo(int combo, out int count)
         {
             count = 1;
@@ -155,13 +197,15 @@ namespace _Scripts.Core
         private float GetNeutralSpawnChance(int combo)
         {
             if (combo <= 10) return 0f;
-            if (combo <= 20) return 0.05f;
+            if (combo <= 20) return 1f;
             if (combo <= 30) return 0.1f;
             if (combo <= 40) return 0.15f;
-            if (combo <= 50) return 0f;
+            if (combo <= 50) return 0.15f;
             if (combo <= 60) return -1f; // Neutral-only phase
-            if (combo <= 70) return 0f;
-            return 0.6f; // 71+
+            if (combo <= 70) return 0.2f;
+            if (combo <= 80) return 0.2f;
+            if (combo <= 90) return 0.3f;
+            return 0.5f; // 91+
         }
 
         /// <summary>
@@ -448,12 +492,22 @@ namespace _Scripts.Core
                 var prefab = GetEntityPrefabForCombo(combo, out int count);
                 float neutralChance = GetNeutralSpawnChance(combo);
                 int comboValue = GetComboValueForTier(combo);
+                int clusterSize = GetClusterSizeForCombo(combo);
 
                 for (int i = 0; i < count; i++)
                 {
-                    // Spawn the main entity and get its angle
+                    // Spawn the main entity (or cluster) and get its angle
                     float spawnAngle = Random.Range(0f, Mathf.PI * 2);
-                    SpawnEntityAtAngle(prefab, spawnAngle, comboValue);
+
+                    if (clusterSize > 1)
+                    {
+                        // Spawn a cluster - only first entity gets combo value
+                        SpawnClusterAtAngle(prefab, spawnAngle, clusterSize, comboValue);
+                    }
+                    else
+                    {
+                        SpawnEntityAtAngle(prefab, spawnAngle, comboValue);
+                    }
 
                     // If not in neutral-only phase (51-60), check for bonus neutral spawn
                     if (neutralChance >= 0f && Random.value < neutralChance)
