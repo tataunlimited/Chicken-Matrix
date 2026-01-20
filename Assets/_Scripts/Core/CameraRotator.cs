@@ -98,4 +98,4 @@ public class CameraRotator : MonoBehaviour
         direction = -direction;
         TriggerBoost();
     }
-}
+} 

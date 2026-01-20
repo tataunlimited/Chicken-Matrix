@@ -297,9 +297,16 @@ namespace _Scripts.Core
 
         public void PlayEggCollectSound()
         {
+            PlayEggCollectSound(1f);
+        }
+
+        public void PlayEggCollectSound(float pitch)
+        {
             if (eggCollectSoundClip != null && sfxSource != null)
             {
+                sfxSource.pitch = pitch;
                 sfxSource.PlayOneShot(eggCollectSoundClip, sfxVolume);
+                sfxSource.pitch = 1f;
             }
         }
 

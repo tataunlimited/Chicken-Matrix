@@ -5,6 +5,53 @@ using Random = UnityEngine.Random;
 
 namespace _Scripts.Core
 {
+    /// <summary>
+    /// Defines the entity type pattern for a spawn section.
+    /// </summary>
+    public enum EntityPattern
+    {
+        FriendlyOnly,
+        EnemyOnly,
+        AlternateFriendEnemy,
+        FriendFriendEnemy,
+        EnemyEnemyFriend,
+        NeutralOnly,
+        ComplexPattern,
+        Random
+    }
+
+    /// <summary>
+    /// Configuration for a single combo section (10 combo points, 16 seconds).
+    /// </summary>
+    [Serializable]
+    public class SpawnSectionConfig
+    {
+        [Tooltip("Number of entities to spawn in this 16-second section")]
+        [Range(1, 32)]
+        public int spawnCount = 5;
+
+        [Tooltip("Entity type pattern for this section")]
+        public EntityPattern entityPattern = EntityPattern.FriendlyOnly;
+
+        [Tooltip("Custom pattern (used when entityPattern is ComplexPattern). 0=Friendly, 1=Enemy, 2=Neutral")]
+        public int[] customPattern;
+
+        [Tooltip("Chance (0-1) to spawn a neutral alongside the main entity")]
+        [Range(0f, 1f)]
+        public float neutralSpawnChance = 0f;
+
+        [Tooltip("Maximum cluster size (1 = no clustering)")]
+        [Range(1, 5)]
+        public int maxClusterSize = 1;
+
+        [Tooltip("If true, spawn every interval (for barrage sections)")]
+        public bool spawnEveryInterval = false;
+
+        // Calculated at runtime - not serialized
+        [HideInInspector]
+        public int[] spawnIntervals;
+    }
+
     public class EnemySpawner : MonoBehaviour
     {
         public float spawnRadius;
@@ -27,8 +74,6 @@ namespace _Scripts.Core
         [Header("Cluster Spawning")]
         [Tooltip("Angular spacing between entities in a cluster (in degrees)")]
         [SerializeField] private float clusterAngleSpacing = 8f;
-        [Tooltip("Maximum entities per cluster")]
-        [SerializeField] private int maxClusterSize = 3;
 
         [Header("Tutorial Indicators")]
         [Tooltip("Tutorial indicator prefab for allies (right mouse button)")]
@@ -38,30 +83,16 @@ namespace _Scripts.Core
         [Tooltip("Tutorial indicator prefab for neutrals (no mouse button)")]
         [SerializeField] private TutorialIndicator neutralTutorialIndicatorPrefab;
 
+        [Header("Spawn Section Configuration")]
+        [Tooltip("Configuration for each of the 10 combo sections (1-10, 11-20, ..., 91-100)")]
+        [SerializeField]
+        private SpawnSectionConfig[] sectionConfigs = new SpawnSectionConfig[10];
+
         private int _entityPatternIndex;
 
         // Track interval within current 32-interval segment (0-31)
         // Each segment = 16 seconds = 10 combo points
         private int _segmentIntervalCounter;
-
-        // Spawn schedules per tier - each must sum to 10 combo over 32 intervals
-        // Format: array of intervals within the 32-interval segment when spawns occur
-
-        // Tier 1-10: 5 spawns × +2 combo = 10 (very relaxed)
-        private static readonly int[] SpawnScheduleTier1 = { 0, 6, 12, 18, 24 };
-        // Tier 11-20: 5 spawns × +2 combo = 10 (still easy)
-        private static readonly int[] SpawnScheduleTier2 = { 0, 6, 12, 18, 24 };
-        // Tier 21-30: 7 spawns (5×+1, 2×+2 = 9, need adjustment) → use 5×+2 for simplicity
-        private static readonly int[] SpawnScheduleTier3 = { 0, 5, 10, 15, 20 };
-        // Tier 31-40: 7 spawns mixed timing
-        private static readonly int[] SpawnScheduleTier4 = { 0, 4, 9, 13, 18, 22, 27 };
-        // Tier 41-50: 10 spawns × +1 combo = 10 (standard difficulty)
-        private static readonly int[] SpawnScheduleTier5 = { 0, 2, 5, 7, 10, 13, 15, 18, 20, 23 };
-        // Tier 51-60: Neutral barrage (handled separately - spawns every interval)
-        // Tier 61-70: 10 spawns × +1 combo = 10
-        private static readonly int[] SpawnScheduleTier7 = { 0, 2, 5, 7, 10, 13, 15, 18, 20, 23 };
-        // Tier 71+: 12 spawns (10×+1 from main, extras are neutrals that don't count)
-        private static readonly int[] SpawnScheduleTier8 = { 0, 2, 4, 7, 9, 11, 14, 16, 18, 21, 23, 26 };
 
 
         private readonly List<Enemy> _aliveEnemies = new List<Enemy>();
@@ -81,9 +112,10 @@ namespace _Scripts.Core
         void Awake()
         {
             Instance = this;
+            InitializeSectionConfigs();
         }
 
-        MovableEntitiy SpawnEntityAtAngle(MovableEntitiy prefab, float angle, int comboValue)
+        MovableEntitiy SpawnEntityAtAngle(MovableEntitiy prefab, float angle)
         {
             float x = Mathf.Cos(angle) * spawnRadius;
             float y = Mathf.Sin(angle) * spawnRadius;
@@ -93,7 +125,6 @@ namespace _Scripts.Core
             var newEntity = Instantiate(prefab, spawnPosition, Quaternion.identity);
 
             newEntity.Init(offset, stepSize);
-            newEntity.comboValue = comboValue;
 
             Vector2 direction = (Vector2)transform.position - (Vector2)spawnPosition;
 
@@ -120,10 +151,9 @@ namespace _Scripts.Core
         }
 
         /// <summary>
-        /// Spawns a cluster of entities in a tight arc. Only the first entity gets combo value,
-        /// the rest get 0 (but still cause setback if missed).
+        /// Spawns a cluster of entities in a tight arc.
         /// </summary>
-        void SpawnClusterAtAngle(MovableEntitiy prefab, float centerAngle, int clusterSize, int comboValue)
+        void SpawnClusterAtAngle(MovableEntitiy prefab, float centerAngle, int clusterSize)
         {
             // Calculate starting angle to center the cluster
             float totalArc = (clusterSize - 1) * clusterAngleSpacing * Mathf.Deg2Rad;
@@ -132,97 +162,191 @@ namespace _Scripts.Core
             for (int i = 0; i < clusterSize; i++)
             {
                 float angle = startAngle + (i * clusterAngleSpacing * Mathf.Deg2Rad);
-                // Only first entity in cluster gets combo value
-                int entityComboValue = (i == 0) ? comboValue : 0;
-                SpawnEntityAtAngle(prefab, angle, entityComboValue);
+                SpawnEntityAtAngle(prefab, angle);
             }
         }
 
         /// <summary>
-        /// Returns a random cluster size for the current combo tier.
-        /// Higher tiers allow larger clusters, but size is randomized each spawn.
+        /// Get the section index (0-9) for a given combo value.
+        /// </summary>
+        private int GetSectionIndex(int combo)
+        {
+            return Mathf.Clamp((combo - 1) / 10, 0, 9);
+        }
+
+        /// <summary>
+        /// Get the config for the current combo section.
+        /// </summary>
+        private SpawnSectionConfig GetCurrentSectionConfig(int combo)
+        {
+            int index = GetSectionIndex(combo);
+            if (sectionConfigs == null || index >= sectionConfigs.Length || sectionConfigs[index] == null)
+            {
+                return GetDefaultSectionConfig(index);
+            }
+            return sectionConfigs[index];
+        }
+
+        /// <summary>
+        /// Returns default config for a section if not configured.
+        /// </summary>
+        private SpawnSectionConfig GetDefaultSectionConfig(int sectionIndex)
+        {
+            var config = new SpawnSectionConfig();
+            switch (sectionIndex)
+            {
+                case 0: // 1-10
+                    config.spawnCount = 5;
+                    config.entityPattern = EntityPattern.FriendlyOnly;
+                    config.neutralSpawnChance = 0f;
+                    config.maxClusterSize = 1;
+                    break;
+                case 1: // 11-20
+                    config.spawnCount = 5;
+                    config.entityPattern = EntityPattern.EnemyOnly;
+                    config.neutralSpawnChance = 0.1f;
+                    config.maxClusterSize = 1;
+                    break;
+                case 2: // 21-30
+                    config.spawnCount = 5;
+                    config.entityPattern = EntityPattern.AlternateFriendEnemy;
+                    config.neutralSpawnChance = 0.1f;
+                    config.maxClusterSize = 1;
+                    break;
+                case 3: // 31-40
+                    config.spawnCount = 7;
+                    config.entityPattern = EntityPattern.FriendFriendEnemy;
+                    config.neutralSpawnChance = 0.15f;
+                    config.maxClusterSize = 2;
+                    break;
+                case 4: // 41-50
+                    config.spawnCount = 10;
+                    config.entityPattern = EntityPattern.EnemyEnemyFriend;
+                    config.neutralSpawnChance = 0.15f;
+                    config.maxClusterSize = 2;
+                    break;
+                case 5: // 51-60
+                    config.spawnCount = 32;
+                    config.entityPattern = EntityPattern.NeutralOnly;
+                    config.neutralSpawnChance = 0f;
+                    config.maxClusterSize = 1;
+                    config.spawnEveryInterval = true;
+                    break;
+                case 6: // 61-70
+                    config.spawnCount = 10;
+                    config.entityPattern = EntityPattern.ComplexPattern;
+                    config.customPattern = new[] { 0, 0, 0, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 0, 0, 0 };
+                    config.neutralSpawnChance = 0.2f;
+                    config.maxClusterSize = 2;
+                    break;
+                case 7: // 71-80
+                    config.spawnCount = 12;
+                    config.entityPattern = EntityPattern.Random;
+                    config.neutralSpawnChance = 0.2f;
+                    config.maxClusterSize = 3;
+                    break;
+                case 8: // 81-90
+                    config.spawnCount = 12;
+                    config.entityPattern = EntityPattern.Random;
+                    config.neutralSpawnChance = 0.3f;
+                    config.maxClusterSize = 3;
+                    break;
+                case 9: // 91-100
+                    config.spawnCount = 12;
+                    config.entityPattern = EntityPattern.Random;
+                    config.neutralSpawnChance = 0.5f;
+                    config.maxClusterSize = 3;
+                    break;
+            }
+            CalculateSpawnIntervals(config);
+            return config;
+        }
+
+        /// <summary>
+        /// Calculate evenly distributed spawn intervals for a section config.
+        /// </summary>
+        private void CalculateSpawnIntervals(SpawnSectionConfig config)
+        {
+            if (config.spawnEveryInterval)
+            {
+                config.spawnIntervals = null; // null means spawn every interval
+                return;
+            }
+
+            config.spawnIntervals = new int[config.spawnCount];
+            float spacing = 32f / config.spawnCount;
+            for (int i = 0; i < config.spawnCount; i++)
+            {
+                config.spawnIntervals[i] = Mathf.RoundToInt(i * spacing);
+            }
+        }
+
+        /// <summary>
+        /// Returns a random cluster size based on the section config.
         /// </summary>
         private int GetClusterSizeForCombo(int combo)
         {
-            int maxForTier;
-            if (combo <= 30) maxForTier = 1;       // No clustering for early game
-            else if (combo <= 50) maxForTier = 2;  // Up to pairs at mid game
-            else if (combo <= 60) maxForTier = 1;  // Neutral barrage stays single
-            else if (combo <= 70) maxForTier = 2;  // Up to pairs
-            else maxForTier = maxClusterSize;      // Up to full clusters (3) at 71+
-
-            // Random from 1 to max for this tier
-            return Random.Range(1, maxForTier + 1);
+            var config = GetCurrentSectionConfig(combo);
+            if (config.maxClusterSize <= 1) return 1;
+            return Random.Range(1, config.maxClusterSize + 1);
         }
 
+        /// <summary>
+        /// Get the entity prefab based on the section's pattern configuration.
+        /// </summary>
         private MovableEntitiy GetEntityPrefabForCombo(int combo, out int count)
         {
             count = 1;
-            // Combo 1-10: Friendly only
-            if (combo <= 10)
-                return friendlyPrefab;
+            var config = GetCurrentSectionConfig(combo);
 
-            // Combo 11-20: Enemy only
-            if (combo <= 20)
-                return enemyPrefab;
-
-            // Combo 21-30: Alternate Friend - Enemy
-            if (combo <= 30)
+            switch (config.entityPattern)
             {
-                bool isFriendly = (_entityPatternIndex % 2) == 0;
-                return isFriendly ? friendlyPrefab : enemyPrefab;
-            }
+                case EntityPattern.FriendlyOnly:
+                    return friendlyPrefab;
 
-            // Combo 31-40: Friend - Friend - Enemy pattern
-            if (combo <= 40)
-            {
-                int patternPos = _entityPatternIndex % 3;
-                return patternPos < 2 ? friendlyPrefab : enemyPrefab;
-            }
+                case EntityPattern.EnemyOnly:
+                    return enemyPrefab;
 
-            // Combo 41-50: Enemy - Enemy - Friend pattern
-            if (combo <= 50)
-            {
-                int patternPos = _entityPatternIndex % 3;
-                return patternPos < 2 ? enemyPrefab : friendlyPrefab;
-            }
+                case EntityPattern.NeutralOnly:
+                    count = Random.Range(1, 5); // 1-4 neutrals for barrage
+                    return neutralPrefab;
 
-            // Combo 51-60: Neutral barrage - random 1-4 per spawn
-            if (combo <= 60)
-            {
-                count = Random.Range(1, 5); // 1-4 neutrals
-                return neutralPrefab;
-            }
+                case EntityPattern.AlternateFriendEnemy:
+                    return (_entityPatternIndex % 2) == 0 ? friendlyPrefab : enemyPrefab;
 
-            // Combo 61-70: F-F-F-E-E-F-F-E-E-E-F-F-E-E-F-F-F (17-element pattern)
-            if (combo <= 70)
-            {
-                int[] pattern = { 0, 0, 0, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 0, 0, 0 };
-                int patternPos = _entityPatternIndex % pattern.Length;
-                return pattern[patternPos] == 0 ? friendlyPrefab : enemyPrefab;
-            }
+                case EntityPattern.FriendFriendEnemy:
+                    return (_entityPatternIndex % 3) < 2 ? friendlyPrefab : enemyPrefab;
 
-            // Combo 71-100: Random
-            return Random.value < 0.5f ? friendlyPrefab : enemyPrefab;
-        } 
+                case EntityPattern.EnemyEnemyFriend:
+                    return (_entityPatternIndex % 3) < 2 ? enemyPrefab : friendlyPrefab;
+
+                case EntityPattern.ComplexPattern:
+                    if (config.customPattern != null && config.customPattern.Length > 0)
+                    {
+                        int patternValue = config.customPattern[_entityPatternIndex % config.customPattern.Length];
+                        if (patternValue == 2) return neutralPrefab;
+                        return patternValue == 0 ? friendlyPrefab : enemyPrefab;
+                    }
+                    return friendlyPrefab;
+
+                case EntityPattern.Random:
+                    return Random.value < 0.5f ? friendlyPrefab : enemyPrefab;
+
+                default:
+                    return friendlyPrefab;
+            }
+        }
 
         /// <summary>
         /// Returns the chance (0-1) to spawn a neutral alongside regular entities.
-        /// 0% for combo 1-10, 10% for 11-20, 20% for 21-30, 30% for 31-40, 40% for 41-50.
-        /// Returns -1 for combo 51-60 (neutral-only phase, handled separately).
+        /// Returns -1 for neutral-only sections (handled separately).
         /// </summary>
         private float GetNeutralSpawnChance(int combo)
         {
-            if (combo <= 10) return 0f;
-            if (combo <= 20) return 1f;
-            if (combo <= 30) return 0.1f;
-            if (combo <= 40) return 0.15f;
-            if (combo <= 50) return 0.15f;
-            if (combo <= 60) return -1f; // Neutral-only phase
-            if (combo <= 70) return 0.2f;
-            if (combo <= 80) return 0.2f;
-            if (combo <= 90) return 0.3f;
-            return 0.5f; // 91+
+            var config = GetCurrentSectionConfig(combo);
+            if (config.entityPattern == EntityPattern.NeutralOnly)
+                return -1f;
+            return config.neutralSpawnChance;
         }
 
         /// <summary>
@@ -230,35 +354,12 @@ namespace _Scripts.Core
         /// </summary>
         private int[] GetSpawnScheduleForCombo(int combo)
         {
-            if (combo <= 10) return SpawnScheduleTier1;
-            if (combo <= 20) return SpawnScheduleTier2;
-            if (combo <= 30) return SpawnScheduleTier3;
-            if (combo <= 40) return SpawnScheduleTier4;
-            if (combo <= 50) return SpawnScheduleTier5;
-            if (combo <= 60) return null; // Neutral barrage - spawns every interval
-            if (combo <= 70) return SpawnScheduleTier7;
-            return SpawnScheduleTier8;
-        }
-
-        /// <summary>
-        /// Get the combo value for entities spawned at current combo tier.
-        /// Uses spawn index to vary combo values within a tier when needed.
-        /// </summary>
-        private int GetComboValueForTier(int combo)
-        {
-            if (combo <= 10) return 2;  // 5 spawns × +2 = 10
-            if (combo <= 20) return 2;  // 5 spawns × +2 = 10
-            if (combo <= 30) return 2;  // 5 spawns × +2 = 10
-            if (combo <= 40)            // 7 spawns: 3×+2 + 4×+1 = 10
+            var config = GetCurrentSectionConfig(combo);
+            if (config.spawnIntervals == null && !config.spawnEveryInterval)
             {
-                // Pattern: +2, +1, +2, +1, +1, +2, +1
-                int[] values = { 2, 1, 2, 1, 1, 2, 1 };
-                return values[_entityPatternIndex % values.Length];
+                CalculateSpawnIntervals(config);
             }
-            if (combo <= 50) return 1;  // 10 spawns × +1 = 10
-            if (combo <= 60) return 0;  // Neutral barrage - auto-combo via timer
-            if (combo <= 70) return 1;  // 10 spawns × +1 = 10
-            return 1;                   // 12 spawns but neutrals mixed in (neutrals = 0)
+            return config.spawnIntervals;
         }
 
         /// <summary>
@@ -266,20 +367,47 @@ namespace _Scripts.Core
         /// </summary>
         private bool ShouldSpawnThisInterval(int combo)
         {
-            // Neutral barrage phase - spawn every interval for maximum chaos
-            if (combo >= 51 && combo <= 60)
+            var config = GetCurrentSectionConfig(combo);
+            if (config.spawnEveryInterval)
                 return true;
 
             var schedule = GetSpawnScheduleForCombo(combo);
-            if (schedule == null) return true;
+            if (schedule == null || schedule.Length == 0) return true;
 
-            return System.Array.IndexOf(schedule, _segmentIntervalCounter) >= 0;
+            bool shouldSpawn = Array.IndexOf(schedule, _segmentIntervalCounter) >= 0;
+            Debug.Log($"[Spawner] Combo:{combo} Interval:{_segmentIntervalCounter} Schedule:[{string.Join(",", schedule)}] ShouldSpawn:{shouldSpawn}");
+            return shouldSpawn;
+        }
+
+        /// <summary>
+        /// Initialize section configs on Awake if they haven't been set in the inspector.
+        /// </summary>
+        private void InitializeSectionConfigs()
+        {
+            if (sectionConfigs == null || sectionConfigs.Length != 10)
+            {
+                sectionConfigs = new SpawnSectionConfig[10];
+            }
+
+            for (int i = 0; i < 10; i++)
+            {
+                // If config is null or has invalid spawnCount, use defaults
+                if (sectionConfigs[i] == null || sectionConfigs[i].spawnCount <= 0)
+                {
+                    sectionConfigs[i] = GetDefaultSectionConfig(i);
+                }
+                else
+                {
+                    // Always recalculate spawn intervals at runtime (they're not serialized)
+                    CalculateSpawnIntervals(sectionConfigs[i]);
+                }
+            }
         }
 
         private void EnemyDestroyed(MovableEntitiy entity)
         {
-            // All entities affect combo - missing any entity causes setback
-            GameManager.Instance.UpdateCombo(entity.Detected, entity.comboValue);
+            // Missing any entity causes combo reset; detecting increments enemiesDestroyed
+            GameManager.Instance.UpdateCombo(entity.Detected);
 
             if (entity is Enemy enemy && _aliveEnemies.Contains(enemy))
             {
@@ -533,7 +661,6 @@ namespace _Scripts.Core
                 _spawnedThisPulse = true;
                 var prefab = GetEntityPrefabForCombo(combo, out int count);
                 float neutralChance = GetNeutralSpawnChance(combo);
-                int comboValue = GetComboValueForTier(combo);
                 int clusterSize = GetClusterSizeForCombo(combo);
 
                 for (int i = 0; i < count; i++)
@@ -543,20 +670,19 @@ namespace _Scripts.Core
 
                     if (clusterSize > 1)
                     {
-                        // Spawn a cluster - only first entity gets combo value
-                        SpawnClusterAtAngle(prefab, spawnAngle, clusterSize, comboValue);
+                        SpawnClusterAtAngle(prefab, spawnAngle, clusterSize);
                     }
                     else
                     {
-                        SpawnEntityAtAngle(prefab, spawnAngle, comboValue);
+                        SpawnEntityAtAngle(prefab, spawnAngle);
                     }
 
-                    // If not in neutral-only phase (51-60), check for bonus neutral spawn
+                    // If not in neutral-only phase, check for bonus neutral spawn
                     if (neutralChance >= 0f && Random.value < neutralChance)
                     {
                         // Spawn neutral on opposite tangent (180 degrees / PI radians offset)
                         float oppositeAngle = spawnAngle + Mathf.PI;
-                        SpawnEntityAtAngle(neutralPrefab, oppositeAngle, 0); // Neutrals give 0 combo
+                        SpawnEntityAtAngle(neutralPrefab, oppositeAngle);
                     }
                 }
                 _entityPatternIndex++;

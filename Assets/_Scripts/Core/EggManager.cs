@@ -39,6 +39,14 @@ namespace _Scripts.Core
             new Color(1f, 0.5f, 0f, 1f),    // x4 - Orange
             new Color(1f, 0.2f, 0f, 1f)     // x4+ - Red-orange
         };
+        [Tooltip("Text colors for multiplier display: x1, x2, x3, x4 (index 0-3)")]
+        [SerializeField] private Color[] multiplierTextColors = new Color[]
+        {
+            new Color(1f, 1f, 1f, 1f),       // x1 - White
+            new Color(0.5f, 1f, 0.5f, 1f),   // x2 - Light green
+            new Color(1f, 0.8f, 0f, 1f),     // x3 - Orange-yellow
+            new Color(1f, 0.3f, 0.3f, 1f)    // x4 - Red
+        };
         [SerializeField] private int eggParticleBurstCount = 20;
 
         [Header("UI References")]
@@ -74,6 +82,9 @@ namespace _Scripts.Core
 
         // Multiplier values for each consecutive egg level
         private static readonly int[] MultiplierAdditions = { 1, 2, 4, 8, 16 };
+
+        // Pitch values for each multiplier level: x1=1.0, x2=1.25, x3=1.5, x4=2.0
+        private static readonly float[] MultiplierPitches = { 1.0f, 1.25f, 1.5f, 2.0f };
 
         // High score persistence key
         private const string HighScoreKey = "EggHighScore";
@@ -308,8 +319,9 @@ namespace _Scripts.Core
             // Add spin charge
             AddSpinCharge();
 
-            // Play collection sound
-            SoundController.Instance?.PlayEggCollectSound();
+            // Play collection sound with pitch based on multiplier level
+            int pitchIndex = Mathf.Min(_currentMultiplierLevel, MultiplierPitches.Length - 1);
+            SoundController.Instance?.PlayEggCollectSound(MultiplierPitches[pitchIndex]);
 
             // Destroy the egg
             _currentEgg.Collect();
@@ -324,6 +336,7 @@ namespace _Scripts.Core
 
         /// <summary>
         /// Called when an egg is missed (beat window passed without collection)
+        /// Letting an egg expire does NOT reset the multiplier - only misclicks reset it
         /// </summary>
         private void OnEggMissed()
         {
@@ -333,12 +346,7 @@ namespace _Scripts.Core
             _currentEgg.Miss();
             _currentEgg = null;
 
-            // Reset multiplier but keep score
-            _consecutiveEggs = 0;
-            UpdateMultiplierLevel();
-
-            // Update UI
-            UpdateUI();
+            // DO NOT reset multiplier - only misclicks reset the multiplier
             // Next egg will spawn on next pulse via OnBeatPulse()
         }
 
@@ -507,26 +515,32 @@ namespace _Scripts.Core
 
             if (multiplierText != null)
             {
-                // Display multiplier as x1, x2, x4 (capped at x4 for display)
+                // Display multiplier as x1, x2, x3, x4 (capped at x4 for display)
                 int displayMultiplier = GetDisplayMultiplier();
                 multiplierText.text = $"x{displayMultiplier}";
+
+                // Set color based on multiplier level
+                int colorIndex = Mathf.Min(displayMultiplier - 1, multiplierTextColors.Length - 1);
+                if (multiplierTextColors != null && multiplierTextColors.Length > 0)
+                {
+                    multiplierText.color = multiplierTextColors[colorIndex];
+                }
             }
 
-            // Show/hide multiplier container based on whether we have a multiplier > x1
+            // Always show multiplier container (don't hide it)
             if (multiplierContainer != null)
             {
-                multiplierContainer.SetActive(_consecutiveEggs > 0);
+                multiplierContainer.SetActive(true);
             }
         }
 
         /// <summary>
-        /// Get the multiplier value for display (x1, x2, x4)
+        /// Get the multiplier value for display (x1, x2, x3, x4)
         /// </summary>
         private int GetDisplayMultiplier()
         {
-            if (_consecutiveEggs == 0) return 1;
-            if (_consecutiveEggs == 1) return 2;
-            return 4; // x4 is the max displayed, even though internal value can be higher
+            // x1 at 0 consecutive, x2 at 1, x3 at 2, x4 at 3+
+            return Mathf.Min(_consecutiveEggs + 1, 4);
         }
 
         private void PulseScoreText()

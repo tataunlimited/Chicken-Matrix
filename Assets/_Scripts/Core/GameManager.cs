@@ -17,6 +17,11 @@ namespace _Scripts.Core
 
         public int combo = 1;
 
+        /// <summary>
+        /// Tracks total enemies destroyed (separate from combo for future use)
+        /// </summary>
+        public int enemiesDestroyed = 0;
+
         private bool _gameEnded;
 
         [SerializeField] private TMP_Text comboText;
@@ -49,9 +54,9 @@ namespace _Scripts.Core
         private float currentShakeMagnitude;
         private int currentRankIndex = -1;
 
-        // Neutral barrage auto-combo timer (combo 51-60)
-        private Coroutine neutralBarrageCoroutine;
-        private const float NeutralBarrageComboInterval = 1.6f;
+        // Auto-combo timer - combo increments by 1 every 1.6 seconds to sync with music
+        private Coroutine autoComboCoroutine;
+        private const float AutoComboInterval = 1.6f;
 
         public static GameManager Instance; 
         public static Difficulty Difficulty = Difficulty.Easy;
@@ -83,6 +88,7 @@ namespace _Scripts.Core
         {
             Cursor.lockState = CursorLockMode.Confined;
             StartCoroutine(UpdateInterval());
+            StartAutoComboTimer();
         }
 
         private void Update()
@@ -156,17 +162,24 @@ namespace _Scripts.Core
             comboPulseCoroutine = null;
         }
 
+        /// <summary>
+        /// Called when an entity is destroyed (detected or missed).
+        /// Combo is now time-based, so this only tracks destruction and handles failures.
+        /// </summary>
         public void UpdateCombo(bool entityDetected, int comboValue = 1)
         {
             if (entityDetected)
             {
-                combo += comboValue;
+                // Track enemy destruction separately (combo is time-based now)
+                enemiesDestroyed += comboValue;
                 MiniShakeScreen();
-                UpdateComboRankDisplay();
+
+                // Punch volume on successful detection
+                SoundController.Instance?.PunchVolume();
             }
             else
             {
-                // Only shake if we actually had a combo to lose
+                // Entity missed - this causes combo failure/reset
                 if (combo > 1)
                 {
                     ShakeScreen(combo);
@@ -174,11 +187,11 @@ namespace _Scripts.Core
 
                     // Play combo fail sound
                     SoundController.Instance?.PlayComboFailSound();
-                    
+
                     // Notify egg manager of combo fail (halves/resets egg score)
                     EggManager.Instance?.OnEntityComboFail();
-
                 }
+
                 // Hard mode: reset to 1
                 // Easy mode: snap to start of previous tier (1, 11, 21, 31, etc.) to maintain music sync
                 if (Difficulty == Difficulty.Hard)
@@ -193,51 +206,36 @@ namespace _Scripts.Core
                     int previousTierStart = Mathf.Max((currentTier - 1) * 10 + 1, 1);
                     combo = previousTierStart;
                 }
+
+                comboText.text = combo.ToString();
+                PulseComboText();
                 UpdateComboRankDisplay();
 
                 // Sync music and spawner to new combo position
                 SoundController.Instance?.SetTrackTimeForCombo(combo);
                 EnemySpawner.Instance?.SyncToCombo(combo);
             }
+        }
 
-            comboText.text = combo.ToString();
-            PulseComboText();
-
-            // Update music based on combo
-            if (SoundController.Instance != null)
+        private void HandleVictory()
+        {
+            switch (Difficulty)
             {
-                SoundController.Instance.UpdateMusicForCombo(combo);
-
-                // Punch volume on successful kill
-                if (entityDetected)
-                {
-                    SoundController.Instance.PunchVolume();
-                }
+                case Difficulty.Easy:
+                    PlayerPrefs.SetInt("Trophy_Easy", 1);
+                    break;
+                case Difficulty.Hard:
+                    PlayerPrefs.SetInt("Trophy_Hard", 1);
+                    break;
+                case Difficulty.KonamiMode:
+                    PlayerPrefs.SetInt("Trophy_Konami", 1);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
 
-            // Check if we need to start/stop neutral barrage auto-combo
-            UpdateNeutralBarrageState();
-
-            if (combo >= 100 && !_gameEnded)
-            {
-
-                switch (Difficulty)
-                {
-                    case Difficulty.Easy:
-                        PlayerPrefs.SetInt("Trophy_Easy", 1);
-                        break;
-                    case Difficulty.Hard:
-                        PlayerPrefs.SetInt("Trophy_Hard", 1);
-                        break;
-                    case Difficulty.KonamiMode:
-                        PlayerPrefs.SetInt("Trophy_Konami", 1);
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
-
-                StartCoroutine(VictorySequence());
-            }
+            StopAutoComboTimer();
+            StartCoroutine(VictorySequence());
         }
 
         private IEnumerator VictorySequence()
@@ -314,33 +312,37 @@ namespace _Scripts.Core
         }
 
         /// <summary>
-        /// Check if we're in the neutral barrage phase and manage the auto-combo timer.
+        /// Start the auto-combo timer that increments combo every 1.6 seconds.
+        /// This keeps the music in sync regardless of enemy spawning/destruction.
         /// </summary>
-        private void UpdateNeutralBarrageState()
+        private void StartAutoComboTimer()
         {
-            bool inNeutralBarrage = combo >= 51 && combo <= 60;
-
-            if (inNeutralBarrage && neutralBarrageCoroutine == null)
+            if (autoComboCoroutine == null)
             {
-                // Start auto-combo timer
-                neutralBarrageCoroutine = StartCoroutine(NeutralBarrageCoroutine());
-            }
-            else if (!inNeutralBarrage && neutralBarrageCoroutine != null)
-            {
-                // Stop auto-combo timer
-                StopCoroutine(neutralBarrageCoroutine);
-                neutralBarrageCoroutine = null;
+                autoComboCoroutine = StartCoroutine(AutoComboCoroutine());
             }
         }
 
-        private IEnumerator NeutralBarrageCoroutine()
+        /// <summary>
+        /// Stop the auto-combo timer (used when game ends).
+        /// </summary>
+        private void StopAutoComboTimer()
         {
-            while (combo >= 51 && combo <= 60)
+            if (autoComboCoroutine != null)
             {
-                yield return new WaitForSeconds(NeutralBarrageComboInterval);
+                StopCoroutine(autoComboCoroutine);
+                autoComboCoroutine = null;
+            }
+        }
 
-                // Only increment if still in barrage range
-                if (combo >= 51 && combo < 61)
+        private IEnumerator AutoComboCoroutine()
+        {
+            while (!_gameEnded && combo < 100)
+            {
+                yield return new WaitForSeconds(AutoComboInterval);
+
+                // Only increment if game is still running and we haven't hit 100
+                if (!_gameEnded && combo < 100)
                 {
                     combo++;
                     comboText.text = combo.ToString();
@@ -353,10 +355,16 @@ namespace _Scripts.Core
                         SoundController.Instance.UpdateMusicForCombo(combo);
                         SoundController.Instance.PunchVolume();
                     }
+
+                    // Check for victory
+                    if (combo >= 100 && !_gameEnded)
+                    {
+                        HandleVictory();
+                    }
                 }
             }
 
-            neutralBarrageCoroutine = null;
+            autoComboCoroutine = null;
         }
 
         private void UpdateComboRankDisplay()
@@ -473,7 +481,7 @@ namespace _Scripts.Core
         /// <summary>
         /// Gets the rank index based on combo value
         /// Returns -1 for no rank (0-10)
-        /// 11-20: D (0), 21-30: C (1), 31-50: B (2), 51-60: A (3), 61-70: S (4), 71-89: SS (5), 90-100: SSS (6)
+        /// 11-20: D (0), 21-30: C (1), 31-50: B (2), 51-60: A (3), 61-70: S (4), 71-90: SS (5), 91-100: SSS (6)
         /// </summary>
         private int GetRankIndex(int comboValue)
         {
@@ -483,8 +491,8 @@ namespace _Scripts.Core
             if (comboValue <= 50) return 2;        // B Rank
             if (comboValue <= 60) return 3;        // A Rank
             if (comboValue <= 70) return 4;        // S Rank
-            if (comboValue <= 89) return 5;        // SS Rank
-            return 6;                              // SSS Rank (90+)
+            if (comboValue <= 90) return 5;        // SS Rank
+            return 6;                              // SSS Rank (91+)
         }
 
         #endregion
