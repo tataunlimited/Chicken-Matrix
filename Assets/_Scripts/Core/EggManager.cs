@@ -59,8 +59,10 @@ namespace _Scripts.Core
         [SerializeField] private float textPulseScale = 1.5f;
 
         [Header("Spin Charge Integration")]
-        [Tooltip("Fixed spin charge percentage per egg collected")]
-        [SerializeField] private float spinChargePerEgg = 0.25f;
+        [Tooltip("Base spin charge percentage per egg collected")]
+        [SerializeField] private float baseSpinChargePerEgg = 0.10f;
+        [Tooltip("Additional spin charge per multiplier level")]
+        [SerializeField] private float spinChargePerMultiplierLevel = 0.05f;
 
         // Scoring
         private int _eggScore;
@@ -385,14 +387,16 @@ namespace _Scripts.Core
 
         /// <summary>
         /// Add spin charge based on current multiplier
-        /// Base: 10% + 10% per multiplier level, max 40%
+        /// Base: 10% + 5% per multiplier level (x1=10%, x2=15%, x3=20%, x4=25%)
         /// </summary>
         private void AddSpinCharge()
         {
             if (SpinChargeManager.Instance == null) return;
 
-            // Fixed 25% charge per egg collected
-            SpinChargeManager.Instance.OnParticleConverged(spinChargePerEgg);
+            // Calculate charge: 10% base + 5% per multiplier level
+            int displayMultiplier = GetDisplayMultiplier();
+            float chargeAmount = baseSpinChargePerEgg + (spinChargePerMultiplierLevel * (displayMultiplier - 1));
+            SpinChargeManager.Instance.OnParticleConverged(chargeAmount);
         }
 
         /// <summary>

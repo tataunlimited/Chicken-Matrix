@@ -27,7 +27,7 @@ public class CameraRotator : MonoBehaviour
     private float _boostDecayTimer = 0f;
     private bool _isBoosting = false;
 
-    public static CameraRotator Instance { get; private set; }
+    public static CameraRotator Instance { get; private set; } 
 
     /// <summary>
     /// Returns true if currently in a boosted state
