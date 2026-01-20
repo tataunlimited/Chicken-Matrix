@@ -98,6 +98,9 @@ namespace _Scripts.Core
         {
             if(_gameEnded)
                 yield break;
+            // Pre-movement detection: catch entities the player is already targeting
+            // This prevents the "I caught it but still got hit" feeling
+            PlayerController.Instance.UpdateInterval(silent: true);
             EnemySpawner.Instance.UpdateEnemies();
             yield return new WaitForSeconds(interval/2);
 

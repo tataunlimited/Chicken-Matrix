@@ -72,7 +72,7 @@ public class CameraRotator : MonoBehaviour
                 // Smooth ease-out decay
                 _currentBoostMultiplier = Mathf.Lerp(boostMultiplier, 1f, t * t);
             }
-        }
+        } 
 
         float finalSpeed = (baseRotationSpeed + comboBonus) * _currentBoostMultiplier;
         float rotationAmount = finalSpeed * direction * Time.deltaTime;

@@ -98,9 +98,35 @@ namespace _Scripts.Core
             //UpdateColor();
         }
 
-        public void UpdateInterval()
+        public void UpdateInterval(bool silent = false)
         {
-            StartCoroutine(DetectionCoroutine());
+            if (silent)
+            {
+                // Silent pre-movement check: just detect overlaps, no visuals
+                // Temporarily enable colliders so overlap check works
+                detectionCollider.enabled = true;
+                neutralDetector.enabled = true;
+                if (_isMirroring)
+                {
+                    mirrorDetectionCollider.enabled = true;
+                    mirrorNeutralDetector.enabled = true;
+                }
+
+                CheckExistingOverlaps();
+
+                detectionCollider.enabled = false;
+                neutralDetector.enabled = false;
+                if (_isMirroring)
+                {
+                    mirrorDetectionCollider.enabled = false;
+                    mirrorNeutralDetector.enabled = false;
+                }
+            }
+            else
+            {
+                // Normal pulse with visuals and OnTriggerEnter2D detection
+                StartCoroutine(DetectionCoroutine());
+            }
         }
 
         public void UpdateRange(int range)
@@ -130,6 +156,7 @@ namespace _Scripts.Core
             mirrorDetectionCollider.enabled = true;
             mirrorNeutralDetector.enabled = true;
             _isPulsing = true;
+
             OnPulse?.Invoke();
             var cloneSprite = Instantiate(spriteRenderer, spriteRenderer.transform.position, spriteRenderer.transform.rotation);
             UpdateColor(cloneSprite);
@@ -174,32 +201,76 @@ namespace _Scripts.Core
             }
         }
         
-        private void OnTriggerEnter2D(Collider2D other)
+        private void CheckExistingOverlaps()
         {
+            // Check main detection collider for already-overlapping entities
+            CheckColliderOverlaps(detectionCollider);
+            CheckColliderOverlaps(neutralDetector);
+
+            if (_isMirroring)
+            {
+                CheckColliderOverlaps(mirrorDetectionCollider);
+                CheckColliderOverlaps(mirrorNeutralDetector);
+            }
+        }
+
+        private void CheckColliderOverlaps(Collider2D collider)
+        {
+            if (collider == null || !collider.enabled) return;
+
+            var filter = new ContactFilter2D();
+            filter.useTriggers = true;
+            filter.SetLayerMask(Physics2D.AllLayers);
+
+            var results = new List<Collider2D>();
+            collider.Overlap(filter, results);
+
+            foreach (var other in results)
+            {
+                ProcessDetection(other);
+            }
+        }
+
+        private void ProcessDetection(Collider2D other)
+        {
+            Vector3 entityPos = other.transform.position;
+            bool detected = false;
+
             switch (_detectionMode)
             {
                 case DetectionMode.None:
                     if (other.TryGetComponent(out Neutral neutral))
                     {
                         neutral.Destroy(true);
+                        detected = true;
                     }
                     break;
                 case DetectionMode.Friendly:
                     if (other.TryGetComponent(out Ally ally))
                     {
                         ally.Destroy(true);
+                        detected = true;
                     }
                     break;
                 case DetectionMode.Aggressive:
                     if (other.TryGetComponent(out Enemy enemy))
                     {
                         enemy.Destroy(true);
+                        detected = true;
                     }
                     break;
-                default:
-                    throw new ArgumentOutOfRangeException();
             }
-           
+
+            // Spawn lightning effect from player to destroyed entity
+            if (detected && LightningEffect.Instance != null)
+            {
+                LightningEffect.Instance.SpawnLightning(transform.position, entityPos, _detectionMode);
+            }
+        }
+
+        private void OnTriggerEnter2D(Collider2D other)
+        {
+            ProcessDetection(other);
         }
 
     }

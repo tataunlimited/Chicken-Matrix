@@ -416,6 +416,12 @@ namespace _Scripts.Core
             var alliesToCheck = new List<Ally>(_aliveAllies);
             var neutralsToCheck = new List<Neutral>(_aliveNeutrals);
 
+            // Get lightning color for spin attack - lightning always originates from center
+            Color lightningColor = LightningEffect.Instance != null
+                ? LightningEffect.Instance.SpinAttackColor
+                : Color.magenta;
+            Vector3 centerPos = Vector3.zero;
+
             // Check and destroy enemies within radius
             foreach (var enemy in enemiesToCheck)
             {
@@ -424,9 +430,14 @@ namespace _Scripts.Core
                     float distSqr = (enemy.transform.position - worldPosition).sqrMagnitude;
                     if (distSqr <= radiusSqr)
                     {
-                        destroyedPositions?.Add(enemy.transform.position);
+                        Vector3 entityPos = enemy.transform.position;
+                        destroyedPositions?.Add(entityPos);
                         enemy.Destroy(true); // detected = true for combo increase
                         destroyedCount++;
+
+                        // Spawn lightning from center to destroyed entity
+                        if (LightningEffect.Instance != null)
+                            LightningEffect.Instance.SpawnLightning(centerPos, entityPos, lightningColor);
                     }
                 }
             }
@@ -439,9 +450,14 @@ namespace _Scripts.Core
                     float distSqr = (ally.transform.position - worldPosition).sqrMagnitude;
                     if (distSqr <= radiusSqr)
                     {
-                        destroyedPositions?.Add(ally.transform.position);
+                        Vector3 entityPos = ally.transform.position;
+                        destroyedPositions?.Add(entityPos);
                         ally.Destroy(true); // detected = true for combo increase
                         destroyedCount++;
+
+                        // Spawn lightning from center to destroyed entity
+                        if (LightningEffect.Instance != null)
+                            LightningEffect.Instance.SpawnLightning(centerPos, entityPos, lightningColor);
                     }
                 }
             }
@@ -454,9 +470,14 @@ namespace _Scripts.Core
                     float distSqr = (neutral.transform.position - worldPosition).sqrMagnitude;
                     if (distSqr <= radiusSqr)
                     {
-                        destroyedPositions?.Add(neutral.transform.position);
+                        Vector3 entityPos = neutral.transform.position;
+                        destroyedPositions?.Add(entityPos);
                         neutral.Destroy(true); // detected = true for combo increase
                         destroyedCount++;
+
+                        // Spawn lightning from center to destroyed entity
+                        if (LightningEffect.Instance != null)
+                            LightningEffect.Instance.SpawnLightning(centerPos, entityPos, lightningColor);
                     }
                 }
             }
