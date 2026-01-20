@@ -80,7 +80,7 @@ namespace _Scripts.Core
             _maskTexture.name = "Light Mask Texture";
             _maskCamera.targetTexture = _maskTexture;
 
-            Debug.Log($"SimpleLightRevealSystem: Mask camera created, rendering layer mask {lightLayer.value}");
+            //Debug.Log($"SimpleLightRevealSystem: Mask camera created, rendering layer mask {lightLayer.value}");
         }
 
         private void CreateOverlay()
@@ -106,7 +106,7 @@ namespace _Scripts.Core
 
             UpdateOverlayTransform();
 
-            Debug.Log("SimpleLightRevealSystem: Overlay created");
+            //Debug.Log("SimpleLightRevealSystem: Overlay created");
         }
 
         private void SyncCameras()

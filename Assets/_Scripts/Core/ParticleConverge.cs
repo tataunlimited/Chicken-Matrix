@@ -67,7 +67,7 @@ namespace _Scripts.Core
             // If not converging, disable this script and let normal particle lifecycle handle cleanup
             if (!_shouldConverge)
             {
-                Debug.Log($"[ParticleConverge] _shouldConverge is false, disabling. ParticleCount: {_particleSystem.particleCount}");
+                //Debug.Log($"[ParticleConverge] _shouldConverge is false, disabling. ParticleCount: {_particleSystem.particleCount}");
                 enabled = false;
                 return;
             }
@@ -90,7 +90,7 @@ namespace _Scripts.Core
                 // Notify charge manager for each particle that converged this frame
                 if (_particlesConvergedThisFrame > 0 && SpinChargeManager.Instance != null)
                 {
-                    Debug.Log($"[ParticleConverge] {_particlesConvergedThisFrame} particles converged, adding {_chargePerParticle * _particlesConvergedThisFrame:F4} charge");
+                    //Debug.Log($"[ParticleConverge] {_particlesConvergedThisFrame} particles converged, adding {_chargePerParticle * _particlesConvergedThisFrame:F4} charge");
                     for (int i = 0; i < _particlesConvergedThisFrame; i++)
                     {
                         SpinChargeManager.Instance.OnParticleConverged(_chargePerParticle);
@@ -101,7 +101,7 @@ namespace _Scripts.Core
             // Destroy when all particles are gone
             if (_isConverging && _particleSystem.particleCount == 0)
             {
-                Debug.Log("[ParticleConverge] All particles gone, destroying gameObject");
+                //Debug.Log("[ParticleConverge] All particles gone, destroying gameObject");
                 Destroy(gameObject);
             }
 
@@ -123,7 +123,7 @@ namespace _Scripts.Core
                     }
                     avgDist /= pCount;
                 }
-                Debug.Log($"[ParticleConverge] Status: particleCount={pCount}, convergedThisFrame={_particlesConvergedThisFrame}, cachedTarget={targetPos}, avgDist2D={avgDist:F2}, destroyDist={destroyDistance}");
+                //Debug.Log($"[ParticleConverge] Status: particleCount={pCount}, convergedThisFrame={_particlesConvergedThisFrame}, cachedTarget={targetPos}, avgDist2D={avgDist:F2}, destroyDist={destroyDistance}");
             }
         }
 
@@ -140,7 +140,7 @@ namespace _Scripts.Core
             {
                 float totalCharge = SpinChargeManager.Instance.GetChargeAmountForDetection();
                 _chargePerParticle = totalCharge / _initialParticleCount;
-                Debug.Log($"[ParticleConverge] Initialized: {_initialParticleCount} particles, {totalCharge:F3} total charge, {_chargePerParticle:F5} per particle, targetPos={_cachedTargetPosition}");
+                //Debug.Log($"[ParticleConverge] Initialized: {_initialParticleCount} particles, {totalCharge:F3} total charge, {_chargePerParticle:F5} per particle, targetPos={_cachedTargetPosition}");
             }
             else
             {
@@ -245,10 +245,10 @@ namespace _Scripts.Core
                         : newWorldPos;
 
                     // Debug first particle movement
-                    if (i == 0 && Time.frameCount % 30 == 0)
-                    {
-                        Debug.Log($"[ParticleConverge] Particle0: oldPos={_particles[i].position}, newPos={finalPos}, worldOld={particleWorldPos}, worldNew={newWorldPos}, dist={Mathf.Sqrt(distanceSqr):F3}");
-                    }
+                    //if (i == 0 && Time.frameCount % 30 == 0)
+                    //{
+                    //    Debug.Log($"[ParticleConverge] Particle0: oldPos={_particles[i].position}, newPos={finalPos}, worldOld={particleWorldPos}, worldNew={newWorldPos}, dist={Mathf.Sqrt(distanceSqr):F3}");
+                    //}
 
                     _particles[i].position = finalPos;
 
@@ -260,10 +260,10 @@ namespace _Scripts.Core
             _particleSystem.SetParticles(_particles, particleCount);
 
             // Debug: Log processing stats every 30 frames
-            if (Time.frameCount % 30 == 0)
-            {
-                Debug.Log($"[ParticleConverge] ConvergeParticles: total={particleCount}, processed={processed}, skippedDead={skippedDead}, lerpFactor={lerpFactor:F4}, minDist={minDistance:F4}, isLocal={_isLocalSpace}");
-            }
+            //if (Time.frameCount % 30 == 0)
+            //{
+            //    Debug.Log($"[ParticleConverge] ConvergeParticles: total={particleCount}, processed={processed}, skippedDead={skippedDead}, lerpFactor={lerpFactor:F4}, minDist={minDistance:F4}, isLocal={_isLocalSpace}");
+            //}
         }
 
         /// <summary>

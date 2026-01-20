@@ -22,16 +22,16 @@ public class CameraRotator : MonoBehaviour
     public float boostMultiplier = 2.5f;
     [Tooltip("How long the boost takes to fade back to normal")]
     public float boostDecayDuration = 1f;
-
+ 
     private float _currentBoostMultiplier = 1f;
     private float _boostDecayTimer = 0f;
     private bool _isBoosting = false;
 
-    public static CameraRotator Instance { get; private set; } 
+    public static CameraRotator Instance { get; private set; }  
 
     /// <summary>
     /// Returns true if currently in a boosted state
-    /// </summary>
+    /// </summary> 
     public bool IsBoosting => _isBoosting;
 
     /// <summary>

@@ -408,7 +408,7 @@ namespace _Scripts.Core
                     }
                       //  SSSComboMeterRankIMG.enabled = false;
 
-                    Debug.Log("Combo Dropped! Returning to No Rank state. Main meter disabled.");
+                    //Debug.Log("Combo Dropped! Returning to No Rank state. Main meter disabled.");
                 }
 
                 // ===== MAIN COMBO METER VISIBILITY (Ranks D-SS) =====
@@ -447,9 +447,9 @@ namespace _Scripts.Core
                        // MainComboMeterRankIMG.enabled = false;
                 }
 
-                string[] rankNames = { "D", "C", "B", "A", "S", "SS", "SSS" };
-                string rankName = rankIndex >= 0 ? rankNames[rankIndex] : "None";
-                Debug.Log($"Combo Rank Updated: Combo = {combo}, Rank = {rankName}");
+                //string[] rankNames = { "D", "C", "B", "A", "S", "SS", "SSS" };
+                //string rankName = rankIndex >= 0 ? rankNames[rankIndex] : "None";
+                //Debug.Log($"Combo Rank Updated: Combo = {combo}, Rank = {rankName}");
             }
         }
 
@@ -558,7 +558,7 @@ namespace _Scripts.Core
 
         public void TriggerKonamiEffect()
         {
-            Debug.Log("Konami Code Triggered!");
+            //Debug.Log("Konami Code Triggered!");
             Difficulty = Difficulty.KonamiMode;
             PlayerController.Instance.EnableKonamiMode();
         }

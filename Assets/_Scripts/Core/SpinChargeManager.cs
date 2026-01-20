@@ -83,7 +83,7 @@ namespace _Scripts.Core
         {
             _currentCharge += chargeAmount;
             _targetCharge = _currentCharge;
-            Debug.Log($"[SpinChargeManager] OnParticleConverged: +{chargeAmount:F4}, total now: {_currentCharge:F4}, storedSpins: {_storedSpins}");
+            //Debug.Log($"[SpinChargeManager] OnParticleConverged: +{chargeAmount:F4}, total now: {_currentCharge:F4}, storedSpins: {_storedSpins}");
 
             // Check if bar is full
             if (_currentCharge >= 1f)

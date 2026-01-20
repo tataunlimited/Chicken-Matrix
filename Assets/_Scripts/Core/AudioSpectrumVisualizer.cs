@@ -159,7 +159,7 @@ public class AudioSpectrumVisualizer : MonoBehaviour
 
         if (webGLInitialized)
         {
-            Debug.Log("AudioSpectrumVisualizer: WebGL audio spectrum initialized successfully.");
+            //Debug.Log("AudioSpectrumVisualizer: WebGL audio spectrum initialized successfully.");
         }
         else
         {

@@ -172,7 +172,7 @@ namespace _Scripts.Core
             activeSource = fadeInSource;
             crossfadeCoroutine = null;
 
-            Debug.Log($"SoundController: Crossfaded to track {newTrackIndex + 1} (volume: {targetVolume:F2})");
+            //Debug.Log($"SoundController: Crossfaded to track {newTrackIndex + 1} (volume: {targetVolume:F2})");
         }
 
         public void SetVolume(float volume)
@@ -304,8 +304,18 @@ namespace _Scripts.Core
         {
             if (eggCollectSoundClip != null && sfxSource != null)
             {
+                // PlayOneShot uses the pitch at call time, so we set it and use a coroutine to reset
                 sfxSource.pitch = pitch;
                 sfxSource.PlayOneShot(eggCollectSoundClip, sfxVolume);
+                StartCoroutine(ResetPitchAfterDelay(eggCollectSoundClip.length / pitch));
+            }
+        }
+
+        private IEnumerator ResetPitchAfterDelay(float delay)
+        {
+            yield return new WaitForSeconds(delay);
+            if (sfxSource != null)
+            {
                 sfxSource.pitch = 1f;
             }
         }
@@ -432,7 +442,7 @@ namespace _Scripts.Core
             activeSource = fadeInSource;
             crossfadeCoroutine = null;
 
-            Debug.Log($"SoundController: Crossfaded to final track (volume: {finalVolume:F2})");
+            //Debug.Log($"SoundController: Crossfaded to final track (volume: {finalVolume:F2})");
         }
 
         /// <summary>

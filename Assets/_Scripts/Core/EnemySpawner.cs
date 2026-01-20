@@ -375,7 +375,7 @@ namespace _Scripts.Core
             if (schedule == null || schedule.Length == 0) return true;
 
             bool shouldSpawn = Array.IndexOf(schedule, _segmentIntervalCounter) >= 0;
-            Debug.Log($"[Spawner] Combo:{combo} Interval:{_segmentIntervalCounter} Schedule:[{string.Join(",", schedule)}] ShouldSpawn:{shouldSpawn}");
+            //Debug.Log($"[Spawner] Combo:{combo} Interval:{_segmentIntervalCounter} Schedule:[{string.Join(",", schedule)}] ShouldSpawn:{shouldSpawn}");
             return shouldSpawn;
         }
 
@@ -412,17 +412,17 @@ namespace _Scripts.Core
             if (entity is Enemy enemy && _aliveEnemies.Contains(enemy))
             {
                 _aliveEnemies.Remove(enemy);
-                Debug.Log("enemy Destroyed"+ enemy.name);
+                //Debug.Log("enemy Destroyed"+ enemy.name);
             }
             else if (entity is Ally ally && _aliveAllies.Contains(ally))
             {
                 _aliveAllies.Remove(ally);
-                Debug.Log("ally Destroyed"+ ally.name);
+                //Debug.Log("ally Destroyed"+ ally.name);
             }
             else if (entity is Neutral neutral && _aliveNeutrals.Contains(neutral))
             {
                 _aliveNeutrals.Remove(neutral);
-                Debug.Log("neutral Destroyed"+ neutral.name);
+                //Debug.Log("neutral Destroyed"+ neutral.name);
             }
         }
 
@@ -496,7 +496,7 @@ namespace _Scripts.Core
         /// </summary>
         public void RevealAllEntities()
         {
-            Debug.Log($"RevealAllEntities called. Enemies: {_aliveEnemies.Count}, Allies: {_aliveAllies.Count}, Neutrals: {_aliveNeutrals.Count}");
+            //Debug.Log($"RevealAllEntities called. Enemies: {_aliveEnemies.Count}, Allies: {_aliveAllies.Count}, Neutrals: {_aliveNeutrals.Count}");
 
             // Reveal all enemies
             foreach (var enemy in _aliveEnemies)

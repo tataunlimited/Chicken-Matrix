@@ -1,0 +1,68 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &7054055466372191904
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1181401896223069565}
+  - component: {fileID: 2316371789102285868}
+  m_Layer: 0
+  m_Name: _GameManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1181401896223069565
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7054055466372191904}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 1.3714, y: 0.61269, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2316371789102285868
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7054055466372191904}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 48cef25a186ad1c4a84228aa177fb21a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GameManager
+  interval: 1
+  combo: 1
+  enemiesDestroyed: 0
+  comboText: {fileID: 0}
+  MainComboMeterRankIMG: {fileID: 0}
+  SSSComboMeterRankIMG: {fileID: 0}
+  fadeToBlack: {fileID: 0}
+  comboRankSprites:
+  - {fileID: 21300000, guid: cff7f7f3264535b4bb3439495e1a2e2f, type: 3}
+  - {fileID: 1488803977469297160, guid: 6bce84f0771638c418da058b57dde434, type: 3}
+  - {fileID: 3044075294750395999, guid: 61ed549321ba36c47907469e5e2e4577, type: 3}
+  - {fileID: -4203994416600117226, guid: 79e78dce2bbd7a6438cb2f487400ef93, type: 3}
+  - {fileID: 21300000, guid: cd5f698f2bec3ab4bbd319e737d37a1c, type: 3}
+  - {fileID: 21300000, guid: b8e8311301e9473479214a863fcc5d8e, type: 3}
+  - {fileID: 21300000, guid: 85459b5834737aa4c9a5e2ed3c326088, type: 3}
+  baseShakeDuration: 1
+  baseShakeMagnitude: 0.5
+  miniShakeDuration: 0.25
+  miniShakeMagnitude: 0.3
+  pulseDuration: 0.15
+  pulseScale: 2
+  rankUpExplosionPrefab: {fileID: 7613550348212769754, guid: c89669a62def0da4bbf43007249ec5b3, type: 3}

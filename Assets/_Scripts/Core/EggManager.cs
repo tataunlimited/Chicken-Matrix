@@ -42,10 +42,10 @@ namespace _Scripts.Core
         [Tooltip("Text colors for multiplier display: x1, x2, x3, x4 (index 0-3)")]
         [SerializeField] private Color[] multiplierTextColors = new Color[]
         {
-            new Color(1f, 1f, 1f, 1f),       // x1 - White
-            new Color(0.5f, 1f, 0.5f, 1f),   // x2 - Light green
-            new Color(1f, 0.8f, 0f, 1f),     // x3 - Orange-yellow
-            new Color(1f, 0.3f, 0.3f, 1f)    // x4 - Red
+            new Color(0.7f, 0.7f, 0.7f, 1f), // x1 - Gray
+            new Color(0f, 1f, 0f, 1f),       // x2 - Bright green
+            new Color(1f, 0.5f, 0f, 1f),     // x3 - Orange
+            new Color(1f, 0f, 0f, 1f)        // x4 - Bright red
         };
         [SerializeField] private int eggParticleBurstCount = 20;
 
@@ -321,8 +321,9 @@ namespace _Scripts.Core
             // Add spin charge
             AddSpinCharge();
 
-            // Play collection sound with pitch based on multiplier level
-            int pitchIndex = Mathf.Min(_currentMultiplierLevel, MultiplierPitches.Length - 1);
+            // Play collection sound with pitch based on multiplier level (use display multiplier for consistency)
+            int displayMult = GetDisplayMultiplier();
+            int pitchIndex = Mathf.Min(displayMult - 1, MultiplierPitches.Length - 1);
             SoundController.Instance?.PlayEggCollectSound(MultiplierPitches[pitchIndex]);
 
             // Destroy the egg
@@ -439,7 +440,7 @@ namespace _Scripts.Core
             // Only spawn egg if no entities were spawned this pulse
             if (EnemySpawner.Instance != null && EnemySpawner.Instance.SpawnedThisPulse)
             {
-                Debug.Log("EggManager: Skipping egg spawn - entities spawned this pulse");
+                //Debug.Log("EggManager: Skipping egg spawn - entities spawned this pulse");
                 return;
             }
 
@@ -493,7 +494,7 @@ namespace _Scripts.Core
             // Beat window is centered on the pulse: half before, half after
             StartCoroutine(StartBeatWindowBeforePulse());
 
-            Debug.Log($"EggManager: Spawned egg at angle {angle * Mathf.Rad2Deg:F1}° on ring radius {ringRadius:F1}");
+            //Debug.Log($"EggManager: Spawned egg at angle {angle * Mathf.Rad2Deg:F1}° on ring radius {ringRadius:F1}");
         }
 
         /// <summary>
@@ -523,11 +524,13 @@ namespace _Scripts.Core
                 int displayMultiplier = GetDisplayMultiplier();
                 multiplierText.text = $"x{displayMultiplier}";
 
-                // Set color based on multiplier level
+                // Set color based on multiplier level - disable gradient and set solid color
                 int colorIndex = Mathf.Min(displayMultiplier - 1, multiplierTextColors.Length - 1);
                 if (multiplierTextColors != null && multiplierTextColors.Length > 0)
                 {
-                    multiplierText.color = multiplierTextColors[colorIndex];
+                    Color targetColor = multiplierTextColors[colorIndex];
+                    multiplierText.enableVertexGradient = false;
+                    multiplierText.color = targetColor;
                 }
             }
 

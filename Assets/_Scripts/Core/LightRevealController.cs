@@ -30,7 +30,7 @@ namespace _Scripts.Core
             if (_spriteRenderer != null && _spriteRenderer.sprite != null)
             {
                 _spriteMask.sprite = _spriteRenderer.sprite;
-                Debug.Log($"LightRevealController: Copied sprite '{_spriteRenderer.sprite.name}' to SpriteMask");
+                //Debug.Log($"LightRevealController: Copied sprite '{_spriteRenderer.sprite.name}' to SpriteMask");
             }
             else
             {
@@ -50,8 +50,8 @@ namespace _Scripts.Core
             _spriteMask.frontSortingOrder = 10000; // Very high to catch everything
             _spriteMask.backSortingOrder = 0; // Start from 0
 
-            Debug.Log($"LightRevealController: Initialized. Light is {(isLightOn ? "ON" : "OFF")}");
-            Debug.Log($"LightRevealController: SpriteMask range - Back: {_spriteMask.backSortingOrder}, Front: {_spriteMask.frontSortingOrder}");
+            //Debug.Log($"LightRevealController: Initialized. Light is {(isLightOn ? "ON" : "OFF")}");
+            //Debug.Log($"LightRevealController: SpriteMask range - Back: {_spriteMask.backSortingOrder}, Front: {_spriteMask.frontSortingOrder}");
         }
 
         void Start()
@@ -61,13 +61,13 @@ namespace _Scripts.Core
             // Check sorting order vs blackout overlay
             if (_spriteRenderer != null)
             {
-                Debug.Log($"LightRevealController: Sprite sorting layer '{_spriteRenderer.sortingLayerName}', order {_spriteRenderer.sortingOrder}");
-                Debug.Log($"LightRevealController: SpriteMask should affect sorting orders {_spriteMask.backSortingOrder} to {_spriteMask.frontSortingOrder}");
-                Debug.Log($"LightRevealController: Triangle position: {transform.position}");
+                //Debug.Log($"LightRevealController: Sprite sorting layer '{_spriteRenderer.sortingLayerName}', order {_spriteRenderer.sortingOrder}");
+                //Debug.Log($"LightRevealController: SpriteMask should affect sorting orders {_spriteMask.backSortingOrder} to {_spriteMask.frontSortingOrder}");
+                //Debug.Log($"LightRevealController: Triangle position: {transform.position}");
             }
 
             // Debug check - is the mask enabled?
-            Debug.Log($"LightRevealController: SpriteMask enabled: {_spriteMask.enabled}, has sprite: {_spriteMask.sprite != null}");
+            //Debug.Log($"LightRevealController: SpriteMask enabled: {_spriteMask.enabled}, has sprite: {_spriteMask.sprite != null}");
         }
 
         void Update()
