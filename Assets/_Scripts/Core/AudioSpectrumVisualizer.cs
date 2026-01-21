@@ -1,9 +1,6 @@
 using UnityEngine;
 using System.Collections;
 using _Scripts.Core;
-#if UNITY_WEBGL && !UNITY_EDITOR
-using System.Runtime.InteropServices;
-#endif
 
 /// <summary>
 /// Creates an equalizer bar visualization that reacts to the currently playing music.
@@ -11,24 +8,6 @@ using System.Runtime.InteropServices;
 /// </summary>
 public class AudioSpectrumVisualizer : MonoBehaviour
 {
-#if UNITY_WEBGL && !UNITY_EDITOR
-    [DllImport("__Internal")]
-    private static extern bool WebGLAudioSpectrum_Initialize(int fftSize);
-
-    [DllImport("__Internal")]
-    private static extern void WebGLAudioSpectrum_GetSpectrumData(float[] data, int dataLength);
-
-    [DllImport("__Internal")]
-    private static extern int WebGLAudioSpectrum_IsInitialized();
-
-    [DllImport("__Internal")]
-    private static extern void WebGLAudioSpectrum_Reconnect();
-
-    private bool webGLInitialized = false;
-    private float webGLReconnectTimer = 0f;
-    private const float WEBGL_RECONNECT_INTERVAL = 2f;
-#endif
-
     [Header("Audio Analysis")]
     [Tooltip("Number of spectrum samples (must be power of 2: 64, 128, 256, 512, 1024)")]
     [SerializeField] private int spectrumSamples = 512;
@@ -140,33 +119,7 @@ public class AudioSpectrumVisualizer : MonoBehaviour
         {
             Debug.LogWarning("AudioSpectrumVisualizer: SoundController not found. Will retry on Update.");
         }
-
-#if UNITY_WEBGL && !UNITY_EDITOR
-        // Initialize WebGL audio spectrum analysis
-        // Use fftSize of spectrumSamples * 2 because frequencyBinCount = fftSize / 2
-        StartCoroutine(InitializeWebGLAudioDelayed());
-#endif
     }
-
-#if UNITY_WEBGL && !UNITY_EDITOR
-    private IEnumerator InitializeWebGLAudioDelayed()
-    {
-        // Wait a bit for Unity's audio system to initialize
-        yield return new WaitForSeconds(0.5f);
-
-        int fftSize = spectrumSamples * 2;
-        webGLInitialized = WebGLAudioSpectrum_Initialize(fftSize);
-
-        if (webGLInitialized)
-        {
-            //Debug.Log("AudioSpectrumVisualizer: WebGL audio spectrum initialized successfully.");
-        }
-        else
-        {
-            Debug.LogWarning("AudioSpectrumVisualizer: WebGL audio spectrum initialization failed. Will retry periodically.");
-        }
-    }
-#endif
 
     private void InitializeArrays()
     {
@@ -291,25 +244,6 @@ public class AudioSpectrumVisualizer : MonoBehaviour
         // Try to get audio source if we don't have one
         UpdateAudioSourceReference();
 
-#if UNITY_WEBGL && !UNITY_EDITOR
-        // Periodically try to reconnect to new audio sources in WebGL
-        webGLReconnectTimer += Time.deltaTime;
-        if (webGLReconnectTimer >= WEBGL_RECONNECT_INTERVAL)
-        {
-            webGLReconnectTimer = 0f;
-            if (webGLInitialized)
-            {
-                WebGLAudioSpectrum_Reconnect();
-            }
-            else
-            {
-                // Try to initialize again if it failed before
-                int fftSize = spectrumSamples * 2;
-                webGLInitialized = WebGLAudioSpectrum_Initialize(fftSize);
-            }
-        }
-#endif
-
         if (activeAudioSource == null || !activeAudioSource.isPlaying)
         {
             if (debugMode && Time.frameCount % 60 == 0)
@@ -370,21 +304,8 @@ public class AudioSpectrumVisualizer : MonoBehaviour
 
     private void GetSpectrumDataCrossPlatform()
     {
-#if UNITY_WEBGL && !UNITY_EDITOR
-        // Use JavaScript plugin to get spectrum data on WebGL
-        if (webGLInitialized)
-        {
-            WebGLAudioSpectrum_GetSpectrumData(spectrumData, spectrumSamples);
-        }
-        else
-        {
-            // Fallback: try Unity's native method (may return zeros on WebGL)
-            activeAudioSource.GetSpectrumData(spectrumData, 0, fftWindow);
-        }
-#else
-        // Use Unity's native spectrum analysis on other platforms
+        // Use Unity's native spectrum analysis
         activeAudioSource.GetSpectrumData(spectrumData, 0, fftWindow);
-#endif
     }
 
     private void CalculateBarHeights()

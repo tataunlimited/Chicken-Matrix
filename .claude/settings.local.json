@@ -1,7 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "Bash(ls -la \"c:\\\\Users\\\\groun\\\\Desktop\\\\GIT_REPOS\\\\Chicken-Matrix\\\\Assets\\\\ComboMeter\\\\ComboControllingScript\"\" 2>/dev/null || echo \"Directory not found \")"
+      "Bash(ls -la \"c:\\\\Users\\\\groun\\\\Desktop\\\\GIT_REPOS\\\\Chicken-Matrix\\\\Assets\\\\ComboMeter\\\\ComboControllingScript\"\" 2>/dev/null || echo \"Directory not found \")",
+      "Bash(dir /s \"c:\\\\Users\\\\groun\\\\Desktop\\\\GIT_REPOS\\\\Chicken-Matrix\\\\Assets\")",
+      "Read(//c/**)"
     ]
   }
 }
