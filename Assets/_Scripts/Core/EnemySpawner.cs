@@ -406,23 +406,27 @@ namespace _Scripts.Core
 
         private void EnemyDestroyed(MovableEntitiy entity)
         {
-            // Missing any entity causes combo reset; detecting increments enemiesDestroyed
-            GameManager.Instance.UpdateCombo(entity.Detected);
+            // Determine entity type for differentiated handling
+            EntityType entityType = EntityType.Enemy;
+            if (entity is Ally)
+                entityType = EntityType.Ally;
+            else if (entity is Neutral)
+                entityType = EntityType.Neutral;
+
+            // Pass entity type for differentiated combo/reward handling
+            GameManager.Instance.OnEntityDestroyed(entity.Detected, entityType);
 
             if (entity is Enemy enemy && _aliveEnemies.Contains(enemy))
             {
                 _aliveEnemies.Remove(enemy);
-                //Debug.Log("enemy Destroyed"+ enemy.name);
             }
             else if (entity is Ally ally && _aliveAllies.Contains(ally))
             {
                 _aliveAllies.Remove(ally);
-                //Debug.Log("ally Destroyed"+ ally.name);
             }
             else if (entity is Neutral neutral && _aliveNeutrals.Contains(neutral))
             {
                 _aliveNeutrals.Remove(neutral);
-                //Debug.Log("neutral Destroyed"+ neutral.name);
             }
         }
 

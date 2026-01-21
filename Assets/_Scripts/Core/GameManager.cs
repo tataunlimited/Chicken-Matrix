@@ -8,8 +8,14 @@ using UnityEngine.UI;
 
 namespace _Scripts.Core
 {
-    
+
     public enum Difficulty {Easy, Hard, KonamiMode}
+
+    /// <summary>
+    /// Entity types for differentiated detection/hit handling
+    /// </summary>
+    public enum EntityType { Ally, Enemy, Neutral }
+
     public class GameManager : MonoBehaviour
     {
 
@@ -44,6 +50,11 @@ namespace _Scripts.Core
 
         [Header("Rank Up Effects")]
         [SerializeField] private GameObject rankUpExplosionPrefab;
+
+        [Header("Victory Fireworks")]
+        [SerializeField] private EggFireworkController fireworkController;
+        [Tooltip("Duration over which all fireworks will be launched")]
+        [SerializeField] private float fireworkLaunchDuration = 6f;
 
         private Camera mainCamera;
         private Coroutine comboPulseCoroutine;
@@ -168,28 +179,65 @@ namespace _Scripts.Core
         /// </summary>
         public void UpdateCombo(bool entityDetected, int comboValue = 1)
         {
+            // Legacy method - calls new method with Enemy as default type for backwards compatibility
+            OnEntityDestroyed(entityDetected, EntityType.Enemy, comboValue);
+        }
+
+        /// <summary>
+        /// Called when an entity is destroyed with entity type information for differentiated handling.
+        /// - Ally detected: rewards egg value (1x current multiplier)
+        /// - Enemy detected: no egg reward
+        /// - Neutral detected: no egg reward
+        /// - Ally hit: loses 1 spin charge (no egg value loss)
+        /// - Enemy hit: loses 50% egg value
+        /// - Neutral hit: loses 25% egg value
+        /// </summary>
+        public void OnEntityDestroyed(bool entityDetected, EntityType entityType, int comboValue = 1)
+        {
             if (entityDetected)
             {
-                // Track enemy destruction separately (combo is time-based now)
+                // Track entity destruction
                 enemiesDestroyed += comboValue;
                 MiniShakeScreen();
 
                 // Punch volume on successful detection
                 SoundController.Instance?.PunchVolume();
+
+                // Ally detection rewards egg value (1x current egg multiplier)
+                if (entityType == EntityType.Ally)
+                {
+                    EggManager.Instance?.OnAllyDetected();
+                }
+                // Enemy and Neutral detections don't reward egg value
             }
             else
             {
-                // Entity missed - this causes combo failure/reset
-                if (combo > 1)
+                // Entity missed - handle differently based on entity type
+                bool shouldResetCombo = true;
+
+                if (entityType == EntityType.Ally)
+                {
+                    // Ally hit: lose 1 spin charge, but NOT egg value
+                    SpinChargeManager.Instance?.ConsumeCharge();
+                }
+                else if (entityType == EntityType.Enemy)
+                {
+                    // Enemy hit: lose 50% egg value (existing behavior)
+                    EggManager.Instance?.OnEnemyHit();
+                }
+                else if (entityType == EntityType.Neutral)
+                {
+                    // Neutral hit: lose 25% egg value
+                    EggManager.Instance?.OnNeutralHit();
+                }
+
+                if (shouldResetCombo && combo > 1)
                 {
                     ShakeScreen(combo);
                     EnemySpawner.Instance.ClearAllEntities();
 
                     // Play combo fail sound
                     SoundController.Instance?.PlayComboFailSound();
-
-                    // Notify egg manager of combo fail (halves/resets egg score)
-                    EggManager.Instance?.OnEntityComboFail();
                 }
 
                 // Hard mode: reset to 1
@@ -260,6 +308,16 @@ namespace _Scripts.Core
             if (SoundController.Instance != null)
             {
                 trackDuration = SoundController.Instance.PlayFinalTrack();
+            }
+
+            // Launch victory fireworks based on egg score
+            if (fireworkController != null && EggManager.Instance != null)
+            {
+                int fireworkCount = EggManager.Instance.EggScore / 10;
+                if (fireworkCount > 0)
+                {
+                    fireworkController.StartFireworks(fireworkCount, fireworkLaunchDuration);
+                }
             }
 
             // Start cycling radar colors

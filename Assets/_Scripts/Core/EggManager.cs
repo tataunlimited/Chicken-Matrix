@@ -354,9 +354,35 @@ namespace _Scripts.Core
         }
 
         /// <summary>
-        /// Called when player fails on an entity (combo reset) - halves egg score
+        /// Called when player fails on an entity (combo reset) - legacy method, now unused
+        /// Kept for backwards compatibility
         /// </summary>
         public void OnEntityComboFail()
+        {
+            // This method is now replaced by specific OnEnemyHit/OnNeutralHit methods
+            // Default to enemy hit behavior for backwards compatibility
+            OnEnemyHit();
+        }
+
+        /// <summary>
+        /// Called when an ally is successfully detected.
+        /// Rewards egg value equal to 1x current egg multiplier.
+        /// </summary>
+        public void OnAllyDetected()
+        {
+            // Get current display multiplier (x1, x2, x3, or x4)
+            int multiplierValue = GetDisplayMultiplier();
+            _eggScore += multiplierValue;
+
+            UpdateUI();
+            PulseScoreText();
+        }
+
+        /// <summary>
+        /// Called when an enemy hits the player (not detected).
+        /// Loses 50% egg value (Hard mode: loses all).
+        /// </summary>
+        public void OnEnemyHit()
         {
             if (GameManager.Difficulty == Difficulty.Hard)
             {
@@ -367,6 +393,30 @@ namespace _Scripts.Core
             {
                 // Easy mode: halve the score
                 _eggScore = _eggScore / 2;
+            }
+
+            // Reset multiplier
+            _consecutiveEggs = 0;
+            UpdateMultiplierLevel();
+
+            UpdateUI();
+        }
+
+        /// <summary>
+        /// Called when a neutral hits the player (not detected).
+        /// Loses 25% egg value.
+        /// </summary>
+        public void OnNeutralHit()
+        {
+            if (GameManager.Difficulty == Difficulty.Hard)
+            {
+                // Hard mode: lose 50% instead of 25%
+                _eggScore = _eggScore / 2;
+            }
+            else
+            {
+                // Easy mode: lose 25%
+                _eggScore = _eggScore * 3 / 4;
             }
 
             // Reset multiplier
