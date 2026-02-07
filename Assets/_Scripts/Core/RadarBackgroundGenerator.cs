@@ -59,6 +59,25 @@ namespace _Scripts.Core
         private float currentScaleMultiplier = 1f;
         public float CurrentScaleMultiplier => currentScaleMultiplier;
 
+        /// <summary>
+        /// Gets the base radii of all rings (before pulse scaling)
+        /// </summary>
+        public float[] RingRadii => ringBaseRadii;
+
+        /// <summary>
+        /// Gets the number of rings
+        /// </summary>
+        public int RingCount => ringCount;
+
+        /// <summary>
+        /// Gets the maximum radius of the radar
+        /// </summary>
+        public float MaxRadius => maxRadius;
+
+        // Victory color cycling
+        private bool isVictoryColorCycling = false;
+        private int victoryColorIndex = 0;
+
         public static RadarBackgroundGenerator Instance;
 
         private void Awake()
@@ -321,6 +340,14 @@ namespace _Scripts.Core
         {
             comboColor = gridColor;
             if (comboGridColors == null || comboGridColors.Length < 10) return false;
+
+            // During victory sequence, use the cycling color
+            if (isVictoryColorCycling)
+            {
+                comboColor = comboGridColors[victoryColorIndex];
+                return true;
+            }
+
             if (GameManager.Instance == null) return false;
 
             int comboValue = Mathf.Max(1, GameManager.Instance.combo);
@@ -337,6 +364,46 @@ namespace _Scripts.Core
             if (TryGetComboGridColor(out Color comboColor))
             {
                 return comboColor;
+            }
+            return glowColor;
+        }
+
+        /// <summary>
+        /// Start cycling through all combo colors on each pulse (for victory sequence)
+        /// </summary>
+        public void StartVictoryColorCycle()
+        {
+            isVictoryColorCycling = true;
+            victoryColorIndex = 0;
+        }
+
+        /// <summary>
+        /// Stop victory color cycling
+        /// </summary>
+        public void StopVictoryColorCycle()
+        {
+            isVictoryColorCycling = false;
+        }
+
+        /// <summary>
+        /// Advance to the next color in the victory cycle. Called on each pulse.
+        /// </summary>
+        public void CycleVictoryColor()
+        {
+            if (!isVictoryColorCycling || comboGridColors == null || comboGridColors.Length == 0)
+                return;
+
+            victoryColorIndex = (victoryColorIndex + 1) % comboGridColors.Length;
+        }
+
+        /// <summary>
+        /// Gets the current victory cycle color (for use during victory sequence)
+        /// </summary>
+        public Color GetVictoryCycleColor()
+        {
+            if (comboGridColors != null && comboGridColors.Length > 0)
+            {
+                return comboGridColors[victoryColorIndex];
             }
             return glowColor;
         }

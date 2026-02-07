@@ -9,7 +9,7 @@ using UnityEngine.UI;
 namespace _Scripts.Core
 {
     
-    public enum Difficulty {Easy, Hard}
+    public enum Difficulty {Easy, Hard, KonamiMode}
     public class GameManager : MonoBehaviour
     {
 
@@ -49,6 +49,10 @@ namespace _Scripts.Core
         private float currentShakeMagnitude;
         private int currentRankIndex = -1;
 
+        // Neutral barrage auto-combo timer (combo 51-60)
+        private Coroutine neutralBarrageCoroutine;
+        private const float NeutralBarrageComboInterval = 1.6f;
+
         public static GameManager Instance; 
         public static Difficulty Difficulty = Difficulty.Easy;
         
@@ -77,10 +81,18 @@ namespace _Scripts.Core
         
         private void Start()
         {
+            Cursor.lockState = CursorLockMode.Confined;
             StartCoroutine(UpdateInterval());
         }
 
-
+        private void Update()
+        {
+            if (Input.GetKeyDown(KeyCode.Space))
+            {
+                //increase combo by 10 for testing
+                //UpdateCombo(true, 10);
+            }
+        }
 
         IEnumerator UpdateInterval()
         {
@@ -141,11 +153,11 @@ namespace _Scripts.Core
             comboPulseCoroutine = null;
         }
 
-        public void UpdateCombo(bool entityDetected)
+        public void UpdateCombo(bool entityDetected, int comboValue = 1)
         {
             if (entityDetected)
             {
-                combo++;
+                combo += comboValue;
                 MiniShakeScreen();
                 UpdateComboRankDisplay();
             }
@@ -156,9 +168,33 @@ namespace _Scripts.Core
                 {
                     ShakeScreen(combo);
                     EnemySpawner.Instance.ClearAllEntities();
+
+                    // Play combo fail sound
+                    SoundController.Instance?.PlayComboFailSound();
+                    
+                    // Notify egg manager of combo fail (halves/resets egg score)
+                    EggManager.Instance?.OnEntityComboFail();
+
                 }
-                combo = Difficulty == Difficulty.Hard ? 1 : Mathf.Max(combo - 10, 1);
+                // Hard mode: reset to 1
+                // Easy mode: snap to start of previous tier (1, 11, 21, 31, etc.) to maintain music sync
+                if (Difficulty == Difficulty.Hard)
+                {
+                    combo = 1;
+                }
+                else
+                {
+                    // Calculate previous tier start: floor to nearest 10, then +1
+                    // e.g., combo 25 -> tier start 21, combo 15 -> tier start 11, combo 5 -> tier start 1
+                    int currentTier = (combo - 1) / 10; // 0-based tier index
+                    int previousTierStart = Mathf.Max((currentTier - 1) * 10 + 1, 1);
+                    combo = previousTierStart;
+                }
                 UpdateComboRankDisplay();
+
+                // Sync music and spawner to new combo position
+                SoundController.Instance?.SetTrackTimeForCombo(combo);
+                EnemySpawner.Instance?.SyncToCombo(combo);
             }
 
             comboText.text = combo.ToString();
@@ -176,19 +212,148 @@ namespace _Scripts.Core
                 }
             }
 
-            if (combo >= 101)
+            // Check if we need to start/stop neutral barrage auto-combo
+            UpdateNeutralBarrageState();
+
+            if (combo >= 100 && !_gameEnded)
             {
-                StopAllCoroutines();
-                StartCoroutine(EndGameCoroutine());
+
+                switch (Difficulty)
+                {
+                    case Difficulty.Easy:
+                        PlayerPrefs.SetInt("Trophy_Easy", 1);
+                        break;
+                    case Difficulty.Hard:
+                        PlayerPrefs.SetInt("Trophy_Hard", 1);
+                        break;
+                    case Difficulty.KonamiMode:
+                        PlayerPrefs.SetInt("Trophy_Konami", 1);
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+
+                StartCoroutine(VictorySequence());
             }
         }
-        private IEnumerator EndGameCoroutine()
+
+        private IEnumerator VictorySequence()
         {
             _gameEnded = true;
+
+            // Save egg high score before transitioning
+            if (EggManager.Instance != null)
+                EggManager.Instance.TrySaveHighScore();
+
+            // Stop spawning new entities
+            EnemySpawner.Instance.StopSpawning();
+
+            // Trigger rank up effects (explosion particles)
+            OnRankUp();
+
+            // Destroy all entities on the board with particles
+            EnemySpawner.Instance.DestroyAllEntitiesWithParticles();
+
+            // Start the final track and get its duration
+            float trackDuration = 0f;
+            if (SoundController.Instance != null)
+            {
+                trackDuration = SoundController.Instance.PlayFinalTrack();
+            }
+
+            // Start cycling radar colors
+            if (RadarBackgroundGenerator.Instance != null)
+            {
+                RadarBackgroundGenerator.Instance.StartVictoryColorCycle();
+            }
+
+            // Start the credits sequence - it should complete 3 seconds before track ends
+            // Credits will handle its own fade-in delay and scroll timing
+            float creditsAvailableTime = Mathf.Max(0f, trackDuration - 3f);
+            if (CreditsController.Instance != null && creditsAvailableTime > 0f)
+            {
+                CreditsController.Instance.StartCredits(creditsAvailableTime);
+            }
+
+            // Continue pulsing the radar and cycling colors while the final track plays
+            // Wait until 3 seconds before the track ends to start fading
+            float fadeStartDelay = Mathf.Max(0f, trackDuration - 3f);
+
+            float elapsed = 0f;
+            while (elapsed < fadeStartDelay)
+            {
+                elapsed += interval;
+                yield return new WaitForSeconds(interval / 2);
+
+                // Pulse radar on beat
+                if (RadarBackgroundGenerator.Instance != null)
+                {
+                    RadarBackgroundGenerator.Instance.CycleVictoryColor();
+                    RadarBackgroundGenerator.Instance.Pulse();
+                }
+
+                yield return new WaitForSeconds(interval / 2);
+            }
+
+            // Stop color cycling
+            if (RadarBackgroundGenerator.Instance != null)
+            {
+                RadarBackgroundGenerator.Instance.StopVictoryColorCycle();
+            }
+
+            // Fade to black over the final 3 seconds
             fadeToBlack.gameObject.SetActive(true);
-            fadeToBlack.DOFade(1, 1.5f);
-            yield return new WaitForSeconds(2);
+            fadeToBlack.DOFade(1, 3f);
+            yield return new WaitForSeconds(3.5f);
+
+            // Transition to chicken room
             SceneManager.LoadScene("ChickenScene");
+        }
+
+        /// <summary>
+        /// Check if we're in the neutral barrage phase and manage the auto-combo timer.
+        /// </summary>
+        private void UpdateNeutralBarrageState()
+        {
+            bool inNeutralBarrage = combo >= 51 && combo <= 60;
+
+            if (inNeutralBarrage && neutralBarrageCoroutine == null)
+            {
+                // Start auto-combo timer
+                neutralBarrageCoroutine = StartCoroutine(NeutralBarrageCoroutine());
+            }
+            else if (!inNeutralBarrage && neutralBarrageCoroutine != null)
+            {
+                // Stop auto-combo timer
+                StopCoroutine(neutralBarrageCoroutine);
+                neutralBarrageCoroutine = null;
+            }
+        }
+
+        private IEnumerator NeutralBarrageCoroutine()
+        {
+            while (combo >= 51 && combo <= 60)
+            {
+                yield return new WaitForSeconds(NeutralBarrageComboInterval);
+
+                // Only increment if still in barrage range
+                if (combo >= 51 && combo < 61)
+                {
+                    combo++;
+                    comboText.text = combo.ToString();
+                    PulseComboText();
+                    MiniShakeScreen();
+                    UpdateComboRankDisplay();
+
+                    if (SoundController.Instance != null)
+                    {
+                        SoundController.Instance.UpdateMusicForCombo(combo);
+                        SoundController.Instance.PunchVolume();
+                    }
+                }
+            }
+
+            neutralBarrageCoroutine = null;
         }
 
         private void UpdateComboRankDisplay()
@@ -279,6 +444,9 @@ namespace _Scripts.Core
 
         private void OnRankUp()
         {
+            // Play rank-up sound
+            SoundController.Instance?.PlayRankUpSound();
+
             // Spawn explosion at origin with radar grid color
             if (rankUpExplosionPrefab != null)
             {
@@ -375,6 +543,13 @@ namespace _Scripts.Core
 
             mainCamera.transform.localPosition = originalCameraPosition;
             shakeCoroutine = null;
+        }
+
+        public void TriggerKonamiEffect()
+        {
+            Debug.Log("Konami Code Triggered!");
+            Difficulty = Difficulty.KonamiMode;
+            PlayerController.Instance.EnableKonamiMode();
         }
     }
     #endregion

@@ -1,0 +1,60 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &9179526645816676891
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5948077692673936201}
+  - component: {fileID: 7939034059679443134}
+  m_Layer: 0
+  m_Name: OBJ_EggManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5948077692673936201
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9179526645816676891}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7939034059679443134
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9179526645816676891}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3ba555c0eb6a715408bac14f53b952db, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::_Scripts.Core.EggManager
+  eggPrefab: {fileID: 6098816174500468098, guid: f6899053fc66ad441803911d800681d2, type: 3}
+  clickDetectionRadius: 1
+  beatWindowTime: 0.15
+  eggExplosionPrefab: {fileID: 0}
+  eggParticleColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  eggParticleBurstCount: 20
+  eggScoreText: {fileID: 0}
+  multiplierText: {fileID: 0}
+  multiplierContainer: {fileID: 0}
+  textPulseDuration: 0.15
+  textPulseScale: 1.5
+  baseSpinChargePerEgg: 0.1
+  spinChargePerMultiplierLevel: 0.1
+  maxSpinChargePerEgg: 0.4
