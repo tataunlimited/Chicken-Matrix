@@ -40,7 +40,7 @@ public class KonamiCodeCheat : MonoBehaviour
                 // Correct key pressed: Move to next step
                 _currentIndex++;
                 
-                Debug.Log($"Konami Code Progress: {_currentIndex}/{konamiCode.Count}");
+                //Debug.Log($"Konami Code Progress: {_currentIndex}/{konamiCode.Count}");
             }
             else
             {

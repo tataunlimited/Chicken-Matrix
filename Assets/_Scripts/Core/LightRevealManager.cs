@@ -82,9 +82,9 @@ namespace _Scripts.Core
             // Position it
             UpdateBlackoutOverlaySize();
 
-            Debug.Log($"LightRevealManager: Blackout overlay created at sorting order {blackoutSortingOrder}");
-            Debug.Log($"LightRevealManager: Mask interaction set to VisibleOutsideMask");
-            Debug.Log($"LightRevealManager: Blackout position will be: {_blackoutOverlay.transform.position}");
+            //Debug.Log($"LightRevealManager: Blackout overlay created at sorting order {blackoutSortingOrder}");
+            //Debug.Log($"LightRevealManager: Mask interaction set to VisibleOutsideMask");
+            //Debug.Log($"LightRevealManager: Blackout position will be: {_blackoutOverlay.transform.position}");
         }
 
         private void UpdateBlackoutOverlaySize()

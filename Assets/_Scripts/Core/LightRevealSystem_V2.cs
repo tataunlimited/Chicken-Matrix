@@ -75,7 +75,7 @@ namespace _Scripts.Core
             _maskRenderTexture.name = "Light Mask RT";
             _maskCamera.targetTexture = _maskRenderTexture;
 
-            Debug.Log("LightRevealSystem_V2: Mask camera created");
+            //Debug.Log("LightRevealSystem_V2: Mask camera created");
         }
 
         private void SetupBlackoutOverlay()
@@ -101,7 +101,7 @@ namespace _Scripts.Core
 
             UpdateOverlaySize();
 
-            Debug.Log("LightRevealSystem_V2: Blackout overlay created");
+            //Debug.Log("LightRevealSystem_V2: Blackout overlay created");
         }
 
         private void UpdateCameraSettings()

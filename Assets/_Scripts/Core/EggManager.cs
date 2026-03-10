@@ -39,6 +39,14 @@ namespace _Scripts.Core
             new Color(1f, 0.5f, 0f, 1f),    // x4 - Orange
             new Color(1f, 0.2f, 0f, 1f)     // x4+ - Red-orange
         };
+        [Tooltip("Text colors for multiplier display: x1, x2, x3, x4 (index 0-3)")]
+        [SerializeField] private Color[] multiplierTextColors = new Color[]
+        {
+            new Color(0.7f, 0.7f, 0.7f, 1f), // x1 - Gray
+            new Color(0f, 1f, 0f, 1f),       // x2 - Bright green
+            new Color(1f, 0.5f, 0f, 1f),     // x3 - Orange
+            new Color(1f, 0f, 0f, 1f)        // x4 - Bright red
+        };
         [SerializeField] private int eggParticleBurstCount = 20;
 
         [Header("UI References")]
@@ -51,8 +59,10 @@ namespace _Scripts.Core
         [SerializeField] private float textPulseScale = 1.5f;
 
         [Header("Spin Charge Integration")]
-        [Tooltip("Fixed spin charge percentage per egg collected")]
-        [SerializeField] private float spinChargePerEgg = 0.25f;
+        [Tooltip("Base spin charge percentage per egg collected")]
+        [SerializeField] private float baseSpinChargePerEgg = 0.10f;
+        [Tooltip("Additional spin charge per multiplier level")]
+        [SerializeField] private float spinChargePerMultiplierLevel = 0.05f;
 
         // Scoring
         private int _eggScore;
@@ -74,6 +84,9 @@ namespace _Scripts.Core
 
         // Multiplier values for each consecutive egg level
         private static readonly int[] MultiplierAdditions = { 1, 2, 4, 8, 16 };
+
+        // Pitch values for each multiplier level: x1=1.0, x2=1.25, x3=1.5, x4=2.0
+        private static readonly float[] MultiplierPitches = { 1.0f, 1.25f, 1.5f, 2.0f };
 
         // High score persistence key
         private const string HighScoreKey = "EggHighScore";
@@ -308,8 +321,10 @@ namespace _Scripts.Core
             // Add spin charge
             AddSpinCharge();
 
-            // Play collection sound
-            SoundController.Instance?.PlayEggCollectSound();
+            // Play collection sound with pitch based on multiplier level (use display multiplier for consistency)
+            int displayMult = GetDisplayMultiplier();
+            int pitchIndex = Mathf.Min(displayMult - 1, MultiplierPitches.Length - 1);
+            SoundController.Instance?.PlayEggCollectSound(MultiplierPitches[pitchIndex]);
 
             // Destroy the egg
             _currentEgg.Collect();
@@ -324,6 +339,7 @@ namespace _Scripts.Core
 
         /// <summary>
         /// Called when an egg is missed (beat window passed without collection)
+        /// Letting an egg expire does NOT reset the multiplier - only misclicks reset it
         /// </summary>
         private void OnEggMissed()
         {
@@ -333,19 +349,40 @@ namespace _Scripts.Core
             _currentEgg.Miss();
             _currentEgg = null;
 
-            // Reset multiplier but keep score
-            _consecutiveEggs = 0;
-            UpdateMultiplierLevel();
-
-            // Update UI
-            UpdateUI();
+            // DO NOT reset multiplier - only misclicks reset the multiplier
             // Next egg will spawn on next pulse via OnBeatPulse()
         }
 
         /// <summary>
-        /// Called when player fails on an entity (combo reset) - halves egg score
+        /// Called when player fails on an entity (combo reset) - legacy method, now unused
+        /// Kept for backwards compatibility
         /// </summary>
         public void OnEntityComboFail()
+        {
+            // This method is now replaced by specific OnEnemyHit/OnNeutralHit methods
+            // Default to enemy hit behavior for backwards compatibility
+            OnEnemyHit();
+        }
+
+        /// <summary>
+        /// Called when an ally is successfully detected.
+        /// Rewards egg value equal to 1x current egg multiplier.
+        /// </summary>
+        public void OnAllyDetected()
+        {
+            // Get current display multiplier (x1, x2, x3, or x4)
+            int multiplierValue = GetDisplayMultiplier();
+            _eggScore += multiplierValue;
+
+            UpdateUI();
+            PulseScoreText();
+        }
+
+        /// <summary>
+        /// Called when an enemy hits the player (not detected).
+        /// Loses 50% egg value (Hard mode: loses all).
+        /// </summary>
+        public void OnEnemyHit()
         {
             if (GameManager.Difficulty == Difficulty.Hard)
             {
@@ -356,6 +393,30 @@ namespace _Scripts.Core
             {
                 // Easy mode: halve the score
                 _eggScore = _eggScore / 2;
+            }
+
+            // Reset multiplier
+            _consecutiveEggs = 0;
+            UpdateMultiplierLevel();
+
+            UpdateUI();
+        }
+
+        /// <summary>
+        /// Called when a neutral hits the player (not detected).
+        /// Loses 25% egg value.
+        /// </summary>
+        public void OnNeutralHit()
+        {
+            if (GameManager.Difficulty == Difficulty.Hard)
+            {
+                // Hard mode: lose 50% instead of 25%
+                _eggScore = _eggScore / 2;
+            }
+            else
+            {
+                // Easy mode: lose 25%
+                _eggScore = _eggScore * 3 / 4;
             }
 
             // Reset multiplier
@@ -377,14 +438,16 @@ namespace _Scripts.Core
 
         /// <summary>
         /// Add spin charge based on current multiplier
-        /// Base: 10% + 10% per multiplier level, max 40%
+        /// Base: 10% + 5% per multiplier level (x1=10%, x2=15%, x3=20%, x4=25%)
         /// </summary>
         private void AddSpinCharge()
         {
             if (SpinChargeManager.Instance == null) return;
 
-            // Fixed 25% charge per egg collected
-            SpinChargeManager.Instance.OnParticleConverged(spinChargePerEgg);
+            // Calculate charge: 10% base + 5% per multiplier level
+            int displayMultiplier = GetDisplayMultiplier();
+            float chargeAmount = baseSpinChargePerEgg + (spinChargePerMultiplierLevel * (displayMultiplier - 1));
+            SpinChargeManager.Instance.OnParticleConverged(chargeAmount);
         }
 
         /// <summary>
@@ -427,7 +490,7 @@ namespace _Scripts.Core
             // Only spawn egg if no entities were spawned this pulse
             if (EnemySpawner.Instance != null && EnemySpawner.Instance.SpawnedThisPulse)
             {
-                Debug.Log("EggManager: Skipping egg spawn - entities spawned this pulse");
+                //Debug.Log("EggManager: Skipping egg spawn - entities spawned this pulse");
                 return;
             }
 
@@ -481,7 +544,7 @@ namespace _Scripts.Core
             // Beat window is centered on the pulse: half before, half after
             StartCoroutine(StartBeatWindowBeforePulse());
 
-            Debug.Log($"EggManager: Spawned egg at angle {angle * Mathf.Rad2Deg:F1}° on ring radius {ringRadius:F1}");
+            //Debug.Log($"EggManager: Spawned egg at angle {angle * Mathf.Rad2Deg:F1}° on ring radius {ringRadius:F1}");
         }
 
         /// <summary>
@@ -507,26 +570,34 @@ namespace _Scripts.Core
 
             if (multiplierText != null)
             {
-                // Display multiplier as x1, x2, x4 (capped at x4 for display)
+                // Display multiplier as x1, x2, x3, x4 (capped at x4 for display)
                 int displayMultiplier = GetDisplayMultiplier();
                 multiplierText.text = $"x{displayMultiplier}";
+
+                // Set color based on multiplier level - disable gradient and set solid color
+                int colorIndex = Mathf.Min(displayMultiplier - 1, multiplierTextColors.Length - 1);
+                if (multiplierTextColors != null && multiplierTextColors.Length > 0)
+                {
+                    Color targetColor = multiplierTextColors[colorIndex];
+                    multiplierText.enableVertexGradient = false;
+                    multiplierText.color = targetColor;
+                }
             }
 
-            // Show/hide multiplier container based on whether we have a multiplier > x1
+            // Always show multiplier container (don't hide it)
             if (multiplierContainer != null)
             {
-                multiplierContainer.SetActive(_consecutiveEggs > 0);
+                multiplierContainer.SetActive(true);
             }
         }
 
         /// <summary>
-        /// Get the multiplier value for display (x1, x2, x4)
+        /// Get the multiplier value for display (x1, x2, x3, x4)
         /// </summary>
         private int GetDisplayMultiplier()
         {
-            if (_consecutiveEggs == 0) return 1;
-            if (_consecutiveEggs == 1) return 2;
-            return 4; // x4 is the max displayed, even though internal value can be higher
+            // x1 at 0 consecutive, x2 at 1, x3 at 2, x4 at 3+
+            return Mathf.Min(_consecutiveEggs + 1, 4);
         }
 
         private void PulseScoreText()

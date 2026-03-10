@@ -8,7 +8,6 @@ using _Scripts.Core;
 /// </summary>
 public class AudioSpectrumVisualizer : MonoBehaviour
 {
-
     [Header("Audio Analysis")]
     [Tooltip("Number of spectrum samples (must be power of 2: 64, 128, 256, 512, 1024)")]
     [SerializeField] private int spectrumSamples = 512;
@@ -261,7 +260,7 @@ public class AudioSpectrumVisualizer : MonoBehaviour
         else
         {
             // Get spectrum data from the active audio source
-            activeAudioSource.GetSpectrumData(spectrumData, 0, fftWindow);
+            GetSpectrumDataCrossPlatform();
             CalculateBarHeights();
 
             if (debugMode && Time.frameCount % 60 == 0)
@@ -301,6 +300,12 @@ public class AudioSpectrumVisualizer : MonoBehaviour
             // Get the currently active audio source from SoundController
             activeAudioSource = soundController.GetActiveAudioSource();
         }
+    }
+
+    private void GetSpectrumDataCrossPlatform()
+    {
+        // Use Unity's native spectrum analysis
+        activeAudioSource.GetSpectrumData(spectrumData, 0, fftWindow);
     }
 
     private void CalculateBarHeights()

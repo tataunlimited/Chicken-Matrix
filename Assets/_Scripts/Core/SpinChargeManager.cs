@@ -13,7 +13,7 @@ namespace _Scripts.Core
 
         [Header("Charge Settings")]
         [Tooltip("Base fill percentage per detection (at 0 stored spins)")]
-        [SerializeField] private float baseChargePerDetection = 0.5f;
+        [SerializeField] private float baseChargePerDetection = 0.10f;
 
         [Header("Animation Settings")]
         [Tooltip("Duration to animate each particle's charge increment")]
@@ -83,7 +83,7 @@ namespace _Scripts.Core
         {
             _currentCharge += chargeAmount;
             _targetCharge = _currentCharge;
-            Debug.Log($"[SpinChargeManager] OnParticleConverged: +{chargeAmount:F4}, total now: {_currentCharge:F4}, storedSpins: {_storedSpins}");
+            //Debug.Log($"[SpinChargeManager] OnParticleConverged: +{chargeAmount:F4}, total now: {_currentCharge:F4}, storedSpins: {_storedSpins}");
 
             // Check if bar is full
             if (_currentCharge >= 1f)

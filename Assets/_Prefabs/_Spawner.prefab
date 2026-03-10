@@ -1,0 +1,129 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &385513833250201974
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4694287457928603905}
+  - component: {fileID: 1873948736275706709}
+  m_Layer: 0
+  m_Name: _Spawner
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4694287457928603905
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 385513833250201974}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1873948736275706709
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 385513833250201974}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 94efea5d33cb4504aa83a9047fdaf8eb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::_Scripts.Core.EnemySpawner
+  spawnRadius: 4.5
+  friendlyPrefab: {fileID: -8482258593475133777, guid: 4552d10b45833c5489e796aa124b4555, type: 3}
+  enemyPrefab: {fileID: 1281215200074824618, guid: ee210d60832e38248b56b648f5bfa20b, type: 3}
+  neutralPrefab: {fileID: 4687717020957239453, guid: 043b79728088ed141aefddba95dcbbf0, type: 3}
+  stepSize: 1
+  offset: 0.5
+  maxStep: 4
+  revealSortingOrder: 1200
+  clusterAngleSpacing: 24.08
+  allyTutorialIndicatorPrefab: {fileID: 7226417324489404277, guid: 7197960bfc0b0ae49a3c61c407dba19e, type: 3}
+  enemyTutorialIndicatorPrefab: {fileID: 3648635730674075360, guid: 174ed52eedb5dbe44bdfe8cf570af04c, type: 3}
+  neutralTutorialIndicatorPrefab: {fileID: 601916587480741448, guid: e369b8b57df4b62479a9c367ccdabb0e, type: 3}
+  sectionConfigs:
+  - spawnCount: 8
+    entityPattern: 0
+    customPattern: 
+    neutralSpawnChance: 0
+    maxClusterSize: 2
+    spawnEveryInterval: 0
+    spawnIntervals: 
+  - spawnCount: 8
+    entityPattern: 1
+    customPattern: 
+    neutralSpawnChance: 0
+    maxClusterSize: 1
+    spawnEveryInterval: 0
+    spawnIntervals: 
+  - spawnCount: 12
+    entityPattern: 5
+    customPattern: 
+    neutralSpawnChance: 0
+    maxClusterSize: 1
+    spawnEveryInterval: 0
+    spawnIntervals: 
+  - spawnCount: 12
+    entityPattern: 2
+    customPattern: 
+    neutralSpawnChance: 0
+    maxClusterSize: 2
+    spawnEveryInterval: 0
+    spawnIntervals: 
+  - spawnCount: 16
+    entityPattern: 2
+    customPattern: 
+    neutralSpawnChance: 0.503
+    maxClusterSize: 1
+    spawnEveryInterval: 0
+    spawnIntervals: 
+  - spawnCount: 16
+    entityPattern: 5
+    customPattern: 
+    neutralSpawnChance: 0
+    maxClusterSize: 5
+    spawnEveryInterval: 1
+    spawnIntervals: 
+  - spawnCount: 20
+    entityPattern: 3
+    customPattern: 
+    neutralSpawnChance: 0.253
+    maxClusterSize: 3
+    spawnEveryInterval: 0
+    spawnIntervals: 
+  - spawnCount: 20
+    entityPattern: 4
+    customPattern: 
+    neutralSpawnChance: 0.513
+    maxClusterSize: 3
+    spawnEveryInterval: 0
+    spawnIntervals: 
+  - spawnCount: 28
+    entityPattern: 7
+    customPattern: 
+    neutralSpawnChance: 0.505
+    maxClusterSize: 2
+    spawnEveryInterval: 0
+    spawnIntervals: 
+  - spawnCount: 32
+    entityPattern: 7
+    customPattern: 
+    neutralSpawnChance: 1
+    maxClusterSize: 5
+    spawnEveryInterval: 1
+    spawnIntervals: 
